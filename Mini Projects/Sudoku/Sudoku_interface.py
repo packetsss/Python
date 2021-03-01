@@ -3,8 +3,8 @@ import json
 import ast
 class interface:
 
-    def __init__(self, solution=False, shuffle=False):
-        self.shuffle = shuffle
+    def __init__(self, solution=False, random=False):
+        self.shuffle = random
         self.solution = solution
         self.base = 3
         self.side = self.base * self.base
@@ -36,7 +36,7 @@ class interface:
             board1 = [[nums[self.pattern(r, c)] for c in cols] for r in rows]
 
             squares = self.side * self.side
-            empties = squares * 2 // 4
+            empties = int(squares * (2 / 5))
             for p in sample(range(squares), empties):
                 board[p // self.side][p % self.side] = 0
 
@@ -49,6 +49,7 @@ class interface:
                 return board1
             else:
                 return board
+
 
     def expandLine(self, line):
         return line[0] + line[5:9].join([line[1:5] * (self.base - 1)] * self.base) + line[9:13]
