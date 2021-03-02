@@ -1,6 +1,7 @@
 from random import sample
-import json
 import ast
+
+
 class interface:
 
     def __init__(self, solution=False, random=False):
@@ -14,10 +15,13 @@ class interface:
 
     def foundation(self):
         if not self.shuffle:
-            with open("puzzle.txt") as f:
+            with open("puzzle1.txt") as f:
                 for line in f:
-                    pass
-                last_line = line
+                    if len(line) == 1:
+                        last_line = line
+
+                else:
+                    last_line = line
             a = ast.literal_eval(last_line)
             if not self.solution:
                 return a["puzzle"]
@@ -49,7 +53,6 @@ class interface:
                 return board1
             else:
                 return board
-
 
     def expandLine(self, line):
         return line[0] + line[5:9].join([line[1:5] * (self.base - 1)] * self.base) + line[9:13]
