@@ -17,11 +17,10 @@ class interface:
         if not self.shuffle:
             with open("puzzle1.txt") as f:
                 for line in f:
-                    if len(line) == 1:
-                        last_line = line
-
-                else:
+                    if len(line) < 10:
+                        break
                     last_line = line
+
             a = ast.literal_eval(last_line)
             if not self.solution:
                 return a["puzzle"]

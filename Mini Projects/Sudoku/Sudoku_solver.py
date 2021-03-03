@@ -210,10 +210,10 @@ class solve:
                         length = len(str(p[ii, jj]))
             return length
 
-        # l = minimum_length(self.puzzle1)
+        l = minimum_length(self.puzzle1)
         for i in range(9):
             for j in range(9):
-                if len(str(self.puzzle1[i, j])) > 1:
+                if l == len(str(self.puzzle1[i, j])) > 1:
                     return i, j
 
         return False
@@ -222,17 +222,20 @@ class solve:
         p = deepcopy(self.puzzle1)
         self.attempts += 1
         if not self.out():
-            return True
+            if sum(sum(self.puzzle1)) == 405:
+                return True
+            else:
+                return False
         else:
             i, j = self.out()
 
-        for k in [int(k) for k in str(self.puzzle1[i, j])]:
+        for k in [int(k) for k in str(p[i, j])]:
             print(f"Now inserting \"{k}\" at ({i}, {j})")
             self.puzzle1[i, j] = k
             print(f"Puzzle after Insert: \n{self.puzzle1}")
 
-            if not self.init(self.puzzle1) or not self.unique(self.puzzle1) \
-                    or not self.elimination(self.puzzle1) or not self.check(self.puzzle1):
+            if not self.init(self.puzzle1) or not self.unique(self.puzzle1) or not self.elimination(self.puzzle1) \
+                    or not self.check(self.puzzle1):
                 self.puzzle1 = deepcopy(p)
                 print("Return to previous puzzle version\n", self.puzzle1)
                 continue
@@ -244,7 +247,6 @@ class solve:
                     return True
                 else:
                     self.puzzle1 = deepcopy(p)
-        self.puzzle1 = deepcopy(p)
         print("Back Tracking")
         print(f"i: {i} j: {j}")
         return False
