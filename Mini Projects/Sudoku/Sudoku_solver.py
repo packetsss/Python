@@ -48,50 +48,50 @@ class solve:
                     puz[i, j] = int(l)
                     l = ""
 
-    def unique(self):
+    def unique(self, p):
         for i in range(9):
             for j in range(9):
-                if len(str(self.puzzle[i, j])) > 1:
-                    for k in str(self.puzzle[i, j]):
-                        row = self.puzzle[i, :]
-                        cln = self.puzzle[:, j]
+                if len(str(p[i, j])) > 1:
+                    for k in str(p[i, j]):
+                        row = p[i, :]
+                        cln = p[:, j]
                         ii, jj = self.mn_index(i, j)
 
                         if (str("".join(map(str, row))).count(k) == 1 or str("".join(map(str, cln))).count(k) == 1
-                            or str("".join(map(str, self.mini_nine(self.puzzle)[ii, :]))).count(k) == 1) \
-                                and len(str(self.puzzle[i, j])) > 1:
-                            self.puzzle[i, :] = [int(i) for i in
-                                                 [s.replace(k, '') for s in list(map(str, row))]]
-                            self.puzzle[:, j] = [int(i) for i in
-                                                 [s.replace(k, '') for s in list(map(str, cln))]]
+                            or str("".join(map(str, self.mini_nine(p)[ii, :]))).count(k) == 1) \
+                                and len(str(p[i, j])) > 1:
+                            p[i, :] = [int(i) for i in
+                                       [s.replace(k, '') for s in list(map(str, row))]]
+                            p[:, j] = [int(i) for i in
+                                       [s.replace(k, '') for s in list(map(str, cln))]]
 
-                            self.puzzle[i, j] = int(k)
-                            self.mini_nine(self.puzzle)
+                            p[i, j] = int(k)
+                            self.mini_nine(p)
                             self.changes += 1
                 else:
-                    k = str(self.puzzle[i, j])
+                    k = str(p[i, j])
                     ii, jj = self.mn_index(i, j)
 
-                    if str("".join(map(str, self.puzzle[i, :]))).count(k) > 1:
+                    if str("".join(map(str, p[i, :]))).count(k) > 1:
                         ll = []
-                        for s in self.puzzle[i, :]:
+                        for s in p[i, :]:
                             s = str(s)
                             if s != k:
                                 s = s.replace(k, '')
                             ll.append(s)
-                        self.puzzle[i, :] = np.array([int(i) for i in ll])
+                        p[i, :] = np.array([int(i) for i in ll])
 
-                    if str("".join(map(str, self.puzzle[:, j]))).count(k) > 1:
+                    if str("".join(map(str, p[:, j]))).count(k) > 1:
                         ll = []
-                        for s in self.puzzle[:, j]:
+                        for s in p[:, j]:
                             s = str(s)
                             if s != k:
                                 s = s.replace(k, '')
                             ll.append(s)
-                        self.puzzle[:, j] = np.array([int(i) for i in ll])
+                        p[:, j] = np.array([int(i) for i in ll])
 
-                    self.mini_nine(self.puzzle)
-                    if str("".join(map(str, self.mini_nine(self.puzzle)[ii, :]))).count(k) > 1:
+                    self.mini_nine(p)
+                    if str("".join(map(str, self.mini_nine(p)[ii, :]))).count(k) > 1:
                         for s in range(3):
                             for ss in range(3):
                                 if len(str(self.mn_index_block(i, j)[s, ss])) > 1 \
@@ -177,7 +177,7 @@ class solve:
 
     def check(self):
         l = []
-        self.mini_nine(self.puzzle)
+
         for i in range(9):
             a = [i for i in self.puzzle[i, :] if len(str(i)) == 1]
             l.append(sorted(list(set(a))) == sorted(a))
@@ -187,7 +187,7 @@ class solve:
 
             a = [i for i in self.mini_nine(self.puzzle)[i, :] if len(str(i)) == 1]
             l.append(sorted(list(set(a))) == sorted(a))
-        # print(l)
+
         return all(l)
 
     def check_v2(self, i, j, k):
@@ -198,34 +198,8 @@ class solve:
             return False
         if k in self.mini_nine(self.puzzle)[ii, :]:
             return False
-        print(list(self.puzzle))
+        print([list(j) for j in self.puzzle])
         return True
-        # self.puzzle[i, j] = k
-        # self.mini_nine()
-        # for i in range(9):
-        #     self.mini_nine()
-        #     if len([i for i in self.puzzle[i, :] if i != 0]) != len(set([i for i in self.puzzle[i, :] if i != 0])):
-        #         #print(list([i for i in self.puzzle[i, :]]), list(set([i for i in self.puzzle[i, :]])))
-        #         self.puzzle[i, j] = 0
-        #
-        #         return False
-        #
-        #     if len([i for i in self.puzzle[:, i] if i != 0]) != len(set([i for i in self.puzzle[:, i] if i != 0])):
-        #         self.puzzle[i, j] = 0
-        #         #print(list([i for i in self.puzzle[:, i]]), list(set([i for i in self.puzzle[:, i]])))
-        #
-        #         return False
-        #
-        #     if len([i for i in self.mini_nine()[i, :] if i != 0]) != len(
-        #             set([i for i in self.mini_nine()[i, :] if i != 0])):
-        #         # print(1)
-        #         # print(list([i for i in self.mini_nine()[i, :]]), list(set([i for i in self.mini_nine()[i, :]])))
-        #         # print("\n")
-        #         self.puzzle[i, j] = 0
-        #         return False
-        # self.puzzle[i, j] = 0
-        # print(self.puzzle)
-        # return True
 
     def out(self):
         for i in range(9):
@@ -235,32 +209,33 @@ class solve:
 
         return False
 
-    def try_v2(self):
+    def try_v2(self, p):
 
         self.difficulty += 1
         if not self.out():
             return True
         else:
             i, j = self.out()
-        #print([k for k in str(self.puzzle1[i, j])])
+
         for k in [int(k) for k in str(self.puzzle1[i, j])]:
             if self.check_v2(i, j, k):
 
-                self.puzzle[i, j] = k
-                if self.try_v2():
+                p[i, j] = k
+                if self.try_v2(p):
                     return True
-                self.puzzle[i, j] = 0
+
+                p[i, j] = 0
         return False
 
     def ai(self):
         start = timer()
         self.init(self.puzzle1)
-        print(self.puzzle1)
+        self.unique(self.puzzle1)
+        self.try_v2(self.puzzle)
 
-        self.try_v2()
-        puzzle1 = deepcopy(self.puzzle)
-        puzzle2 = deepcopy(self.puzzle)
-        ct = 0
+        # puzzle1 = deepcopy(self.puzzle)
+        # puzzle2 = deepcopy(self.puzzle)
+        # ct = 0
 
         # while self.difficulty < 50:
         #     print(self.puzzle, "\n")
@@ -306,7 +281,7 @@ class solve:
         #         break
         #
         # if not self.check():
-        #     print(f"\n\nFalied\n\n")
+        #     print(f"\n\nFailed\n\n")
         end = timer()
 
         return self.puzzle, self.difficulty, end - start
