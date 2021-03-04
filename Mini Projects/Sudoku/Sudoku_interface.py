@@ -1,4 +1,5 @@
 from random import sample
+import random
 import ast
 
 
@@ -27,31 +28,46 @@ class interface:
             else:
                 return a["solution"]
         else:
-            def shuffle(s):
-                return sample(s, len(s))
-
-            rBase = range(self.base)
-            rows = [g * self.base + r for g in shuffle(rBase) for r in shuffle(rBase)]
-            cols = [g * self.base + c for g in shuffle(rBase) for c in shuffle(rBase)]
-            nums = shuffle(range(1, self.base * self.base + 1))
-
-            board = [[nums[self.pattern(r, c)] for c in cols] for r in rows]
-            board1 = [[nums[self.pattern(r, c)] for c in cols] for r in rows]
-
-            squares = self.side * self.side
-            empties = int(squares * (2 / 5))
-            for p in sample(range(squares), empties):
-                board[p // self.side][p % self.side] = 0
-
-            with open("puzzle.txt", "a") as f:
-                d = {"puzzle": board,
-                     "solution": board1}
-                print(d, file=f)
-
-            if self.solution:
-                return board1
+            with open("puzzle1.txt") as f:
+                ct = 0
+                for l in f:
+                    ct += 1
+                rand = random.randint(1, ct)
+            with open("puzzle1.txt") as f:
+                for i, line in enumerate(f):
+                    if i == rand + 1:
+                        l = line
+                        break
+            a = ast.literal_eval(l)
+            if not self.solution:
+                return a["puzzle"]
             else:
-                return board
+                return a["solution"]
+            # def shuffle(s):
+            #     return sample(s, len(s))
+            #
+            # rBase = range(self.base)
+            # rows = [g * self.base + r for g in shuffle(rBase) for r in shuffle(rBase)]
+            # cols = [g * self.base + c for g in shuffle(rBase) for c in shuffle(rBase)]
+            # nums = shuffle(range(1, self.base * self.base + 1))
+            #
+            # board = [[nums[self.pattern(r, c)] for c in cols] for r in rows]
+            # board1 = [[nums[self.pattern(r, c)] for c in cols] for r in rows]
+            #
+            # squares = self.side * self.side
+            # empties = int(squares * (2 / 5))
+            # for p in sample(range(squares), empties):
+            #     board[p // self.side][p % self.side] = 0
+            #
+            # with open("puzzle.txt", "a") as f:
+            #     d = {"puzzle": board,
+            #          "solution": board1}
+            #     print(d, file=f)
+            #
+            # if self.solution:
+            #     return board1
+            # else:
+            #     return board
 
     def expandLine(self, line):
         return line[0] + line[5:9].join([line[1:5] * (self.base - 1)] * self.base) + line[9:13]

@@ -5,6 +5,7 @@ import random
 from copy import deepcopy
 import sys
 
+
 class solve:
     def __init__(self, p):
         self.puzzle = np.array(p)
@@ -14,7 +15,7 @@ class solve:
     @staticmethod
     def mini_nine(puzzle):
         return np.array([list(np.reshape(puzzle[i:i + 3, j:j + 3], (1, 9))[0])
-                        for i in range(0, 7, 3) for j in range(0, 7, 3)])
+                         for i in range(0, 7, 3) for j in range(0, 7, 3)])
 
     @staticmethod
     def mn_index(i, j):
@@ -77,7 +78,8 @@ class solve:
 
         return True
 
-    def elimination(self, p):
+    @staticmethod
+    def elimination(p):
         for i in range(9):
             for j in range(9):
                 if len(str(p[i, j])) > 1:

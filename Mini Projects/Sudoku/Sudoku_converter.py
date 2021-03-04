@@ -1,4 +1,3 @@
-import numpy as np
 
 d = {}
 with open("User_data.txt", "r") as f:
