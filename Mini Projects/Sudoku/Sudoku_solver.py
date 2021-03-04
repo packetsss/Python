@@ -3,61 +3,54 @@ import numpy as np
 from timeit import default_timer as timer
 import random
 from copy import deepcopy
-
+import sys
 
 class solve:
     def __init__(self, p):
         self.puzzle = np.array(p)
         self.puzzle1 = np.array(p)
         self.attempts = 0
-        self.changes = 0
-        self.i = 0
-        self.j = 0
 
     @staticmethod
     def mini_nine(puzzle):
-        arr = np.array([list(np.reshape(puzzle[i:i + 3, j:j + 3], (1, 9))[0])
+        return np.array([list(np.reshape(puzzle[i:i + 3, j:j + 3], (1, 9))[0])
                         for i in range(0, 7, 3) for j in range(0, 7, 3)])
-        return arr
 
     @staticmethod
     def mn_index(i, j):
-        ii = (int(np.floor(i / 3)) * 3) + int(np.floor(j / 3))
-        jj = (i % 3) * 3 + (j % 3)
-
-        return ii, jj
+        return (int(np.floor(i / 3)) * 3) + int(np.floor(j / 3)), (i % 3) * 3 + (j % 3)
 
     def mn_index_block(self, i, j):
-        return self.puzzle[int(i / 3) * 3:int(i / 3) * 3 + 3, int(j / 3) * 3:int(j / 3) * 3 + 3]
+        return int(i / 3) * 3, int(i / 3) * 3 + 3, int(j / 3) * 3, int(j / 3) * 3 + 3
 
-    def init(self, puz):
-        p = deepcopy(puz)
+    def init(self, p):
+        p_copy = deepcopy(p)
         l = ""
         for i in range(9):
             for j in range(9):
 
-                if len(str(puz[i, j])) > 1:
-                    puz[i, j] = 0
+                if len(str(p[i, j])) > 1:
+                    p[i, j] = 0
 
-                row = puz[i, :]
-                cln = puz[:, j]
+                row = p[i, :]
+                cln = p[:, j]
                 ii, jj = self.mn_index(i, j)
                 boo = False
-                if puz[i, j] == 0:
+                if p[i, j] == 0:
                     for k in range(1, 10):
                         if k not in row and k not in cln \
                                 and k not in self.mini_nine(self.puzzle1)[ii, :]:
                             l += str(k)
                             boo = True
                     if not boo:
-                        self.puzzle1 = deepcopy(p)
+                        self.puzzle1 = deepcopy(p_copy)
                         self.mini_nine(self.puzzle1)
                         print(f"Failed at init")
                         return False
                     self.mini_nine(self.puzzle1)
-                    puz[i, j] = int(l)
+                    p[i, j] = int(l)
                     l = ""
-        self.puzzle1 = deepcopy(puz)
+        self.puzzle1 = deepcopy(p)
         return True
 
     def unique(self, p):
@@ -73,18 +66,15 @@ class solve:
                             or str("".join(map(str, self.mini_nine(p)[ii, :]))).count(k) == 1) \
                                 and len(str(p[i, j])) > 1:
                             try:
-                                p[i, :] = [int(i) for i in
-                                           [s.replace(k, '') for s in list(map(str, row))]]
+                                p[i, :] = [int(s.replace(k, '')) for s in list(map(str, row))]
 
-                                p[:, j] = [int(i) for i in
-                                           [s.replace(k, '') for s in list(map(str, cln))]]
+                                p[:, j] = [int(s.replace(k, '')) for s in list(map(str, cln))]
                             except ValueError:
                                 print(f"Failed at unique\ni: {i}, j: {j}")
                                 return False
 
                             p[i, j] = int(k)
-                            self.mini_nine(p)
-                            self.changes += 1
+
         return True
 
     def elimination(self, p):
@@ -97,8 +87,7 @@ class solve:
                         if len(str(p[i, :][k])) < 2 or k == j:
                             continue
 
-                        if set(map(int, str(str(p[i, :][k])))). \
-                                issubset(set(map(int, str(p[i, j])))):
+                        if set(str(p[i, :][k])).issubset(set(str(p[i, j]))):
                             l.append(str(p[i, :][k]))
 
                         if 1 < len(l) == len(max(l, key=len)):
@@ -120,8 +109,7 @@ class solve:
                         if len(str(p[:, j][kk])) < 2 or kk == i:
                             continue
 
-                        if set(map(int, str(str(p[:, j][kk])))). \
-                                issubset(set(map(int, str(p[i, j])))):
+                        if set(str(p[:, j][kk])).issubset(set(str(p[i, j]))):
                             l.append(str(p[:, j][kk]))
 
                         if 1 < len(l) == len(max(l, key=len)):
@@ -138,42 +126,52 @@ class solve:
                             except ValueError:
                                 return False
 
-                    l = []
-                    for s in range(3):
-                        for ss in range(3):
-                            if len(str(self.mn_index_block(i, j)[s, ss])) < 2:
-                                continue
-
-                            if set(map(int, str(str(self.mn_index_block(i, j)[s, ss])))). \
-                                    issubset(set(map(int, str(self.puzzle[i, j])))):
-                                l.append(str(self.mn_index_block(i, j)[s, ss]))
-
-                            if 1 < len(l) == len(max(l, key=len)):
-
-                                for q1 in range(3):
-                                    for q2 in range(3):
-                                        qq2 = str(self.mn_index_block(i, j)[q1, q2])
-
-                                        for q3 in max(l, key=len):
-                                            if qq2 not in l:
-                                                qq2 = int(str(qq2).replace(q3, ''))
-                                        self.mn_index_block(i, j)[q1, q2] = qq2
+                    # l = []
+                    # for s in range(3):
+                    #     for ss in range(3):
+                    #         a, a3, b, b3 = self.mn_index_block(i, j)
+                    #         if len(str(self.puzzle1[a:a3, b:b3][s, ss])) < 2:
+                    #             continue
+                    #
+                    #         if set(str(self.puzzle1[a:a3, b:b3][s, ss])).issubset(set(str(self.puzzle1[i, j]))):
+                    #             # self.puzzle needs to be replaced
+                    #             l.append(str(self.puzzle1[a:a3, b:b3][s, ss]))
+                    #
+                    #         if 1 < len(l) == len(max(l, key=len)):
+                    #
+                    #             for q1 in range(3):
+                    #                 for q2 in range(3):
+                    #                     qq2 = str(self.puzzle1[a:a3, b:b3][q1, q2])
+                    #                     if qq2 not in l:
+                    #                         for q3 in max(l, key=len):
+                    #                             try:
+                    #                                 qq2 = int(str(qq2).replace(q3, ''))
+                    #                             except ValueError:
+                    #                                 print(l)
+                    #                                 print(self.puzzle1[a:a3, b:b3])
+                    #                                 print(f"Failed at eliminate mn_nine")
+                    #                                 print(f"q1: {q1} || q2: {q2} || value: {
+                    #                                       self.puzzle1[a:a3, b:b3][q1, q2]}")
+                    #                                 print(f"{self.puzzle1}\ni: {i} || j: {j}
+                    #                                       || qq2: {qq2} || q3: {q3}")
+                    #                                 sys.exit()
+                    #                                 return False
+                    #                         self.puzzle1[a:a3, b:b3][q1, q2] = qq2
         return True
 
     def try_insert(self, length=2):
         for i in range(9):
             for j in range(9):
-                if len(str(self.puzzle[i, j])) == length:
-                    # print(random.choice([int(i) for i in str(self.puzzle[i, j])]))
-                    self.puzzle[i, j] = random.choice([int(i) for i in str(self.puzzle[i, j])])
+                if len(str(self.puzzle1[i, j])) == length:
+                    # print(random.choice([int(i) for i in str(self.puzzle1[i, j])]))
+                    self.puzzle1[i, j] = random.choice([int(i) for i in str(self.puzzle1[i, j])])
                     return None
 
     def check(self, p):
         for i in range(9):
             a = [i for i in p[i, :] if len(str(i)) == 1]
             if sorted(list(set(a))) != sorted(a):
-                print("Failed at check: ROW")
-                print(self.puzzle1)
+                print(f"Failed at check: ROW {i}")
                 return False
 
             b = [i for i in p[:, i] if len(str(i)) == 1]
@@ -229,7 +227,7 @@ class solve:
         else:
             i, j = self.out()
 
-        for k in [int(k) for k in str(p[i, j])]:
+        for k in [int(k) for k in str(self.puzzle1[i, j])]:
             print(f"Now inserting \"{k}\" at ({i}, {j})")
             self.puzzle1[i, j] = k
             print(f"Puzzle after Insert: \n{self.puzzle1}")
@@ -254,15 +252,11 @@ class solve:
     def ai(self):
         start = timer()
         self.init(self.puzzle1)
-        self.unique(self.puzzle1)
-        self.elimination(self.puzzle1)
         self.try_v2()
-
+        print(self.puzzle)
         if not self.check(self.puzzle1) or sum(sum(self.puzzle1)) != 405:
-            print(sum(sum(self.puzzle1)))
             print(f"\nSolving Failed!\n")
         else:
-            print(sum(sum(self.puzzle1)))
             print("\nSolving Success!\n")
         end = timer()
 
@@ -272,9 +266,8 @@ class solve:
 def main():
     a, d, time = solve(ss.interface().foundation()).ai()
     print(f"Puzzle:\n{np.array(ss.interface().foundation())}")
-    print(f"Time consumed: {round(time, 5)}\nAttempts: {d}\nSolver:\n{a}\n")
-    # print(f"Solution:\n{np.array(ss.interface(solution=True).foundation())}")
-    solve(ss.interface().print_board(a.tolist()))
+    print(f"Time consumed: {round(time, 5)}\nAttempts: {d}\nSolver:\n{a}")
+    # solve(ss.interface().print_board(a.tolist()))
 
 
 if "__main__" == __name__:
