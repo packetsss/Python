@@ -70,8 +70,10 @@ class solve:
     @staticmethod
     def unique_mod(p):
         for i in range(9):
+            row = "".join(map(str, p[i, :]))
+            col = "".join(map(str, p[:, i]))
             for num in range(1, 10):
-                row = "".join(map(str, p[i, :]))
+
                 if row.count(str(num)) == 1:
                     for j in range(9):
                         if str(num) in str(p[i, j]):
@@ -82,7 +84,7 @@ class solve:
                             p[i, j] = num
                             break
 
-                col = "".join(map(str, p[:, i]))
+
                 if col.count(str(num)) == 1:
                     for j in range(9):
                         if str(num) in str(p[j, i]):
