@@ -84,7 +84,6 @@ class solve:
                             p[i, j] = num
                             break
 
-
                 if col.count(str(num)) == 1:
                     for j in range(9):
                         if str(num) in str(p[j, i]):
@@ -225,7 +224,7 @@ class solve:
             print(f"Now inserting \"{k}\" | ({i}, {j})")
             self.puzzle[i, j] = k
 
-            if not self.init(self.puzzle) or not self.unique(self.puzzle)  \
+            if not self.init(self.puzzle) or not self.unique(self.puzzle) \
                     or not self.elimination(self.puzzle) or not self.check(self.puzzle):
                 self.puzzle = deepcopy(p)
                 continue
