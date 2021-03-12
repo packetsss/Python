@@ -1,8 +1,6 @@
 import pygame as pg
 from queue import PriorityQueue
 import sys
-from timeit import default_timer as timeit
-import numpy as np
 
 
 WIDTH = 800
@@ -197,14 +195,12 @@ def algorithm(win, grid, start, end):
         '''current.display_distance(win, f)'''
 
         if current != start:
-            a = came_from[current]
-            a.make_closed()
-            a.draw(win)
+            last_node = came_from[current]
+            last_node.make_closed()
+            last_node.draw(win)
 
+        # pg.time.Clock().tick(1000)
 
-            # current.draw(win)
-
-        pg.time.Clock().tick(1000)
     return "Cannot find path"
 
 
@@ -289,7 +285,7 @@ def main(win, width):
                             spot.update_neighbors(grid)
 
                     f_score = algorithm(win, grid, start, end)
-                    print(f"\n{f_score}\n")
+                    print(f"{f_score}\n")
 
                 if event.key == pg.K_c:
                     start, end = None, None

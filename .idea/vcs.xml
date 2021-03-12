@@ -3,6 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Leetcode" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Mini Projects/A-Star Pathfinding" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Mini Projects/Image detector" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Mini Projects/Sudoku" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/pyj2001.github.io" vcs="Git" />
