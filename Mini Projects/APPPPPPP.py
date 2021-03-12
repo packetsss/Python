@@ -1,6 +1,4 @@
 from tkinter import *
-# import os
-# os.system("clear")
 
 
 def Me():
@@ -64,4 +62,4 @@ lmj_button.grid(row=2, column=0, padx=0, pady=0)
 
 root.mainloop()
 
-from Login_signup1 import *
+from Login_signup import *

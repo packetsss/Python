@@ -5,7 +5,7 @@ try:
 except ImportError:
     import Tkinter as tk  # python 2
     import tkFont as tkfont  # python 2
-import Login_signup1
+import Login_signup
 
 
 class SampleApp(tk.Tk):
@@ -63,17 +63,17 @@ class PageOne(tk.Frame):
     def signup(self):
         user_name = self.user_entry.get()
         print(user_name)
-        # with open("User_data.txt", "r") as f:
-        #     lines = f.readlines()
-        #     for line in lines:
-        #         while re.search(f"Username: {user_name};", line):
-        #             print("Username already taken, try a new one.")
-        #             user_name = input("Type in a new username: ")
-        #
-        # password = input("Type in a new password: ")
-        #
-        # with open("User_data.txt", "a") as f:
-        #     f.writelines("Username: " + user_name + ";\nPassword: " + password + ".\n\n")
+        with open("User_data.txt", "r") as f:
+            lines = f.readlines()
+            for line in lines:
+                while re.search(f"Username: {user_name};", line):
+                    print("Username already taken, try a new one.")
+                    user_name = input("Type in a new username: ")
+
+        password = input("Type in a new password: ")
+
+        with open("User_data.txt", "a") as f:
+            f.writelines("Username: " + user_name + ";\nPassword: " + password + ".\n\n")
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -93,7 +93,7 @@ class PageOne(tk.Frame):
 
         # label = tk.Label(self, text="This is page 1", font=controller.title_font)
         # label.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Sign up", command=signup())
+        button = tk.Button(self, text="Sign up", command=self.signup())
         button.pack()
 
 
