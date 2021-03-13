@@ -175,19 +175,22 @@ class solve:
                 return False
             return True
 
-    # def check_v2(self, i, j, k):
-    #
-    #     ii, jj = self.mn_index(i, j)
-    #     if k in self.puzzle[i, :]:
-    #         print("Failed at check_v2: row")
-    #         return False
-    #     if k in self.puzzle[:, j]:
-    #         print("Failed at check_v2: col")
-    #         return False
-    #     if k in self.mini_nine(self.puzzle)[ii, :]:
-    #         print("Failed at check_v2: mn_nine")
-    #         return False
-    #     return True
+    def check_v2(self, i, j, k):
+
+        if k in self.puzzle[i, :]:
+            #print(f"Failed at check_v2: {self.puzzle[i, :]}")
+            return False
+
+        if k in self.puzzle[:, j]:
+            #print(f"Failed at check_v2: {self.puzzle[:, j]}")
+            return False
+
+        a1, a3, b1, b3 = self.mn_index_block(i, j)
+        mn_puz = np.reshape(self.puzzle[a1:a3, b1:b3], (1, 9))[0]
+        if k in mn_puz:
+            #print(f"Failed at check_v2: mn_nine")
+            return False
+        return True
 
     def out(self):
         def minimum_length(p):
@@ -254,7 +257,7 @@ class solve:
 
 
 def main():
-    a, d, time = solve(ss.interface(random=True).foundation()).ai()
+    a, d, time = solve(ss.interface(random=False).foundation()).ai()
     # print(f"Puzzle:\n{np.array(ss.interface().foundation())}")
     print(f"Solver:\n{a}\n\nTime consumed: {round(time, 5)}\nAttempts: {d}")
     # solve(ss.interface().print_board(a.tolist()))

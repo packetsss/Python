@@ -13,7 +13,7 @@ class interface:
 
     def foundation(self):
         if not self.shuffle:
-            with open("puzzle1.txt") as f:
+            with open("src\\puzzle1.txt") as f:
                 for line in f:
                     if len(line) < 10:
                         break
@@ -25,12 +25,12 @@ class interface:
             else:
                 return a["solution"]
         else:
-            with open("puzzle1.txt") as f:
+            with open("src\\puzzle1.txt") as f:
                 ct = 0
                 for l in f:
                     ct += 1
                 rand = random.randint(1, ct)
-            with open("puzzle1.txt") as f:
+            with open("src\\puzzle1.txt") as f:
                 for i, line in enumerate(f):
                     if i == rand + 1:
                         l = line
