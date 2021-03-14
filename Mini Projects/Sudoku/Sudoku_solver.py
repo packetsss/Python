@@ -250,6 +250,7 @@ class solve:
 
         if not self.check(self.puzzle) or sum(sum(self.puzzle)) != 405:
             print(f"\nSolving Failed!\n".upper())
+            return False
         else:
             print("\nSolving Success!\n".upper())
         end = timer()

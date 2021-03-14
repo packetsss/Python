@@ -27,14 +27,14 @@ class create_button:
     def change_button(self, button):
         self.bt = button
 
-    def get_position(self):
-        return self.i, self.j
+    def get_board(self):
+        return self.board
 
     def get_button(self):
         return self.bt
 
-    def get_counter(self):
-        return self.ct
+    def update_board(self, board):
+        self.board = board
 
     def draw_button(self):
         self.bt.bind("<Enter>", lambda _: self.bt.configure(bg="light yellow"))
@@ -109,6 +109,7 @@ def create_button_list(dim, canvas, root, board):
 
 
 def func_buttons(canvas1, root, back_up, board, b_lst):
+
     def reset(prompt=True, shuffle=False):
         def change_event(e):
             nonlocal i, j
@@ -121,7 +122,6 @@ def func_buttons(canvas1, root, back_up, board, b_lst):
             nonlocal board, back_up_prev, back_up
             if shuffle:
                 back_up = np.array(interface(random=True).foundation())
-                print(back_up)
             board = deepcopy(back_up)
             back_up_prev = deepcopy(back_up)
 
@@ -130,6 +130,8 @@ def func_buttons(canvas1, root, back_up, board, b_lst):
             ai_btn.destroy()
             for i in range(9):
                 for j in range(9):
+                    if shuffle:
+                        b_lst[i][j].update_board(back_up)
                     num = str(board[i, j]) if board[i, j] != 0 else ''
                     if not num:
                         b_lst[i][j].get_button().configure(text="", bg="white",
@@ -147,10 +149,9 @@ def func_buttons(canvas1, root, back_up, board, b_lst):
 
     def hint(ai_activated=False):
         nonlocal board, back_up_prev
-        ai_back_up_prev = deepcopy(back_up_prev)
         if ai_activated:
-            if not solve(back_up_prev).init(back_up_prev) or not solve(back_up_prev).unique(back_up_prev) \
-                    or not solve(back_up_prev).elimination(back_up_prev):
+            if not solve(board).init(board) or not solve(board).unique(board) \
+                    or not solve(board).elimination(board):
                 messagebox.showerror("Puzzle solving error",
                                      "Sorry, error occurred during solving, resetting the puzzle...")
                 reset(prompt=False)
@@ -159,15 +160,18 @@ def func_buttons(canvas1, root, back_up, board, b_lst):
                 # update the buttons
                 for i in range(9):
                     for j in range(9):
-                        if len(str(back_up_prev[i, j])) > 1:
-                            back_up_prev[i, j] = 0
-                        elif back_up_prev[i, j] != 0 and ai_back_up_prev[i, j] != back_up_prev[i, j]:
-                            b_lst[i][j].get_button().configure(text=back_up_prev[i, j], command=NONE
+                        if len(str(board[i, j])) > 1:
+                            board[i, j] = 0
+                        elif board[i, j] != 0 and board[i, j] != back_up_prev[i, j] and \
+                                b_lst[i][j].get_button()["bg"] != "#EEA47F":
+                            b_lst[i][j].get_button().configure(text=board[i, j], command=NONE
                                                                , bg="#FFDDE2", activebackground="#FFDDE2")
                             b_lst[i][j].get_button().unbind("<Enter>")
                             b_lst[i][j].get_button().unbind("<Leave>")
-                if np.array_equal(ai_back_up_prev, back_up_prev):
+                if np.array_equal(board, back_up_prev):
                     messagebox.showinfo("No hints available", "Sorry, the current method can't give you any hint")
+                else:
+                    back_up_prev = deepcopy(board)
 
         else:
             if not solve(board).init(board) or not solve(board).unique(board) \
@@ -206,23 +210,29 @@ def func_buttons(canvas1, root, back_up, board, b_lst):
             reset(shuffle=True, prompt=False)
 
     def ai_mode():
-        nonlocal board, hint_bt, back_up_prev, ai_btn
+        nonlocal board, hint_bt, back_up_prev, ai_btn, solved_board
         ai_btn = Button(root, bd=0, command=ai_hint, text="Get a hint\nfrom SUPER AI", font=("Poplar Std", 15),
                         bg="#EEA47F", width=14, fg="#00539C")
         canvas1.create_window(20, 600, anchor="nw", window=ai_btn)
 
         back_up_prev = deepcopy(board)
 
-        board, _, _ = solve(board).ai()
-        hint_bt.configure(command=lambda: hint(ai_activated=True))
+        try:
+            solved_board, _, _ = solve(board).ai()
+            hint_bt.configure(command=lambda: hint(ai_activated=True))
+        except:
+            messagebox.showerror("Puzzle solving error",
+                                 "Sorry, error occurred during solving, resetting the puzzle...")
+            reset(prompt=False)
+            return None
 
     def ai_hint():
-        nonlocal back_up_prev
+        nonlocal board
         i, j = np.random.randint(1, 9), np.random.randint(1, 9)
 
         while back_up_prev[i, j] != 0:
             i, j = np.random.randint(1, 9), np.random.randint(1, 9)
-        back_up_prev[i, j] = board[i, j]
+        board[i, j] = solved_board[i, j]
 
         b_lst[i][j].get_button().configure(text=board[i, j], command=NONE
                                            , bg="#EEA47F", activebackground="#EEA47F")
@@ -230,6 +240,7 @@ def func_buttons(canvas1, root, back_up, board, b_lst):
         b_lst[i][j].get_button().unbind("<Leave>")
 
     # Buttons
+    solved_board = None
     back_up_prev = deepcopy(back_up)
 
     reset_bt = Button(root, bd=0, command=reset, text="Reset puzzle", font=("Poplar Std", 15), bg="#041E42",
