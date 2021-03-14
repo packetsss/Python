@@ -2,7 +2,6 @@ import Sudoku_interface as ss
 import numpy as np
 from timeit import default_timer as timer
 from copy import deepcopy
-import sys
 
 
 class solve:
@@ -258,7 +257,7 @@ class solve:
 
 
 def main():
-    a, d, time = solve(ss.interface(random=False).foundation()).ai()
+    a, d, time = solve(ss.interface(random=True).foundation()).ai()
     # print(f"Puzzle:\n{np.array(ss.interface().foundation())}")
     print(f"Solver:\n{a}\n\nTime consumed: {round(time, 5)}\nAttempts: {d}")
     # solve(ss.interface().print_board(a.tolist()))
