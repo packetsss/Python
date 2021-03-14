@@ -111,10 +111,6 @@ def create_button_list(dim, canvas, root, board):
 def func_buttons(canvas1, root, back_up, board, b_lst):
 
     def reset(prompt=True, shuffle=False):
-        def change_event(e):
-            nonlocal i, j
-            b_lst[i][j].get_button().configure(bg="light yellow")
-
         cond = False
         if prompt:
             cond = messagebox.askokcancel("Prompt reset", "Are you sure to reset the puzzle? You will lose everything!")
@@ -131,7 +127,7 @@ def func_buttons(canvas1, root, back_up, board, b_lst):
             for i in range(9):
                 for j in range(9):
                     if shuffle:
-                        b_lst[i][j].update_board(back_up)
+                        b_lst[i][j].update_board(board)
                     num = str(board[i, j]) if board[i, j] != 0 else ''
                     if not num:
                         b_lst[i][j].get_button().configure(text="", bg="white",
