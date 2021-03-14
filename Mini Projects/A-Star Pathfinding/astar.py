@@ -103,18 +103,18 @@ class Spot:
 
         #---Diagonal distance---#
 
-        # if (self.row > 0 and self.col > 0) and not grid[self.row - 1][self.col - 1].is_barrier():
-        #     self.neighbors.append(grid[self.row - 1][self.col - 1])
-        # # top-left
-        # if (self.row > 0 and self.col < self.total_rows - 1) and not grid[self.row - 1][self.col + 1].is_barrier():
-        #     self.neighbors.append(grid[self.row - 1][self.col + 1])
-        # # top-right
-        # if (self.row < self.total_rows - 1 and self.col > 0) and not grid[self.row + 1][self.col - 1].is_barrier():
-        #     self.neighbors.append(grid[self.row + 1][self.col - 1])
-        # # bot-left
-        # if (self.row < self.total_rows - 1 and self.col < self.total_rows - 1) \
-        #         and not grid[self.row + 1][self.col + 1].is_barrier():
-        #     self.neighbors.append(grid[self.row + 1][self.col + 1])
+        if (self.row > 0 and self.col > 0) and not grid[self.row - 1][self.col - 1].is_barrier():
+            self.neighbors.append(grid[self.row - 1][self.col - 1])
+        # top-left
+        if (self.row > 0 and self.col < self.total_rows - 1) and not grid[self.row - 1][self.col + 1].is_barrier():
+            self.neighbors.append(grid[self.row - 1][self.col + 1])
+        # top-right
+        if (self.row < self.total_rows - 1 and self.col > 0) and not grid[self.row + 1][self.col - 1].is_barrier():
+            self.neighbors.append(grid[self.row + 1][self.col - 1])
+        # bot-left
+        if (self.row < self.total_rows - 1 and self.col < self.total_rows - 1) \
+                and not grid[self.row + 1][self.col + 1].is_barrier():
+            self.neighbors.append(grid[self.row + 1][self.col + 1])
         # bot-right
 
     def __lt__(self, other):
@@ -199,7 +199,7 @@ def algorithm(win, grid, start, end):
             last_node.make_closed()
             last_node.draw(win)
 
-        pg.time.Clock().tick(1000)
+        pg.time.Clock().tick()
 
     return "Cannot find path"
 
