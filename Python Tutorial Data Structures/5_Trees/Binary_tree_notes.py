@@ -23,9 +23,10 @@
                 Start from deepest left node, then move to the right
 
             Post-order:     4 -> 2 -> 5 -> 6 -> 3 -> 7 -> 1
+                Start from left, then move to right, then move to root.
 
 
-        Breath-first search(BFS):
+        Breadth-first search(BFS):
             Level-order traversal:      1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
                 Using queue to enqueue(append first) and dequeue(pop last)
                 --> [1] (pop 1 || append leaves under 1)
