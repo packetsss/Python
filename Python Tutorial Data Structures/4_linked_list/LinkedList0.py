@@ -75,6 +75,7 @@ class LinkedList(object):
 
 
 myList = LinkedList()
+myList.add_front("aj")
 myList.add_front(5)
 myList.add_front(8)
 myList.add_front(12)
