@@ -62,3 +62,10 @@ start = timer()
 print(bestSum_topdown(60, [3, 6]))
 end = timer()
 print(f"Naive time: {end - start}")
+# O(m^2 *n)
+
+"""
+canSum --> Decision Problem
+howSum --> Combinatorics Problem
+bestSum --> Optimization Problem
+"""
