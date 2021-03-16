@@ -88,10 +88,9 @@ def canSum_botup(tar, nums):
     lst[0] = True
     for i in range(tar):
         if lst[i]:
-            nums = [num for num in nums if i + num <= tar]
-
             for num in nums:
-                lst[i + num] = True
+                if i + num <= tar:
+                    lst[i + num] = True
         if lst[-1]:
             return True
     return False
