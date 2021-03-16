@@ -33,10 +33,10 @@ start = timer()
 print(howSum(92, [6, 3]))
 end = timer()
 print(f"Naive time: {end - start}")
-# n --> tar, n --> lst length
+# m --> tar, n --> lst length
 # Time: O(n^m * m)
 
-def howSum_d(tar, nums, d=None):
+def howSun_topdown(tar, nums, d=None):
     if d is None:
         d = {}
     elif tar in d:
@@ -49,7 +49,7 @@ def howSum_d(tar, nums, d=None):
 
     for num in nums:
         rem = tar - num
-        rst = howSum_d(rem, nums, d)
+        rst = howSun_topdown(rem, nums, d)
         if rst is not None:
             d[tar] = rst + [num]
             # memorize it
@@ -59,7 +59,7 @@ def howSum_d(tar, nums, d=None):
 
 
 start = timer()
-print(howSum_d(300, [7, 14]))
+print(howSun_topdown(300, [7, 14, 15]))
 end = timer()
 print(f"Naive time: {end - start}")
 # Time: O(n * m^2)
