@@ -26,7 +26,7 @@ start = timer()
 print(canSum(91, [6, 3]))
 end = timer()
 print(f"Naive time: {end - start}")
-# very slow
+# Time: O(n^m)
 
 
 ### Memoized
@@ -52,7 +52,9 @@ start = timer()
 print(canSum_d(1121, [6, 7]))
 end = timer()
 print(f"Dynamic time: {end - start}")
-# slower
+# m --> tar, n --> length
+# Time: O(m * n)
+
 
 def canSum_d2(target, numbers, d=None):
     if d is None:
@@ -78,7 +80,8 @@ start = timer()
 print(canSum_d2(1121, [6, 7]))
 end = timer()
 print(f"Dynamic time: {end - start}")
-# fastest
+# m --> tar, n --> length
+# Time: O(m * n)
 
 
 ### Tabulation
@@ -89,8 +92,8 @@ def canSum_botup(tar, nums):
     for i in range(tar):
         if lst[i]:
             for num in nums:
-                if i + num <= tar:
-                    lst[i + num] = True
+
+                lst[i + num] = True
         if lst[-1]:
             return True
     return False
@@ -100,4 +103,5 @@ start = timer()
 print(canSum_botup(1121, [6, 7]))
 end = timer()
 print(f"Dynamic time: {end - start}")
+# Time: O(m * n)
 
