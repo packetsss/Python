@@ -86,9 +86,8 @@ print(f"Dynamic time: {end - start}")
 
 ### Tabulation
 def canSum_botup(tar, nums):
+    lst = [True, *[False] * tar]
 
-    lst = [False] * (tar + 1)
-    lst[0] = True
     for i in range(tar):
         if lst[i]:
             for num in nums:
