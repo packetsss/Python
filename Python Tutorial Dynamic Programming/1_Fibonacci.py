@@ -23,7 +23,7 @@ Bottom-Up Dynamic Programming:
         - Storing results of sub-problems from a bottom-up approach
         
         - Visualize the problem as a table
-        - Size the table based on inputs
+        - Size the table based on inputs (Usually off by 1)
         - Initialize table with default values(depends on the answer required)
         - Seed the trivial answer into the table
         - Iterate through the table
