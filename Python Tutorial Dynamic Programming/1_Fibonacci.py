@@ -7,7 +7,7 @@ Dynamic Programming:
     - Draw strategy FIRST!!!!
 
     Bottom-Up Dynamic Programming:
-        - Start by looking at the smallest possible sub-problem
+        - Start by looking at the smallest possible sub-problem then work the way up until reach the result
         - Use loop
 
         - Tabulation:
