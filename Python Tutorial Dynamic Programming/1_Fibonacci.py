@@ -21,6 +21,13 @@ Bottom-Up Dynamic Programming:
     
     - Tabulation: 
         - Storing results of sub-problems from a bottom-up approach
+        
+        - Visualize the problem as a table
+        - Size the table based on inputs
+        - Initialize table with default values(depends on the answer required)
+        - Seed the trivial answer into the table
+        - Iterate through the table
+        - Fill further positions based on current position
 
 Top-down Dynamic Programming:
     - First looks at the main problem and breaks it into smaller and smaller necessary sup-problems 
@@ -30,6 +37,15 @@ Top-down Dynamic Programming:
     - Memoization:
         - Storing sub-problem results in a top-down approach.
         - Use dictionary
+        
+        - Make it work
+            - Visualize the problem as a tree
+            - Implement the tree using recursion (brute force recursion)
+            - Test it
+        - Make it efficient
+            - Adding a dict(memo) object
+            - Add a base case to return dict values
+            - Store return values into the dict
 """
 
 hash_table = {}
@@ -50,7 +66,7 @@ end = timer()
 print(f"Top down time: {end - start}")
 # Way faster, O(n)
 
-
+# Tabulation
 def Fibonacci_bottomup(n):
     if n == 0:
         return 0
@@ -69,7 +85,24 @@ def Fibonacci_bottomup(n):
 
 
 start = timer()
-Fibonacci_bottomup(100)
+print(Fibonacci_bottomup(100))
 end = timer()
 print(f"Bottom up time: {end - start}")
 # Even Faster
+
+def Fibonacci_bottomup_1(n):
+    lst = [0] * (n + 1)
+    lst[1] = 1
+    for i in range(len(lst) - 1):
+        if i > n - 2:
+            lst[i + 1] += lst[i]
+        else:
+            lst[i + 1] += lst[i]
+            lst[i + 2] += lst[i]
+    return lst[n]
+
+
+start = timer()
+print(Fibonacci_bottomup_1(100))
+end = timer()
+print(f"Bottom up time: {end - start}")

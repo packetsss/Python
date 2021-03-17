@@ -91,3 +91,27 @@ print(grid_traveller_bottom_up(13, 100))
 end = timer()
 print(end - start)
 # 2x faster
+
+# best to use 0 for counting problems
+def grid_traveller_bottom_up_1(n, m):
+    table = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
+    # correct way to create a 2d array
+
+    table[1][1] = 1
+
+    # add the current value of i to it's right and bottom
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            cur = table[i][j]
+            if i < m:
+                table[i + 1][j] += cur
+            if j < n:
+                table[i][j + 1] += cur
+
+    return table[m][n]
+
+
+start = timer()
+print(grid_traveller_bottom_up_1(13, 100))
+end = timer()
+print(end - start)
