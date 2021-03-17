@@ -64,6 +64,7 @@ def Fibonacci_topdown(n):
         return hash_table[n]
     else:
         hash_table[n] = Fibonacci_topdown(n - 2) + Fibonacci_topdown(n - 1)
+        # calculate and store all values in n - 2, and then use (n - 3) + (n - 2) to calculate n - 1
         return hash_table[n]
 
 
