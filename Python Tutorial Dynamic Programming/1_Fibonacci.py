@@ -1,5 +1,45 @@
-from timeit import default_timer as timer
+"""
+Dynamic Programming:
+    - Notice any overlapping subproblems
+    - decide what is the trivially smartest input
+    - think recursively to use Memoization
+    - think iteratively to use Tabulation
+    - Draw strategy FIRST!!!!
 
+    Bottom-Up Dynamic Programming:
+        - Start by looking at the smallest possible sub-problem
+        - Use loop
+
+        - Tabulation:
+            - Storing results of sub-problems from a bottom-up approach
+
+            - Visualize the problem as a table
+            - Size the table based on inputs (Usually off by 1)
+            - Initialize table with default values(depends on the answer required)
+            - Seed the trivial answer into the table
+            - Iterate through the table
+            - Fill further positions based on current position
+
+    Top-down Dynamic Programming:
+        - First looks at the main problem and breaks it into smaller and smaller necessary sup-problems
+        until the base case is reached
+        - Use recursion
+
+        - Memoization:
+            - Storing sub-problem results in a top-down approach.
+            - Use dictionary
+
+            - Make it work
+                - Visualize the problem as a tree
+                - Implement the tree using recursion (brute force recursion)
+                - Test it
+            - Make it efficient
+                - Adding a dict(memo) object
+                - Add a base case to return dict values
+                - Store return values into the dict
+"""
+
+from timeit import default_timer as timer
 
 def Fibonacci(n):
     if n < 2:
@@ -14,39 +54,6 @@ end = timer()
 print(f"Naive time: {end - start}")
 # Slow O(2^n) complexity since there are 2 recursive calls, O(n) space complexity
 
-"""
-Bottom-Up Dynamic Programming:
-    - Start by looking at the smallest possible sub-problem
-    - Use loop
-    
-    - Tabulation: 
-        - Storing results of sub-problems from a bottom-up approach
-        
-        - Visualize the problem as a table
-        - Size the table based on inputs (Usually off by 1)
-        - Initialize table with default values(depends on the answer required)
-        - Seed the trivial answer into the table
-        - Iterate through the table
-        - Fill further positions based on current position
-
-Top-down Dynamic Programming:
-    - First looks at the main problem and breaks it into smaller and smaller necessary sup-problems 
-    until the base case is reached
-    - Use recursion
-    
-    - Memoization:
-        - Storing sub-problem results in a top-down approach.
-        - Use dictionary
-        
-        - Make it work
-            - Visualize the problem as a tree
-            - Implement the tree using recursion (brute force recursion)
-            - Test it
-        - Make it efficient
-            - Adding a dict(memo) object
-            - Add a base case to return dict values
-            - Store return values into the dict
-"""
 
 hash_table = {}
 def Fibonacci_topdown(n):
