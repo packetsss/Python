@@ -5,7 +5,7 @@ import sys
 class UI(QWidget):
     def __init__(self):
         super().__init__()
-        uic.loadUi("ui_files\\my_button.ui", self)
+        uic.loadUi("ui_files\\Button.ui", self)
 
         button = self.findChild(QPushButton, "pushButton")
         # find the named button
