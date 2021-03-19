@@ -1,3 +1,30 @@
+"""
+Stats:
+Time:
+    init method: 0.0013
+    unique method: 0.0076
+    elimination method: 0.0038
+
+
+
+Naive recursive method:
+Time consumed: 99.91675
+Attempts: 478556
+
+Naive recursive and Unique method:
+Time consumed: 55.27906
+Attempts: 251150
+
+Naive recursive and Unique and Elimination method:
+Time consumed: 53.99089
+Attempts: 251150
+# did not have affect
+
+Recursive implanted with Unique and Elimination method:
+Time consumed: 1.81004
+Attempts: 31
+"""
+
 import Sudoku_interface as ss
 import numpy as np
 from timeit import default_timer as timer
@@ -265,30 +292,3 @@ def main():
 
 if "__main__" == __name__:
     main()
-
-'''
-Stats:
-Time:
-    init method: 0.0013
-    unique method: 0.0076
-    elimination method: 0.0038
-    
-    
-
-Naive recursive method:
-Time consumed: 99.91675
-Attempts: 478556
-
-Naive recursive and Unique method:
-Time consumed: 55.27906
-Attempts: 251150
-
-Naive recursive and Unique and Elimination method:
-Time consumed: 53.99089
-Attempts: 251150
-# did not have affect
-
-Recursive implanted with Unique and Elimination method:
-Time consumed: 1.81004
-Attempts: 31
-'''
