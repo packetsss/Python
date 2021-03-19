@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>749</width>
+    <height>633</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>CHANGE</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTextEdit" name="textEdit"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="color">
+       <property name="text">
+        <string>Change Color</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="font">
+       <property name="text">
+        <string>Change Font</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
