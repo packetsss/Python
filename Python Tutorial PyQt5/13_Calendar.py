@@ -19,6 +19,7 @@ class Window(QDialog):
 
     def date(self):
         date_sel = self.calendar.selectedDate()
+
         string = str(date_sel.toPyDate())
         # convert to string
 

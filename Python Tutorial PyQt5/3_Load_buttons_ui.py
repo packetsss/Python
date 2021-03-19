@@ -25,5 +25,5 @@ app.exec_()
 
 # cd C:\Users\pyjpa\miniconda3\Scripts
 
-# python -m PyQt5.uic.pyuic -x [name].ui -o [name].py
+# python -m PyQt5.uic.pyuic -x printer.ui -o printer.py
 
