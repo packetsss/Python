@@ -1,10 +1,10 @@
 """
 Stats:
-Time:
+
+    Method Average Time:
     init method: 0.0013
     unique method: 0.0076
     elimination method: 0.0038
-
 
 
 Naive recursive method:
@@ -23,6 +23,10 @@ Attempts: 251150
 Recursive implanted with Unique and Elimination method:
 Time consumed: 1.81004
 Attempts: 31
+
+Recursive implanted with Init, Unique and Elimination method:
+Time consumed: 0.36783
+Attempts: 32
 """
 
 import Sudoku_interface as ss
