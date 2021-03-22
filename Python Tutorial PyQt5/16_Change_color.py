@@ -40,6 +40,7 @@ class Ui_Form(object):
 
     def color_dialog(self):
         color = QColorDialog.getColor()
+        print(color.name())
         self.textEdit.setTextColor(color)
 
     def font_dialog(self):

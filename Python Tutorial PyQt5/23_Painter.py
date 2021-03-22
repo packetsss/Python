@@ -24,7 +24,7 @@ class Window(QWidget):
         ellipse = QPainter(self)
         ellipse.setPen(QPen(Qt.black, 4, Qt.DashDotDotLine))
         ellipse.setBrush(QBrush(Qt.yellow, Qt.Dense2Pattern))
-        # Dense#Pattern is transparency
+        # Dense, Pattern is transparency
 
         ellipse.drawEllipse(100, 150, 400, 200)
 
