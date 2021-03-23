@@ -57,7 +57,7 @@
        <number>0</number>
       </property>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="vbox2">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -172,13 +172,13 @@
             <property name="font">
              <font>
               <family>Neue Haas Grotesk Text Pro</family>
-              <pointsize>16</pointsize>
+              <pointsize>28</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
             <property name="text">
-             <string>-10</string>
+             <string>-</string>
             </property>
            </widget>
           </item>
@@ -193,13 +193,13 @@
             <property name="font">
              <font>
               <family>Neue Haas Grotesk Text Pro</family>
-              <pointsize>16</pointsize>
+              <pointsize>28</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
             <property name="text">
-             <string>+10</string>
+             <string>+</string>
             </property>
            </widget>
           </item>

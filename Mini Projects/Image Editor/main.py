@@ -9,6 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from scripts import Images
 
+
 class Filter(QWidget):
     def __init__(self):
         super().__init__()
@@ -28,6 +29,7 @@ class Filter(QWidget):
         self.n_btn.setIcon(QIcon("icon/cross.png"))
         self.n_btn.setStyleSheet("QPushButton{border: 0px solid;}")
         self.n_btn.setIconSize(QSize(60, 60))
+
 
 class Adjust(QWidget):
     def __init__(self):
@@ -49,6 +51,7 @@ class Adjust(QWidget):
         self.n_btn.setIcon(QIcon("icon/cross.png"))
         self.n_btn.setStyleSheet("QPushButton{border: 0px solid;}")
         self.n_btn.setIconSize(QSize(60, 60))
+
 
 class Crop(QWidget):
     def __init__(self):
@@ -83,12 +86,14 @@ class Crop(QWidget):
         self.hflip.setStyleSheet("QPushButton{border: 0px solid;}")
         self.hflip.setIconSize(QSize(50, 50))
 
+
 class Brightness(QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi("ui\\brightness_btn.ui", self)
 
         self.frame = self.findChild(QFrame, "frame")
+        self.vbox2 = self.findChild(QVBoxLayout, "vbox2")
         self.y_btn = self.findChild(QPushButton, "y_btn")
         self.y_btn.setIcon(QIcon("icon/check.png"))
         self.y_btn.setStyleSheet("QPushButton{border: 0px solid;}")
@@ -103,10 +108,11 @@ class Brightness(QWidget):
         self.mten = self.findChild(QPushButton, "mten")
         self.mten.setStyleSheet("QPushButton{border: 0px solid;}")
 
+
 class ResizableRubberBand(QWidget):
-    def __init__(self, parent=None, img_class=None, update=None):
+    def __init__(self, parent=None, img_class=None, update=None, factorr=None):
         super(ResizableRubberBand, self).__init__(parent)
-        self.img_class, self.update = img_class, update
+        self.img_class, self.update, self.factorr = img_class, update, factorr
         self.draggable, self.mousePressPos, self.mouseMovePos = True, None, None
         self.left, self.right, self.top, self.bottom = None, None, None, None
         self.borderRadius = 0
@@ -141,14 +147,13 @@ class ResizableRubberBand(QWidget):
 
     def mousePressEvent(self, event):
         if self.draggable and event.button() == Qt.LeftButton:
-
             self.mousePressPos = event.globalPos()  # global
             self.mouseMovePos = event.globalPos() - self.pos()  # local
 
     def mouseMoveEvent(self, event):
         if self.draggable and event.buttons() & Qt.LeftButton:
-            if self.right <= self.img_class.img.shape[1] and self.bottom <= self.img_class.img.shape[0] \
-                    and self.left >= 0 and self.top >= 0:
+            if self.right <= int(self.img_class.img.shape[1] * self.factorr) and self.bottom <= \
+                    int(self.img_class.img.shape[0] * self.factorr) and self.left >= 0 and self.top >= 0:
                 globalPos = event.globalPos()
                 diff = globalPos - self.mouseMovePos
                 self.move(diff)  # move window
@@ -165,11 +170,11 @@ class ResizableRubberBand(QWidget):
         if self.left < 0:
             self.left = 0
             self.move(0, self.top)
-        if self.right > self.img_class.img.shape[1]:
-            self.left = self.img_class.img.shape[1] - self._band.width()
+        if self.right > int(self.img_class.img.shape[1] * self.factorr):
+            self.left = int(self.img_class.img.shape[1] * self.factorr) - self._band.width()
             self.move(self.left, self.top)
-        if self.bottom > self.img_class.img.shape[0]:
-            self.top = self.img_class.img.shape[0] - self._band.height()
+        if self.bottom > int(self.img_class.img.shape[0] * self.factorr):
+            self.top = int(self.img_class.img.shape[0] * self.factorr) - self._band.height()
             self.move(self.left, self.top)
         if self.top < 0:
             self.top = 0
@@ -232,9 +237,9 @@ class Main(QWidget):
         self._zoom = 0
 
         # misc
-        self.rotate_value = 0
-        self.brightness_value = 0
+        self.rotate_value, self.brightness_value, self.contrast_value, self.saturation_value = 0, 0, 1, 0
         self.flip = [False, False]
+        self.factorr = 1
 
     def update_img(self, movable=False):
         self.img = QPixmap(qimage2ndarray.array2qimage(cv2.cvtColor(self.img_class.img, cv2.COLOR_BGR2RGB)))
@@ -249,27 +254,27 @@ class Main(QWidget):
         def click_contrast():
             self.img_class.auto_contrast()
             self.update_img()
-            filter_frame.contrast_btn.clicked.disconnect(click_contrast)
+            filter_frame.contrast_btn.clicked.disconnect()
 
         def click_sharpen():
             self.img_class.auto_sharpen()
             self.update_img()
-            filter_frame.sharpen_btn.clicked.disconnect(click_sharpen)
+            filter_frame.sharpen_btn.clicked.disconnect()
 
         def click_cartoon():
             self.img_class.auto_cartoon()
             self.update_img()
-            filter_frame.cartoon_btn.clicked.disconnect(click_cartoon)
+            filter_frame.cartoon_btn.clicked.disconnect()
 
         def click_cartoon1():
             self.img_class.auto_cartoon(1)
             self.update_img()
-            filter_frame.cartoon_btn1.clicked.disconnect(click_cartoon1)
+            filter_frame.cartoon_btn1.clicked.disconnect()
 
         def click_invert():
             self.img_class.auto_invert()
             self.update_img()
-            filter_frame.invert_btn.clicked.disconnect(click_invert)
+            filter_frame.invert_btn.clicked.disconnect()
 
         def click_y():
             filter_frame.frame.setParent(None)
@@ -307,15 +312,21 @@ class Main(QWidget):
                 self.rb.update_dim()
                 if rotate:
                     self.img_class.rotate_img(self.rotate_value, crop=True, flip=self.flip)
-                    self.img_class.crop_img(self.rb.top * 2, self.rb.bottom * 2, self.rb.left * 2, self.rb.right * 2)
+                    self.img_class.crop_img(int(self.rb.top * 2 / self.factorr),
+                                            int(self.rb.bottom * 2 / self.factorr),
+                                            int(self.rb.left * 2 / self.factorr),
+                                            int(self.rb.right * 2 / self.factorr))
                 else:
                     self.img_class.reset(self.flip)
-                    self.img_class.crop_img(self.rb.top, self.rb.bottom, self.rb.left, self.rb.right)
+                    self.img_class.crop_img(int(self.rb.top / self.factorr), int(self.rb.bottom / self.factorr),
+                                            int(self.rb.left // self.factorr), int(self.rb.right // self.factorr))
+
                 self.update_img()
                 self.zoom_moment = False
 
                 self.img_class.img_copy = deepcopy(self.img_class.img)
                 self.slider.setParent(None)
+                self.slider.valueChanged.disconnect()
                 crop_frame.frame.setParent(None)
                 self.vbox.addWidget(adjust_frame.frame)
                 self.rb.close()
@@ -332,6 +343,7 @@ class Main(QWidget):
                 self.zoom_moment = False
 
                 self.slider.setParent(None)
+                self.slider.valueChanged.disconnect()
                 crop_frame.frame.setParent(None)
                 self.vbox.addWidget(adjust_frame.frame)
                 self.rb.close()
@@ -342,8 +354,9 @@ class Main(QWidget):
 
                 self.img_class.rotate_img(self.rotate_value)
 
-                self.rb.setGeometry(self.img_class.left, self.img_class.top, self.img_class.right - self.img_class.left,
-                                    self.img_class.bottom - self.img_class.top)
+                self.rb.setGeometry(int(self.img_class.left * self.factorr), int(self.img_class.top * self.factorr),
+                                    int((self.img_class.right - self.img_class.left) * self.factorr),
+                                    int((self.img_class.bottom - self.img_class.top) * self.factorr))
                 self.rb.update_dim()
                 self.update_img(True)
 
@@ -397,9 +410,10 @@ class Main(QWidget):
             adjust_frame.frame.setParent(None)
             self.vbox.addWidget(crop_frame.frame)
 
-            self.rb = ResizableRubberBand(self.gv, self.img_class, self.update_img)
+            self.rb = ResizableRubberBand(self.gv, self.img_class, self.update_img, self.factorr)
             self.rb.setGeometry(0, 0, self.img_class.img.shape[1], self.img_class.img.shape[0])
             self.img_class.change_b_c(beta=-40)
+            self.slider.valueChanged.connect(change_slide)
 
             if not rotate:
                 self.update_img()
@@ -409,31 +423,59 @@ class Main(QWidget):
                 self.vbox1.insertWidget(1, self.slider)
                 self.slider.setRange(0, 360)
                 self.slider.setValue(0)
-                self.slider.valueChanged.connect(change_slide)
                 self.zoom_moment = True
                 self.img_class.rotate_img(0)
-                self.rb.setGeometry(0, 0, self.img_class.img.shape[0] // 2, self.img_class.img.shape[1] // 2)
+                self.rb.setGeometry(0, 0, self.img_class.img.shape[1], self.img_class.img.shape[0])
                 self.update_img(True)
 
             img_copy = deepcopy(self.img_class.img)
 
-        def click_brightness():
+        def click_brightness(mode=0):
             def click_y1():
-                self.slider.setParent(None)
+                self.img_class.img_copy = deepcopy(self.img_class.img)
+                if mode != 3:
+                    self.slider.setParent(None)
+                    self.slider.valueChanged.disconnect()
                 brightness_frame.frame.setParent(None)
                 self.vbox.addWidget(adjust_frame.frame)
 
             def click_n1():
+                if not np.array_equal(self.img_class.img_copy, self.img_class.img):
+                    msg = QMessageBox.question(self, "Cancel edits", "Confirm to discard all the changes?   ",
+                                               QMessageBox.Yes | QMessageBox.No)
+                    if msg != QMessageBox.Yes:
+                        return False
                 self.img_class.reset()
                 self.update_img()
 
-                self.slider.setParent(None)
+                if mode != 3:
+                    self.slider.setParent(None)
+                    self.slider.valueChanged.disconnect()
                 brightness_frame.frame.setParent(None)
                 self.vbox.addWidget(adjust_frame.frame)
 
             def change_slide():
                 self.brightness_value = self.slider.value()
+                self.img_class.reset()
+                self.img_class.change_b_c(beta=self.brightness_value)
+                self.update_img()
 
+            def change_slide_contr():
+                self.contrast_value = self.slider.value() / 100
+                self.img_class.reset()
+                self.img_class.change_b_c(alpha=self.contrast_value)
+                self.update_img()
+
+            def change_slide_sat():
+                self.saturation_value = self.slider.value() / 250
+                self.img_class.reset()
+                self.img_class.change_b_c(alpha=self.saturation_value)
+                self.update_img()
+
+            def color_dialog():
+                color = QColorDialog.getColor()
+                self.img_class.remove_color(color.name())
+                self.update_img()
 
             brightness_frame = Brightness()
             brightness_frame.y_btn.clicked.connect(click_y1)
@@ -442,9 +484,28 @@ class Main(QWidget):
             adjust_frame.frame.setParent(None)
             self.vbox.addWidget(brightness_frame.frame)
 
-            self.vbox1.insertWidget(1, self.slider)
-            self.slider.setRange(-180, 180)
-            self.slider.setValue(0)
+            if mode == 1:
+                self.vbox1.insertWidget(1, self.slider)
+                self.slider.setRange(0, 300)
+                self.slider.setValue(100)
+                self.slider.valueChanged.connect(change_slide_contr)
+            elif mode == 2:
+                self.vbox1.insertWidget(1, self.slider)
+                self.slider.setRange(0, 1000)
+                self.slider.setValue(250)
+                self.slider.valueChanged.connect(change_slide_sat)
+            elif mode == 3:
+                btnn = QPushButton("Select color", brightness_frame)
+                btnn.setFont(QFont("Neue Haas Grotesk Text Pro Medi", 14))
+                btnn.setStyleSheet("QPushButton{border: 0px solid;}")
+                btnn.setMaximumHeight(50)
+                btnn.clicked.connect(color_dialog)
+                brightness_frame.vbox2.insertWidget(0, btnn)
+            else:
+                self.vbox1.insertWidget(1, self.slider)
+                self.slider.setRange(-120, 160)
+                self.slider.setValue(0)
+                self.slider.valueChanged.connect(change_slide)
 
         def click_y():
             self.start_detect = False
@@ -472,6 +533,9 @@ class Main(QWidget):
         adjust_frame.crop_btn.clicked.connect(click_crop)
         adjust_frame.rotate_btn.clicked.connect(lambda _: click_crop(rotate=True))
         adjust_frame.brightness_btn.clicked.connect(click_brightness)
+        adjust_frame.contrast_btn.clicked.connect(lambda _: click_brightness(mode=1))
+        adjust_frame.saturation_btn.clicked.connect(lambda _: click_brightness(mode=2))
+        adjust_frame.mask_btn.clicked.connect(lambda _: click_brightness(mode=3))
 
         self.base_frame.setParent(None)
         self.vbox.addWidget(adjust_frame.frame)
@@ -504,6 +568,7 @@ class Main(QWidget):
                          view_rect.height() / scene_rect.height())
             self.gv.scale(factor, factor)
             self._zoom = 0
+            self.factorr = factor
 
 
 def main():

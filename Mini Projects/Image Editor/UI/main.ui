@@ -21,6 +21,9 @@
      </property>
      <item>
       <layout class="QVBoxLayout" name="vbox1">
+       <property name="spacing">
+        <number>20</number>
+       </property>
        <item>
         <widget class="QGraphicsView" name="gv">
          <property name="sizePolicy">
