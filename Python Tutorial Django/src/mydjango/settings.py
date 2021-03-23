@@ -31,12 +31,21 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
+    'django.contrib.admin',  # login admin
+    'django.contrib.auth',  # create user
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # third party
+
+    # own
+    # python manage.py startapp [name]
+    # python manage.py makemigrations
+    # python manage.py migrate
+    'pages',
+    'products',
 ]
 
 MIDDLEWARE = [
@@ -75,8 +84,8 @@ WSGI_APPLICATION = 'mydjango.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.sqlite3',  # can use sql or my sql
+        'NAME': BASE_DIR / 'db.sqlite3',  # python manage.py migrate
     }
 }
 
