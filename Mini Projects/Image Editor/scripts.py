@@ -148,6 +148,7 @@ class Images:
 
     def grand_reset(self):
         self.img = deepcopy(self.grand_img_copy)
+        self.img_copy = deepcopy(self.grand_img_copy)
 
 
 def main():
