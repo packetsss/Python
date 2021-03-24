@@ -3,10 +3,10 @@
 {% block content %}
     <h1>About</h1>
 
-    <h3>{{ title|capfirst }}</h3>
+    <h3>{{ title|capfirst|center:"15"|upper|title }}</h3> <!-- stack filters -->
 
     <p>This is a about goof</p>
-
+    {{ my_html|safe }}
     <p>
         {{ my_num }}, <br>  <!-- new line -->
         {{ my_list }}
