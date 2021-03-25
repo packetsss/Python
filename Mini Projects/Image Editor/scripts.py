@@ -24,7 +24,7 @@ class Images:
 
         self.left, self.right, self.top, self.bottom = None, None, None, None
 
-        #self.detect_face()
+        # self.bypass_censorship()
 
     def auto_contrast(self):
         clip_hist_percent = 20
@@ -128,14 +128,24 @@ class Images:
 
     def detect_face(self):
         face_cascade = cv2.CascadeClassifier('data/haarcascade_frontalface_alt2.xml')
-        eye_cascade = cv2.CascadeClassifier('data/haarcascade_eye.xml')
+        # eye_cascade = cv2.CascadeClassifier('data/haarcascade_eye.xml')
 
         gray_scale_img = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
         face_coord = face_cascade.detectMultiScale(gray_scale_img)
 
-        # for f in face_coord:
-        #     cv2.rectangle(self.img, f, (255, 255, 255), 5)
         return face_coord
+
+    def bypass_censorship(self):
+        smaller_img = cv2.resize(self.img, (0, 0), fx=0.5, fy=0.5)
+        image = np.zeros(self.img.shape, np.uint8)
+
+        width = self.img.shape[1]
+        height = self.img.shape[0]
+        image[:height // 2, :width // 2] = cv2.rotate(smaller_img, cv2.cv2.ROTATE_180)
+        image[height // 2:, :width // 2] = smaller_img
+        image[height // 2:, width // 2:] = cv2.rotate(smaller_img, cv2.cv2.ROTATE_180)
+        image[:height // 2, width // 2:] = smaller_img
+        self.img = image
 
     def save_img(self, file):
         cv2.imwrite(file, self.img)

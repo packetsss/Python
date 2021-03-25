@@ -20,6 +20,7 @@ class Filter(QWidget):
         self.cartoon_btn = self.findChild(QPushButton, "cartoon_btn")
         self.cartoon_btn1 = self.findChild(QPushButton, "cartoon_btn2")
         self.invert_btn = self.findChild(QPushButton, "invert_btn")
+        self.bypass_btn = self.findChild(QPushButton, "bypass_btn")
 
         self.y_btn = self.findChild(QPushButton, "y_btn")
         self.y_btn.setIcon(QIcon("icon/check.png"))

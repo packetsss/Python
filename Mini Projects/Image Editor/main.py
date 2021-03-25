@@ -100,6 +100,11 @@ class Main(QWidget):
             self.update_img()
             filter_frame.invert_btn.clicked.disconnect()
 
+        def click_bypass():
+            self.img_class.bypass_censorship()
+            self.update_img()
+            filter_frame.bypass_btn.clicked.disconnect()
+
         def click_y():
             filter_frame.frame.setParent(None)
             self.img_class.img_copy = deepcopy(self.img_class.img)
@@ -126,6 +131,7 @@ class Main(QWidget):
         filter_frame.cartoon_btn.clicked.connect(click_cartoon)
         filter_frame.cartoon_btn1.clicked.connect(click_cartoon1)
         filter_frame.invert_btn.clicked.connect(click_invert)
+        filter_frame.bypass_btn.clicked.connect(click_bypass)
 
         self.base_frame.setParent(None)
         self.vbox.addWidget(filter_frame.frame)
