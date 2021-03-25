@@ -1,3 +1,8 @@
+import sys
+import cv2
+import qimage2ndarray
+from copy import deepcopy
+from scripts import Images
 import numpy as np
 from PyQt5 import uic
 from PyQt5.QtGui import *
@@ -104,11 +109,12 @@ class Brightness(QWidget):
         self.mten.setStyleSheet("QPushButton{border: 0px solid;}")
 
 class Ai(QWidget):
-    def __init__(self, img_class, update_img, base_frame, rb):
+    def __init__(self, img_class, update_img, base_frame, rb, vbox):
         super().__init__()
         uic.loadUi("ui\\ai_frame.ui", self)
 
-        self.img_class, self.update_img, self.base_frame, self.rb = img_class, update_img, base_frame, rb
+        self.img_class, self.update_img, self.base_frame, self.rb, self.vbox = \
+            img_class, update_img, base_frame, rb, vbox
 
         self.frame = self.findChild(QFrame, "frame")
 
@@ -125,7 +131,58 @@ class Ai(QWidget):
         self.n_btn.setStyleSheet("QPushButton{border: 0px solid;}")
         self.n_btn.setIconSize(QSize(60, 60))
 
+        self.y_btn.clicked.connect(self.click_y)
+        self.n_btn.clicked.connect(self.click_n)
+
     def click_face(self):
+        face_frame = Face(self.frame, self.img_class, self.update_img, self.base_frame, self.rb, self.vbox)
+        self.frame.setParent(None)
+        self.vbox.addWidget(face_frame.frame)
+
+    def click_y(self):
+        self.frame.setParent(None)
+        self.img_class.img_copy = deepcopy(self.img_class.img)
+        self.img_class.grand_img_copy = deepcopy(self.img_class.img)
+        self.vbox.addWidget(self.base_frame)
+        self.rb.close()
+
+    def click_n(self):
+        if not np.array_equal(self.img_class.grand_img_copy, self.img_class.img):
+            msg = QMessageBox.question(self, "Cancel edits", "Confirm to discard all the changes?   ",
+                                       QMessageBox.Yes | QMessageBox.No)
+            if msg != QMessageBox.Yes:
+                return False
+
+        self.frame.setParent(None)
+        self.img_class.grand_reset()
+        self.update_img()
+        self.vbox.addWidget(self.base_frame)
+        self.rb.close()
+
+class Face(QWidget):
+    def __init__(self, ai_frame, img_class, update_img, base_frame, rb, vbox):
+        super().__init__()
+        uic.loadUi("ui\\face_btn.ui", self)
+        self.img_class, self.update_img, self.base_frame, self.rb, self.vbox = \
+            img_class, update_img, base_frame, rb, vbox
+        self.frame, self.ai_frame = self.findChild(QFrame, "frame"), ai_frame
+
+        self.next_btn = self.findChild(QPushButton, "next_btn")
+        self.next_btn.clicked.connect(lambda _: self.click_next())
+        self.face_counter, self.face_cord = 0, None
+
+        self.y_btn = self.findChild(QPushButton, "y_btn")
+        self.y_btn.setIcon(QIcon("icon/check.png"))
+        self.y_btn.setStyleSheet("QPushButton{border: 0px solid;}")
+        self.y_btn.setIconSize(QSize(60, 60))
+        self.n_btn = self.findChild(QPushButton, "n_btn")
+        self.n_btn.setIcon(QIcon("icon/cross.png"))
+        self.n_btn.setStyleSheet("QPushButton{border: 0px solid;}")
+        self.n_btn.setIconSize(QSize(60, 60))
+        self.y_btn.clicked.connect(self.click_y)
+        self.n_btn.clicked.connect(self.click_n)
+
+    def click_next(self):
         if self.face_cord is None:
             self.face_cord = np.array(self.img_class.detect_face())
 
@@ -138,6 +195,22 @@ class Ai(QWidget):
         self.update_img()
         self.face_counter += 1
 
+    def click_y(self):
+        self.frame.setParent(None)
+        self.img_class.img_copy = deepcopy(self.img_class.img)
+        self.vbox.addWidget(self.ai_frame)
+
+    def click_n(self):
+        if not np.array_equal(self.img_class.grand_img_copy, self.img_class.img):
+            msg = QMessageBox.question(self, "Cancel edits", "Confirm to discard all the changes?   ",
+                                       QMessageBox.Yes | QMessageBox.No)
+            if msg != QMessageBox.Yes:
+                return False
+
+        self.frame.setParent(None)
+        self.img_class.reset()
+        self.update_img()
+        self.vbox.addWidget(self.ai_frame)
 
 class ResizableRubberBand(QWidget):
     def __init__(self, parent=None, img_class=None, update=None, factorr=None):

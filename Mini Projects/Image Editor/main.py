@@ -1,8 +1,3 @@
-import sys
-import cv2
-import qimage2ndarray
-from copy import deepcopy
-from scripts import Images
 from widgets import *
 
 
@@ -371,7 +366,7 @@ class Main(QWidget):
 
     def ai_frame(self):
         self.rb = ResizableRubberBand(self.gv, self.img_class, self.update_img, self.factorr)
-        ai_frame = Ai(self.img_class, self.update_img, self.base_frame, self.rb)
+        ai_frame = Ai(self.img_class, self.update_img, self.base_frame, self.rb, self.vbox)
         self.base_frame.setParent(None)
         self.vbox.addWidget(ai_frame.frame)
 
