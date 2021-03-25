@@ -110,12 +110,12 @@ class Brightness(QWidget):
         self.mten.setStyleSheet("QPushButton{border: 0px solid;}")
 
 class Ai(QWidget):
-    def __init__(self, img_class, update_img, base_frame, rb, vbox):
+    def __init__(self, main):
         super().__init__()
         uic.loadUi("ui\\ai_frame.ui", self)
 
         self.img_class, self.update_img, self.base_frame, self.rb, self.vbox = \
-            img_class, update_img, base_frame, rb, vbox
+            main.img_class, main.update_img, main.base_frame, main.rb, main.vbox
 
         self.frame = self.findChild(QFrame, "frame")
 
@@ -136,7 +136,7 @@ class Ai(QWidget):
         self.n_btn.clicked.connect(self.click_n)
 
     def click_face(self):
-        face_frame = Face(self.frame, self.img_class, self.update_img, self.base_frame, self.rb, self.vbox)
+        face_frame = Face(self)
         self.frame.setParent(None)
         self.vbox.addWidget(face_frame.frame)
 
@@ -161,12 +161,12 @@ class Ai(QWidget):
         self.rb.close()
 
 class Face(QWidget):
-    def __init__(self, ai_frame, img_class, update_img, base_frame, rb, vbox):
+    def __init__(self, ai_class):
         super().__init__()
         uic.loadUi("ui\\face_btn.ui", self)
         self.img_class, self.update_img, self.base_frame, self.rb, self.vbox = \
-            img_class, update_img, base_frame, rb, vbox
-        self.frame, self.ai_frame = self.findChild(QFrame, "frame"), ai_frame
+            ai_class.img_class, ai_class.update_img, ai_class.base_frame, ai_class.rb, ai_class.vbox
+        self.frame, self.ai_frame = self.findChild(QFrame, "frame"), ai_class.frame
 
         self.next_btn = self.findChild(QPushButton, "next_btn")
         self.next_btn.clicked.connect(lambda _: self.click_next())
@@ -214,9 +214,9 @@ class Face(QWidget):
         self.vbox.addWidget(self.ai_frame)
 
 class ResizableRubberBand(QWidget):
-    def __init__(self, parent=None, img_class=None, update=None, factorr=None):
-        super(ResizableRubberBand, self).__init__(parent)
-        self.img_class, self.update, self.factorr = img_class, update, factorr
+    def __init__(self, main):
+        super(ResizableRubberBand, self).__init__(main.gv)
+        self.img_class, self.update, self.factorr = main.img_class, main.update, main.factorr
         self.draggable, self.mousePressPos, self.mouseMovePos = True, None, None
         self.left, self.right, self.top, self.bottom = None, None, None, None
         self.borderRadius = 0

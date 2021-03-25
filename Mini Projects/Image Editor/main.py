@@ -240,7 +240,7 @@ class Main(QWidget):
             adjust_frame.frame.setParent(None)
             self.vbox.addWidget(crop_frame.frame)
 
-            self.rb = ResizableRubberBand(self.gv, self.img_class, self.update_img, self.factorr)
+            self.rb = ResizableRubberBand(self)
             self.rb.setGeometry(0, 0, self.img_class.img.shape[1], self.img_class.img.shape[0])
             self.img_class.change_b_c(beta=-40)
             self.slider.valueChanged.connect(change_slide)
@@ -371,8 +371,8 @@ class Main(QWidget):
         self.vbox.addWidget(adjust_frame.frame)
 
     def ai_frame(self):
-        self.rb = ResizableRubberBand(self.gv, self.img_class, self.update_img, self.factorr)
-        ai_frame = Ai(self.img_class, self.update_img, self.base_frame, self.rb, self.vbox)
+        self.rb = ResizableRubberBand(self)
+        ai_frame = Ai(self)
         self.base_frame.setParent(None)
         self.vbox.addWidget(ai_frame.frame)
 
