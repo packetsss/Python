@@ -1,5 +1,5 @@
 # Image-Editor
-An small and easy-to-use image editor GUI using PyQt5 and Cv2
+A small and easy-to-use image editor app using PyQt5 and Cv2
 
 ## Usage
 `git clone https://github.com/pyj2001/Image-Editor`
@@ -13,9 +13,11 @@ Run main.py
 - Auto sharpen
 - Auto cartoon
 - Auto invert
+- Auto bypass censorship
 - Rotate image
 - Crop image
 - Change brightness
 - Change contrast
 - Change saturation
 - Color mask
+- Face Detection

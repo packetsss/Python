@@ -17,7 +17,7 @@ class Start(QWidget):
         if files:
             self.files = files
             self.close()
-            self.main_window = Main(self.files)
+            self.main_window = Main(self.files) 
             self.main_window.show()
 
 
