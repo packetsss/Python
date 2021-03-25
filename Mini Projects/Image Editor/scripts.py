@@ -24,7 +24,7 @@ class Images:
 
         self.left, self.right, self.top, self.bottom = None, None, None, None
 
-        self.detect_face()
+        #self.detect_face()
 
     def auto_contrast(self):
         clip_hist_percent = 20
@@ -126,8 +126,18 @@ class Images:
         self.left, self.right, self.top, self.bottom = int(midpoint[0] - half_w), int(midpoint[0] + half_w), \
                                                        int(midpoint[1] - half_h), int(midpoint[1] + half_h)
 
+    def detect_face(self):
+        face_cascade = cv2.CascadeClassifier('data/haarcascade_frontalface_alt2.xml')
+        eye_cascade = cv2.CascadeClassifier('data/haarcascade_eye.xml')
+
+        gray_scale_img = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+        face_coord = face_cascade.detectMultiScale(gray_scale_img)
+
+        # for f in face_coord:
+        #     cv2.rectangle(self.img, f, (255, 255, 255), 5)
+        return face_coord
+
     def save_img(self, file):
-        # cv2.imwrite(f"{dst}\\{name}.{self.img_format}", self.img)
         cv2.imwrite(file, self.img)
 
     def reset(self, flip=[False, False]):
@@ -140,17 +150,6 @@ class Images:
     def grand_reset(self):
         self.img = deepcopy(self.grand_img_copy)
         self.img_copy = deepcopy(self.grand_img_copy)
-
-    def detect_face(self):
-        face_cascade = cv2.CascadeClassifier('data/haarcascade_frontalface_alt2.xml')
-        eye_cascade = cv2.CascadeClassifier('data/haarcascade_eye.xml')
-
-        gray_scale_img = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
-        face_coord = face_cascade.detectMultiScale(gray_scale_img)
-        
-        for f in face_coord:
-            cv2.rectangle(self.img, f, (255, 255, 255), 5)
-        return face_coord
 
 
 def main():
