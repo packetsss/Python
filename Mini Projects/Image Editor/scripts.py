@@ -24,17 +24,7 @@ class Images:
 
         self.left, self.right, self.top, self.bottom = None, None, None, None
 
-        # self.save_img("C:\\Users\\pyjpa\\Desktop\\Python", "aj")
-        # self.crop_img(50, 400, 100, 600)
-        # self.rotate_img_fixed(270)
-        # self.rotate_img(45)
-        # self.change_b_c(beta=-50)
-        # self.change_saturation(300)
-        # self.auto_contrast()
-        # self.auto_sharpen()
-        # self.auto_invert()
-        # self.auto_cartoon()
-        # self.remove_color("#000FF0")
+        self.detect_face()
 
     def auto_contrast(self):
         clip_hist_percent = 20
@@ -136,8 +126,9 @@ class Images:
         self.left, self.right, self.top, self.bottom = int(midpoint[0] - half_w), int(midpoint[0] + half_w), \
                                                        int(midpoint[1] - half_h), int(midpoint[1] + half_h)
 
-    def save_img(self, dst, name):
-        cv2.imwrite(f"{dst}\\{name}.{self.img_format}", self.img)
+    def save_img(self, file):
+        # cv2.imwrite(f"{dst}\\{name}.{self.img_format}", self.img)
+        cv2.imwrite(file, self.img)
 
     def reset(self, flip=[False, False]):
         self.img = deepcopy(self.img_copy)
@@ -150,9 +141,20 @@ class Images:
         self.img = deepcopy(self.grand_img_copy)
         self.img_copy = deepcopy(self.grand_img_copy)
 
+    def detect_face(self):
+        face_cascade = cv2.CascadeClassifier('data/haarcascade_frontalface_alt2.xml')
+        eye_cascade = cv2.CascadeClassifier('data/haarcascade_eye.xml')
+
+        gray_scale_img = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+        face_coord = face_cascade.detectMultiScale(gray_scale_img)
+        
+        for f in face_coord:
+            cv2.rectangle(self.img, f, (255, 255, 255), 5)
+        return face_coord
+
 
 def main():
-    path = "C:\\Users\\pyjpa\\Desktop\\Python\\Python Tutorial OpenCV\\src\\landscape.jpg"
+    path = "1.jpg"
     img = Images(path)
     img_name = path.split('\\')[-1].split(".")[0]
 

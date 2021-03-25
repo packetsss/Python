@@ -6,6 +6,7 @@ from copy import deepcopy
 from scripts import Images
 from widgets import *
 
+
 class Start(QWidget):
     def __init__(self):
         super().__init__()
@@ -18,7 +19,7 @@ class Start(QWidget):
 
     def on_click(self):
         files, _ = QFileDialog.getOpenFileNames(self, "Choose Image File", "",
-                                                "Image Files (*.jpg *.png *.jpeg);;All Files (*)")
+                                                "Image Files (*.jpg *.png *.jpeg *.ico);;All Files (*)")
         if files:
             self.files = files
             self.close()
@@ -48,6 +49,12 @@ class Main(QWidget):
         self.filter_btn.clicked.connect(self.filter_frame)
         self.adjust_btn = self.findChild(QPushButton, "adjust_btn")
         self.adjust_btn.clicked.connect(self.adjust_frame)
+        self.ai_btn = self.findChild(QPushButton, "ai_btn")
+        # self.ai_btn.clicked.connect(None)
+
+        self.save_btn = self.findChild(QPushButton, "save_btn")
+        self.save_btn.clicked.connect(self.click_save)
+
         self.slider = self.findChild(QSlider, "slider")
         self.slider.setParent(None)
 
@@ -364,6 +371,15 @@ class Main(QWidget):
 
         self.base_frame.setParent(None)
         self.vbox.addWidget(adjust_frame.frame)
+
+    def click_save(self):
+        try:
+            file, _ = QFileDialog.getSaveFileName(self, 'Save File', f"{self.img_class.img_name}."
+                                                                     f"{self.img_class.img_format}",
+                                                  "Image Files (*.jpg *.png *.jpeg *.ico);;All Files (*)")
+            self.img_class.save_img(file)
+        except Exception:
+            pass
 
     def wheelEvent(self, event):
         if self.zoom_moment:
