@@ -1,6 +1,5 @@
 import sys
 import cv2
-import numpy as np
 import qimage2ndarray
 from copy import deepcopy
 from scripts import Images
@@ -50,11 +49,9 @@ class Main(QWidget):
         self.adjust_btn = self.findChild(QPushButton, "adjust_btn")
         self.adjust_btn.clicked.connect(self.adjust_frame)
         self.ai_btn = self.findChild(QPushButton, "ai_btn")
-        # self.ai_btn.clicked.connect(None)
-
+        self.ai_btn.clicked.connect(self.ai_frame)
         self.save_btn = self.findChild(QPushButton, "save_btn")
         self.save_btn.clicked.connect(self.click_save)
-
         self.slider = self.findChild(QSlider, "slider")
         self.slider.setParent(None)
 
@@ -371,6 +368,12 @@ class Main(QWidget):
 
         self.base_frame.setParent(None)
         self.vbox.addWidget(adjust_frame.frame)
+
+    def ai_frame(self):
+        self.rb = ResizableRubberBand(self.gv, self.img_class, self.update_img, self.factorr)
+        ai_frame = Ai(self.img_class, self.update_img, self.base_frame, self.rb)
+        self.base_frame.setParent(None)
+        self.vbox.addWidget(ai_frame.frame)
 
     def click_save(self):
         try:

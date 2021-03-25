@@ -1,3 +1,4 @@
+import numpy as np
 from PyQt5 import uic
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -101,6 +102,41 @@ class Brightness(QWidget):
         self.pten.setStyleSheet("QPushButton{border: 0px solid;}")
         self.mten = self.findChild(QPushButton, "mten")
         self.mten.setStyleSheet("QPushButton{border: 0px solid;}")
+
+class Ai(QWidget):
+    def __init__(self, img_class, update_img, base_frame, rb):
+        super().__init__()
+        uic.loadUi("ui\\ai_frame.ui", self)
+
+        self.img_class, self.update_img, self.base_frame, self.rb = img_class, update_img, base_frame, rb
+
+        self.frame = self.findChild(QFrame, "frame")
+
+        self.face_btn = self.findChild(QPushButton, "face_btn")
+        self.face_btn.clicked.connect(lambda _: self.click_face())
+        self.face_counter, self.face_cord = 0, None
+
+        self.y_btn = self.findChild(QPushButton, "y_btn")
+        self.y_btn.setIcon(QIcon("icon/check.png"))
+        self.y_btn.setStyleSheet("QPushButton{border: 0px solid;}")
+        self.y_btn.setIconSize(QSize(60, 60))
+        self.n_btn = self.findChild(QPushButton, "n_btn")
+        self.n_btn.setIcon(QIcon("icon/cross.png"))
+        self.n_btn.setStyleSheet("QPushButton{border: 0px solid;}")
+        self.n_btn.setIconSize(QSize(60, 60))
+
+    def click_face(self):
+        if self.face_cord is None:
+            self.face_cord = np.array(self.img_class.detect_face())
+
+        if self.face_counter == len(self.face_cord):
+            self.face_counter = 0
+
+        face = self.face_cord[self.face_counter]
+        self.rb.setGeometry(face[0], face[1], face[2], face[3])
+
+        self.update_img()
+        self.face_counter += 1
 
 
 class ResizableRubberBand(QWidget):
