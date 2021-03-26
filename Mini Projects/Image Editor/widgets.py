@@ -489,6 +489,9 @@ class Face(QWidget):
         if self.face_cord is None:
             self.face_cord = np.array(self.img_class.detect_face())
 
+        if not len(self.face_cord):
+            return False
+
         if self.face_counter == len(self.face_cord):
             self.face_counter = 0
 
