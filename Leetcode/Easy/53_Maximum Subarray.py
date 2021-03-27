@@ -27,5 +27,5 @@ def sub_arr_d(nums):
     return tot_sum
 
 
-print(sub_arr_d(nums1))
+print(sub_arr_d(num))
 

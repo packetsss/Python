@@ -1,4 +1,4 @@
-m, n = 3, 7
+m, n = 4, 4
 
 def uniquePaths(m, n):
     table = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
