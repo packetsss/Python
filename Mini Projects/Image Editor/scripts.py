@@ -163,7 +163,7 @@ class Images:
 
 
 def main():
-    path = "1.jpg"
+    path = "ppl.jpg"
     img = Images(path)
     img_name = path.split('\\')[-1].split(".")[0]
 
