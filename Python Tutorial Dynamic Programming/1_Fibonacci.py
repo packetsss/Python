@@ -69,7 +69,7 @@ def Fibonacci_topdown(n):
 
 
 start = timer()
-Fibonacci_topdown(100)
+Fibonacci_topdown(10)
 end = timer()
 print(f"Top down time: {end - start}")
 # Way faster, O(n)
@@ -93,7 +93,7 @@ def Fibonacci_bottomup(n):
 
 
 start = timer()
-print(Fibonacci_bottomup(100))
+print(Fibonacci_bottomup(300))
 end = timer()
 print(f"Bottom up time: {end - start}")
 # Even Faster
