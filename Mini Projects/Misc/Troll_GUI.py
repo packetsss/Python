@@ -62,4 +62,3 @@ lmj_button.grid(row=2, column=0, padx=0, pady=0)
 
 root.mainloop()
 
-from Login_signup import *

@@ -284,14 +284,3 @@ class solve:
             print("\nSolving Success!\n".upper())
         end = timer()
         return self.puzzle, self.attempts, end - start
-
-
-def main():
-    a, d, time = solve(ss.interface(random=False).foundation()).ai()
-    # print(f"Puzzle:\n{np.array(ss.interface().foundation())}")
-    print(f"Solver:\n{a}\n\nTime consumed: {round(time, 5)}\nAttempts: {d}")
-    # solve(ss.interface().print_board(a.tolist()))
-
-
-if "__main__" == __name__:
-    main()

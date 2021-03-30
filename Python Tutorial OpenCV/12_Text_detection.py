@@ -22,7 +22,7 @@ print(pytesseract.image_to_string(img))
 
 # --- Detecting Words --- #
 
-cfg = r"--oem 0"
+cfg = r"--oem 1"
 boxes = pytesseract.image_to_data(img, config=cfg)
 img_h, img_w, _ = img.shape
 

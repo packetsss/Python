@@ -4,8 +4,6 @@ from time import time
 import matplotlib.pyplot as plt
 from Sudoku_solver import solve
 from Sudoku_extractor import extract_sudoku
-from Sudoku_reader import extract_number
-img = extract_sudoku("src/board.jpeg")
 
 
 def output(a):
