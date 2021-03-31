@@ -106,6 +106,9 @@ class Snake:
         if self.grid[x, y] == "+":
             self.push()
 
+        if self.grid[x, y] == "X":
+            return False
+
         while this_node is not None:
             last_x, last_y = this_node.get_data()
             self.grid[last_x, last_y] = " "
@@ -120,6 +123,7 @@ class Snake:
         if direction is None:
             direction = self.root.direction
         self.change_direction(direction)
+        return True
 
     def change_direction(self, direction):
         this_node = self.tail
@@ -152,10 +156,10 @@ def game(size):
             last_key = key
 
     def print_board(board):
-        print(board, "\n" * 3, end="\r")
-        # print("\n" * 3)
-        # for i in range(size):
-        #     print("|", " | ".join(board[i, :]), end=" |\n")
+        # print(board, "\n" * 3, end="\r")
+        print("\n" * 3)
+        for i in range(size):
+            print("|", " | ".join(board[i, :]), end=" |\n")
 
     key, last_key, moved = None, None, False
     trd = threading.Thread(target=detect_key, daemon=False)
@@ -175,7 +179,9 @@ def game(size):
     rand_value = random.randint(0, rand_range)
     while 1:
         if not moved:
-            snake.move_snake()
+            if not snake.move_snake():
+                print("\nGame over :p", end="\r")
+                os._exit(0)
             print_board(grid)
         else:
             moved = False
