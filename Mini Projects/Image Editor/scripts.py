@@ -136,11 +136,11 @@ class Images:
         return face_coord
 
     def bypass_censorship(self):
-        smaller_img = cv2.resize(self.img, (0, 0), fx=0.5, fy=0.5)
-        image = np.zeros(self.img.shape, np.uint8)
-
         width = self.img.shape[1]
         height = self.img.shape[0]
+        smaller_img = cv2.resize(self.img, (width // 2, height // 2))
+        image = np.zeros(self.img.shape, np.uint8)
+
         image[:height // 2, :width // 2] = cv2.rotate(smaller_img, cv2.cv2.ROTATE_180)
         image[height // 2:, :width // 2] = smaller_img
         image[height // 2:, width // 2:] = cv2.rotate(smaller_img, cv2.cv2.ROTATE_180)
