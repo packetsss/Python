@@ -13,7 +13,7 @@ print(num_coins(32))
 
 
 def _change_matrix(coin_set, change_amount):
-    matrix = [[0 for m in range(change_amount + 1)] for m in range(len(coin_set) + 1)]
+    matrix = [[0 for _ in range(change_amount + 1)] for _ in range(len(coin_set) + 1)]
     for i in range(change_amount + 1):
         matrix[0][i] = i
 
