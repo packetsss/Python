@@ -1,6 +1,7 @@
 **/.idea
 **/.vscode
 **/__pycache__
+**/.git
 Python\ Tutorial\ Django/src/mydjango/settings.py
 Python\ Tutorial\ Tkinter/13_Weather_app.py
 Python\ Tutorial\ OpenCV/11_Traffic\ signs/
