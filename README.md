@@ -4,7 +4,7 @@
 - some tutorials
 - some Leetcode problems
 - some mini projects
-- none me-eating-banana photos.
+- none me-eating-banana photos (feel free to search around)
 ## Why Paul?
 ### Because I'm the creator of this repository ㄟ( ▔, ▔ )ㄏ
 ## Why Python?
