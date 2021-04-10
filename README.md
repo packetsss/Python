@@ -1,5 +1,5 @@
 # Welcome to my first repo!
-This is my Python learning curve which includes my notes, some tutorials, some Leetcode problems, and some mini projects.
+This is my Python learning curve which includes my notes, some tutorials, some Leetcode problems, some mini projects, and none me-eating-banana-photos.
 ## Why Python?
 - Python is incredibly easy to use and learn for new beginners(like me).
 - Python developer community is one of the most active communities.
