@@ -6,7 +6,7 @@
 - some mini projects
 - none me-eating-banana photos.
 ## Why Paul?
-### Because I'm the creator of this repository -.-
+### Because I'm the creator of this repository ㄟ( ▔, ▔ )ㄏ
 ## Why Python?
 - Python is incredibly easy to use and learn for new beginners(like me).
 - Python developer community is one of the most active communities.
