@@ -1,5 +1,5 @@
 # Welcome to my first Github repository!
-This is my Python learning curve which includes:
+### This is my Python learning curve which includes:
 - my notes
 - some tutorials
 - some Leetcode problems
