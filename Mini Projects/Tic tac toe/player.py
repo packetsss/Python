@@ -77,7 +77,7 @@ class SmartComputerPlayer(Player):
             best = {'position': None, 'score': math.inf}  # each score should minimize
         for possible_move in state.available_moves():
             state.make_move(possible_move, player)
-            sim_score = self.minimax(state, other_player)  # simulate a game after making that move
+            sim_score = self.minimax(state, other_player)  # simulate a game after making that move, main recursion occurs here
 
             # undo move
             state.board[possible_move] = ' '
