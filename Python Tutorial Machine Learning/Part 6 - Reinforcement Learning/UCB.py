@@ -7,7 +7,7 @@ class UCB:
         self.N = rounds
         self.d = sample_size      
 
-    def predict(self):
+    def fit(self):
         # N --> total rounds, d --> number of ads
         times_selected, sum_reward = [0] * self.d, [0] * self.d
         ads_selected = []

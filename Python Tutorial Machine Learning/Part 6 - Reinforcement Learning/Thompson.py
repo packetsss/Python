@@ -7,7 +7,7 @@ class Thompson:
         self.N = rounds
         self.d = sample_size
     
-    def predict(self):
+    def fit(self):
         ads_selected = [0] * self.N
         reward_0, reward_1 = [0] * self.d, [0] * self.d
         total_reward = 0
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     model = Thompson(dataset, 500, 10)
 
     import matplotlib.pyplot as plt
-    rst = model.predict()
+    rst = model.fit()
     plt.hist(rst)
     plt.title('Histogram of ads selections')
     plt.xlabel('Ads')
