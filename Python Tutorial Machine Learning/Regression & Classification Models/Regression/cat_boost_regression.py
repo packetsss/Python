@@ -23,6 +23,9 @@ np.set_printoptions(precision=2)
 print(np.concatenate((y_pred.reshape(len(y_pred),1), y_test.reshape(len(y_test),1)),1))
 
 # Evaluating the Model Performance
+"""
+How good is my model compare to the average model?
+"""
 from sklearn.metrics import r2_score
 print(r2_score(y_test, y_pred))
 
