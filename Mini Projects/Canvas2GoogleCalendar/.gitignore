@@ -1,6 +1,0 @@
-cal_address.txt
-*.ics
-**/.idea
-**/.vscode
-**/__pycache__
-**/.git

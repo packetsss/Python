@@ -10,4 +10,5 @@ print(round(5.3))
 from math import *
 
 print(floor(8.5)), print(ceil(5.1))
-print(sqrt(20))
+a = print(sqrt(20))
+print(a)
