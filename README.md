@@ -35,7 +35,7 @@ Python has excellent libraries.
 
 It is never, ever, late to learn Python!!
 
-- **The answer for all of your other questions is collapsible. Any questions?**
+- **The answer to all of your other questions is, collapsible. Any questions?**
 
 The answer is collapsible.
 
