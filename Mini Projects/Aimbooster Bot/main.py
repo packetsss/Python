@@ -21,9 +21,9 @@ def click(x, y):
 
 while not keyboard.is_pressed("q"):
     pic = pyautogui.screenshot(region=(1155, 879, 2649 - 1155, 1927 - 879))
-    # plt.imshow(pic)
-    # plt.show()
-    # break
+    plt.imshow(pic)
+    plt.show()
+    break
     w, h = pic.size
 
     for x in range(0, w, 5):
