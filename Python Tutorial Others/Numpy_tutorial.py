@@ -170,3 +170,6 @@ exam = np.array([ee, ee+5, ee+10, ee+15, ee+20, ee+25])
 '''print(exam[[0, 4, 5], 3:])'''
 
 
+# Numpy dot product: np.dot(arr1, arr2)
+
+
