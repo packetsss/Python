@@ -17,7 +17,7 @@
 
   `You cannot!`
 
-  Just joking haha. Submit a Pull Request and i will carefully review your changes and merge it into the main branch. EVERYONE is welcomed to contribute!!
+  Just joking haha. Submit a Pull Request and i will carefully review your changes and merge it into the main branch. EVERYONE is welcome to contribute!!
 - **Why do I need to learn Python? Is it too late to learn it in 2021?**
 
 
