@@ -184,6 +184,7 @@ def run(timer=False):
     while not exit:
         start_time = time.time()
 
+        # Draw background
         win.fill(SCREEN_BACKGROUND_COLOR)
 
         map.base_line()
@@ -191,6 +192,7 @@ def run(timer=False):
         map.pipe((700, 0), 50, 100)
         map.pipe((1000, 0), 20, 60)
 
+        # Animations
         if jumping or falling:
             mario.character = character_jump_list.get_character(flipped)
         elif sprinting and walking:
@@ -202,6 +204,7 @@ def run(timer=False):
 
         x, y = mario_pos
 
+        # Jumping & falling physics
         if jumping:
             time_passed = (time.time() - jump_start) * TIME_MULTIPLIER
             change_y = start_velocity * time_passed - 0.5 * GRAVITY * pow(time_passed, 2)
@@ -221,6 +224,7 @@ def run(timer=False):
                 falling = False
                 y -= 1
 
+        # Key strike control
         walking = False
         keys = pg.key.get_pressed()
         if keys[pg.K_a] or keys[pg.K_LEFT]:
@@ -243,14 +247,17 @@ def run(timer=False):
             jumping = False
             y -= 1
 
+        # update character
         mario_pos = [x, y]
         mario.update(mario_pos, draw=True, flipped=flipped)
 
+        # falling control
         if not jumping and not falling and mario.falling():
             fall_start = time.time()
             start_falling_pos = mario_pos
             falling = True
 
+        # Other key strikes
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 exit = True
@@ -265,6 +272,7 @@ def run(timer=False):
                     start_jumping_pos = mario_pos
                     prev_change_y, jumping = 0, True
 
+                    # Dynamic animation speed using jump speed
                     t = start_velocity / GRAVITY * 70
                     character_jump_list.animation_speed = round(t)
                     character_jump_list.rotate_index = 0
