@@ -136,23 +136,30 @@ class Map:
 
 class Character:
     def __init__(self, character_folder_path):
-        self.character_list = self._char_init(character_folder_path)
+        self.character_list, self.flipped_list = self._char_init(character_folder_path)
         self.rotate_index = 0
-        self.timing_multiplier = 200
+        self.animation_speed = 200
     
     def _char_init(self, path):
-        lst = []
+        char_lst = []
+        flipp_lst = []
         for subdir, dirs, files in os.walk(path):
             for file in files:
                 char = pg.image.load(os.path.join(subdir, file))
-                lst.append(pg.transform.scale(char, (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
-        return lst
+                char_lst.append(pg.transform.scale(char, (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
+                flipp_lst.append(False)
+        return char_lst, flipp_lst
     
-    def get_character(self):
-        if self.rotate_index >= len(self.character_list) * self.timing_multiplier:
+    def get_character(self, flip_state):
+        if self.rotate_index >= len(self.character_list) * self.animation_speed:
             self.rotate_index = 0
 
-        char = self.character_list[self.rotate_index // self.timing_multiplier]
+        if flip_state != self.flipped_list[self.rotate_index // self.animation_speed]:
+            self.flipped_list[self.rotate_index // self.animation_speed] = flip_state
+            self.character_list[self.rotate_index // self.animation_speed] = pg.transform.flip\
+                (self.character_list[self.rotate_index // self.animation_speed], True, False)
+
+        char = self.character_list[self.rotate_index // self.animation_speed]
         self.rotate_index += 1
         return char
 
@@ -173,13 +180,13 @@ def run(timer=False):
     flipped = False
 
     mario_pos = [WIDTH / 2, GROUND_HEIGHT - 210]
-    mario = Mario(win, mario_pos, character_list.get_character())
+    mario = Mario(win, mario_pos, character_list.get_character(flipped))
     map = Map(win)
 
     while not exit:
         start_time = time.time()
 
-        mario.character = character_list.get_character()
+        mario.character = character_list.get_character(flipped)
         win.fill(SCREEN_BACKGROUND_COLOR)
 
         map.base_line()
@@ -209,22 +216,33 @@ def run(timer=False):
                 falling = False
                 y -= 1
 
+        # mario.character = pg.transform.flip(mario.character, True, False)
+        # if flipped != character_list.get_flip_state():
+        #     if flipped:
+        #         mario.character = pg.transform.flip(mario.character, True, False)
+
+        #     character_list.set_flip_state(flipped)
+        #     print(flipped, character_list.get_flip_state())
+
         keys = pg.key.get_pressed()
         if keys[pg.K_a] or keys[pg.K_LEFT]:
             if not mario.hitbox((x, y), "left"):
                 x -= MOVING_SPEED_MULTIPLIER if not sprint else SPRINT_MULTIPLIER
 
                 if not flipped: 
-                    mario.character = pg.transform.flip(mario.character, True, False)
+                    # mario.character = pg.transform.flip(mario.character, True, False)
                     flipped = True
+                    # character_list.set_flip_state(True)
                     
+
         if keys[pg.K_d] or keys[pg.K_RIGHT]:
             if not mario.hitbox((x, y), "right"):
                 x += MOVING_SPEED_MULTIPLIER if not sprint else SPRINT_MULTIPLIER
 
                 if flipped:
-                    mario.character = pg.transform.flip(mario.character, True, False)
+                    # mario.character = pg.transform.flip(mario.character, True, False)
                     flipped = False
+                    # character_list.set_flip_state(False)
 
         if mario.hitbox((x, y), "up"):
             jumping = False
