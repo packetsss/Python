@@ -6,13 +6,8 @@ class Mario:
         self.pos = pos
         self.character = character
 
-        # self.left_bound = -8
-        # self.right_bound = 19
-        # self.up_bound = -8
-        # self.down_bound = 20
-
-        self.left_bound = -35
-        self.right_bound = 25
+        self.left_bound = -22
+        self.right_bound = 18
         self.up_bound = -33
         self.down_bound = 31
     
@@ -41,7 +36,7 @@ class Mario:
             return True
         return False
 
-    def hitbox(self, pos, direction, default_color=BLACK, all_pixel=False, draw_hitbox=False):
+    def hitbox(self, pos, direction, default_color=BLACK, all_pixel=False, draw_hitbox=True):
         all_pixel_list = []
         x, y = np.int_(pos)
         direction_dict = {
@@ -87,9 +82,9 @@ class Mario:
     def draw(self, flipped):
         def relocation(pos):
             if not flipped:
-                return pos[0] - CHARACTER_WIDTH / 3, pos[1] - CHARACTER_HEIGHT / 2
+                return pos[0] - CHARACTER_WIDTH / 3 - 5, pos[1] - CHARACTER_HEIGHT / 2
             else:
-                return pos[0] - CHARACTER_WIDTH / 3 * 2 - 10, pos[1] - CHARACTER_HEIGHT / 2
+                return pos[0] - CHARACTER_WIDTH / 3 * 2 + 1, pos[1] - CHARACTER_HEIGHT / 2
 
         self.win.blit(self.character, relocation(self.pos))
         self.win.set_at(np.int_(self.pos), RED)
@@ -130,7 +125,7 @@ class Map:
     
     def pipe(self, pos, width, height):
         pg.draw.rect(self.win, BLACK, pg.Rect(pos[0], GROUND_HEIGHT - height, width, height), width=2)
-        pg.draw.rect(self.win, BLACK, pg.Rect(pos[0] - width / 3, GROUND_HEIGHT - height - height * 0.3, width * (5 / 3), height * 0.3), width=2)
+        pg.draw.rect(self.win, BLACK, pg.Rect(pos[0] - width / 3, GROUND_HEIGHT - height - height * 0.3 + 1, width * (5 / 3), height * 0.3), width=2)
 
 
 class Character:
@@ -177,7 +172,7 @@ def run(timer=False):
     flipped = False
     jumping, falling, walking, sprinting = False, False, False, False
 
-    mario_pos = [WIDTH / 2, GROUND_HEIGHT - 210]
+    mario_pos = [WIDTH / 2, GROUND_HEIGHT - 50]
     mario = Mario(win, mario_pos, character_idle_list.get_character(flipped))
     map = Map(win)
 
@@ -189,6 +184,8 @@ def run(timer=False):
 
         map.base_line()
         map.pipe((200, 0), 30, 70)
+        map.pipe((400, 0), 80, 30)
+
         map.pipe((700, 0), 50, 100)
         map.pipe((1000, 0), 20, 60)
 
