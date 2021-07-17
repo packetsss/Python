@@ -171,7 +171,7 @@ def run(timer=False):
     character_list = Character(f"{pathlib.Path(__file__).parent.absolute()}/assets/Idle")
 
     win = pg.display.set_mode((WIDTH, HEIGHT))
-    pg.display.set_caption("Fake Mario")
+    pg.display.set_caption("Not Mario")
     clock = pg.time.Clock()
     exit = False
     sprint = False
