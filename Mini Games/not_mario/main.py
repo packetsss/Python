@@ -59,7 +59,8 @@ class Mario:
                     self.win.set_at((x + i, y + direction_dict[direction]), RED)
 
             if all_pixel:
-                return np.count_nonzero(all_pixel_list) == len(range(self.left_bound + 1, self.right_bound - 1))
+                return np.count_nonzero(all_pixel_list) == \
+                len(range(self.left_bound + 1, self.right_bound - 1))
 
         else:
             for i in range(self.up_bound + 1, self.down_bound - 1):
@@ -115,7 +116,6 @@ class Mario:
                 pixel = [x[0] + t[0], x[1] + t[1]]
                 self.win.set_at(pixel, MAGENTA)
 
-
 class Map:
     def __init__(self, win):
         self.win = win
@@ -125,7 +125,8 @@ class Map:
     
     def pipe(self, pos, width, height):
         pg.draw.rect(self.win, BLACK, pg.Rect(pos[0], GROUND_HEIGHT - height, width, height), width=2)
-        pg.draw.rect(self.win, BLACK, pg.Rect(pos[0] - width / 3, GROUND_HEIGHT - height - height * 0.3 + 1, width * (5 / 3), height * 0.3), width=2)
+        pg.draw.rect(self.win, BLACK, pg.Rect(pos[0] - width / 3, 
+        GROUND_HEIGHT - height - height * 0.3 + 1, width * (5 / 3), height * 0.3), width=2)
 
 
 class Character:
@@ -136,13 +137,13 @@ class Character:
     
     def _char_init(self, path):
         char_lst = []
-        flipp_lst = []
-        for subdir, dirs, files in os.walk(path):
+        flipped_lst = []
+        for subdir, _, files in os.walk(path):
             for file in files:
-                char = pg.image.load(os.path.join(subdir, file))
+                char = pg.image.load(os.path.join(subdir, file)).convert_alpha()
                 char_lst.append(pg.transform.scale(char, (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
-                flipp_lst.append(False)
-        return char_lst, flipp_lst
+                flipped_lst.append(False)
+        return char_lst, flipped_lst
     
     def get_character(self, flip_state):
         if self.rotate_index >= len(self.character_list) * self.animation_speed:
@@ -159,15 +160,15 @@ class Character:
 
 
 def run(timer=False):
+    win = pg.display.set_mode((WIDTH, HEIGHT))
+    pg.display.set_caption("Not Mario")
+    clock = pg.time.Clock()
+
     character_idle_list = Character(f"{pathlib.Path(__file__).parent.absolute()}/assets/Idle")
     character_walk_list = Character(f"{pathlib.Path(__file__).parent.absolute()}/assets/Walk")
     character_sprint_list = Character(f"{pathlib.Path(__file__).parent.absolute()}/assets/Run")
     character_jump_list = Character(f"{pathlib.Path(__file__).parent.absolute()}/assets/Jump")
     
-
-    win = pg.display.set_mode((WIDTH, HEIGHT))
-    pg.display.set_caption("Not Mario")
-    clock = pg.time.Clock()
     exit = False
     flipped = False
     jumping, falling, walking, sprinting = False, False, False, False
@@ -198,6 +199,8 @@ def run(timer=False):
             mario.character = character_walk_list.get_character(flipped)
         else:
             mario.character = character_idle_list.get_character(flipped)
+        
+        print(mario.character.get_rect())
 
         x, y = mario_pos
 
@@ -287,4 +290,4 @@ def run(timer=False):
     sys.exit()
 
 if __name__ == '__main__':
-    run()
+    run(True)
