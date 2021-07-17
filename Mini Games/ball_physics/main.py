@@ -1,26 +1,5 @@
-import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+from utils import *
 
-import sys
-import math
-import pygame as pg
-
-FPS = 1000
-WIDTH = 1080
-HEIGHT = 720
-GRAVITY = 18
-
-MOUSE_COLOR = "red"
-PATH_COLOR = "purple"
-
-LINE_COLOR = "black"
-LINE_RADIUS = 2
-
-BALL_COLOR = "black"
-BALL_RADIUS = 12
-BALL_INITIAL_X = WIDTH / 2
-BALL_INITIAL_Y = HEIGHT - BALL_RADIUS - 1
-BALL_SPEED_MULTIPLIER = 1.5
 
 class Ball:
     def __init__(self, screen, current_ball_pos: tuple):
@@ -62,7 +41,6 @@ class Ball:
         return start_time, start_velocity_x, start_velocity_y
 
 def run():
-
     def exit():
         pg.display.quit()
         pg.quit()
