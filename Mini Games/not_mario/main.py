@@ -11,11 +11,10 @@ class Mario:
         # self.up_bound = -8
         # self.down_bound = 20
 
-
         self.left_bound = -35
         self.right_bound = 25
-        self.up_bound = -35
-        self.down_bound = 30
+        self.up_bound = -33
+        self.down_bound = 31
     
     def update(self, pos, draw=True, flipped=False):
         self.pos = pos
@@ -37,12 +36,12 @@ class Mario:
     def falling(self):
         x, y = np.int_(self.pos)
 
-        self.win.set_at((x, y + self.down_bound), GREEN)
+        # self.win.set_at((x, y + self.down_bound), GREEN)
         if self.hitbox((x, y + 1), "down", default_color=SCREEN_BACKGROUND_COLOR, all_pixel=True):
             return True
         return False
 
-    def hitbox(self, pos, direction, default_color=BLACK, all_pixel=False, draw_hitbox=True):
+    def hitbox(self, pos, direction, default_color=BLACK, all_pixel=False, draw_hitbox=False):
         all_pixel_list = []
         x, y = np.int_(pos)
         direction_dict = {
@@ -135,10 +134,10 @@ class Map:
 
 
 class Character:
-    def __init__(self, character_folder_path):
+    def __init__(self, character_folder_path, animation_speed=ANIMATION_SPEED):
         self.character_list, self.flipped_list = self._char_init(character_folder_path)
         self.rotate_index = 0
-        self.animation_speed = 200
+        self.animation_speed = animation_speed
     
     def _char_init(self, path):
         char_lst = []
@@ -165,34 +164,41 @@ class Character:
 
 
 def run(timer=False):
-    # character = pg.image.load(f"{pathlib.Path(__file__).parent.absolute()}/assets/idle (2).png")
-    # character = pg.transform.scale(character, (CHARACTER_WIDTH, CHARACTER_HEIGHT))
-
-    character_list = Character(f"{pathlib.Path(__file__).parent.absolute()}/assets/Idle")
+    character_idle_list = Character(f"{pathlib.Path(__file__).parent.absolute()}/assets/Idle")
+    character_walk_list = Character(f"{pathlib.Path(__file__).parent.absolute()}/assets/Walk")
+    character_sprint_list = Character(f"{pathlib.Path(__file__).parent.absolute()}/assets/Run")
+    character_jump_list = Character(f"{pathlib.Path(__file__).parent.absolute()}/assets/Jump")
+    
 
     win = pg.display.set_mode((WIDTH, HEIGHT))
     pg.display.set_caption("Not Mario")
     clock = pg.time.Clock()
     exit = False
-    sprint = False
-    jumping = False
-    falling = False
     flipped = False
+    jumping, falling, walking, sprinting = False, False, False, False
 
     mario_pos = [WIDTH / 2, GROUND_HEIGHT - 210]
-    mario = Mario(win, mario_pos, character_list.get_character(flipped))
+    mario = Mario(win, mario_pos, character_idle_list.get_character(flipped))
     map = Map(win)
 
     while not exit:
         start_time = time.time()
 
-        mario.character = character_list.get_character(flipped)
         win.fill(SCREEN_BACKGROUND_COLOR)
 
         map.base_line()
         map.pipe((200, 0), 30, 70)
         map.pipe((700, 0), 50, 100)
         map.pipe((1000, 0), 20, 60)
+
+        if jumping or falling:
+            mario.character = character_jump_list.get_character(flipped)
+        elif sprinting and walking:
+            mario.character = character_sprint_list.get_character(flipped)
+        elif walking:
+            mario.character = character_walk_list.get_character(flipped)
+        else:
+            mario.character = character_idle_list.get_character(flipped)
 
         x, y = mario_pos
 
@@ -206,7 +212,6 @@ def run(timer=False):
             else:
                 jumping = False
 
-        
         if falling:
             time_passed = (time.time() - fall_start) * TIME_MULTIPLIER
             if mario.hitbox((x, y), "down", default_color=SCREEN_BACKGROUND_COLOR, all_pixel=True):
@@ -216,33 +221,19 @@ def run(timer=False):
                 falling = False
                 y -= 1
 
-        # mario.character = pg.transform.flip(mario.character, True, False)
-        # if flipped != character_list.get_flip_state():
-        #     if flipped:
-        #         mario.character = pg.transform.flip(mario.character, True, False)
-
-        #     character_list.set_flip_state(flipped)
-        #     print(flipped, character_list.get_flip_state())
-
+        walking = False
         keys = pg.key.get_pressed()
         if keys[pg.K_a] or keys[pg.K_LEFT]:
             if not mario.hitbox((x, y), "left"):
-                x -= MOVING_SPEED_MULTIPLIER if not sprint else SPRINT_MULTIPLIER
-
-                if not flipped: 
-                    # mario.character = pg.transform.flip(mario.character, True, False)
-                    flipped = True
-                    # character_list.set_flip_state(True)
-                    
+                x -= MOVING_SPEED_MULTIPLIER if not sprinting else SPRINT_MULTIPLIER
+                flipped = True
+                walking = True
 
         if keys[pg.K_d] or keys[pg.K_RIGHT]:
             if not mario.hitbox((x, y), "right"):
-                x += MOVING_SPEED_MULTIPLIER if not sprint else SPRINT_MULTIPLIER
-
-                if flipped:
-                    # mario.character = pg.transform.flip(mario.character, True, False)
-                    flipped = False
-                    # character_list.set_flip_state(False)
+                x += MOVING_SPEED_MULTIPLIER if not sprinting else SPRINT_MULTIPLIER
+                flipped = False
+                walking = True
 
         if mario.hitbox((x, y), "up"):
             jumping = False
@@ -251,7 +242,7 @@ def run(timer=False):
         elif mario.hitbox((x, y), "down"):
             jumping = False
             y -= 1
-    
+
         mario_pos = [x, y]
         mario.update(mario_pos, draw=True, flipped=flipped)
 
@@ -267,14 +258,18 @@ def run(timer=False):
                 if event.key == pg.K_SPACE:
                     count_jump_start = time.time()
                 if event.key == pg.K_LSHIFT:
-                    sprint = True
+                    sprinting = True
             elif event.type == pg.KEYUP:
                 if event.key == pg.K_SPACE and (not jumping and not falling):
                     jump_start, start_velocity = mario.jumping(time.time() - count_jump_start)
                     start_jumping_pos = mario_pos
                     prev_change_y, jumping = 0, True
+
+                    t = start_velocity / GRAVITY * 70
+                    character_jump_list.animation_speed = round(t)
+                    character_jump_list.rotate_index = 0
                 if event.key == pg.K_LSHIFT:
-                    sprint = False
+                    sprinting = False
 
         clock.tick(FPS)
         pg.display.update()
