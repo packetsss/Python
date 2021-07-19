@@ -200,7 +200,7 @@ def game(size):
 
 
 def main():
-    game(12)  # grid dimension
+    game(12) # grid dimension
 
 
 if "__main__" == __name__:
