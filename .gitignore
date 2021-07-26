@@ -4,6 +4,8 @@
 **/.git
 **/logs
 **/.ipynb_checkpoints
+**/dataset
+**/celeb_dataset
 Python\ Tutorial\ Django/src/mydjango/settings.py
 Python\ Tutorial\ Tkinter/13_Weather_app.py
 Python\ Tutorial\ OpenCV/11_Traffic\ signs/
