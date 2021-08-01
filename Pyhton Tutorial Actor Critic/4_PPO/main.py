@@ -5,24 +5,19 @@ import numpy as np
 from models import Agent
 from utils import plot_learning_curve
 
-
 env = gym.make('CartPole-v0')
 N = 20
 batch_size = 5
 n_epochs = 4
 alpha = 0.0003
-agent = Agent(n_actions=env.action_space.n, batch_size=batch_size, 
-                alpha=alpha, n_epochs=n_epochs, 
-                input_dims=env.observation_space.shape)
+agent = Agent(n_actions=env.action_space.n, input_dims=env.observation_space.shape, batch_size=batch_size, alpha=alpha, n_epochs=n_epochs)
 
 figure_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'plots/cartpole.png')
 
 best_score = env.reward_range[0]
 score_history = []
-
 #%%
 agent.load_models()
-
 
 #%%
 n_games = 300
@@ -58,3 +53,4 @@ for i in range(n_games):
 x = [i+1 for i in range(len(score_history))]
 plot_learning_curve(x, score_history, figure_file)
 
+# %%

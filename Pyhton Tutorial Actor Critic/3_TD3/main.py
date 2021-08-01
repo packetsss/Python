@@ -39,8 +39,11 @@ for i in range(n_games):
         observation = observation_
         env.render()
         ct += 1
-        if ct % 20 == 0:
+        if ct % 50 == 0:
             print(f"score: {score:04f}")
+        if -60 < score < -30:
+            score -= 100
+            break
 
     print(f"score: {score:04f}")
     score_history.append(score)
