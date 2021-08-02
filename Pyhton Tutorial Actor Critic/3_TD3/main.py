@@ -5,9 +5,9 @@ import numpy as np
 from models import Agent
 from utils import plot_learning_curve
 
-#env = gym.make('LunarLanderContinuous-v2')
+env = gym.make('LunarLanderContinuous-v2')
 #env = gym.make('Pendulum-v0')
-env = gym.make('BipedalWalker-v3')
+# env = gym.make('BipedalWalker-v3')
 
 agent = Agent(alpha=0.001, beta=0.001,
     input_dims=env.observation_space.shape, tau=0.005,
