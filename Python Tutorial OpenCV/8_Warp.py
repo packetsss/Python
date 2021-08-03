@@ -6,6 +6,7 @@ Get 4 corners of the img in Windows Paint
 [350, 327] b-r
 """
 
+import os
 import cv2
 import numpy as np
 
@@ -23,7 +24,7 @@ def mousePoints(event, x, y, flags, params):
         print(circle)
 
 
-img = cv2.imread("src/poker.jpg")
+img = cv2.imread(os.path.join(os.path.dirname(os.path.realpath(__file__)), "src/poker.jpg"))
 img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
 while 1:
 
