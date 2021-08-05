@@ -1,9 +1,11 @@
+from utils import *
+
 import os
 import cv2
+import time
 import logging
 import warnings
 import numpy as np
-from utils import *
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
@@ -34,7 +36,6 @@ def get_ball_img(img, center):
     radius = 25
     while 1:
         try:
-            
             j, i = center
             rst = img[i - radius:i + radius, j - radius:j + radius]
 
@@ -56,10 +57,11 @@ def main():
     wrap = True
     labels = None
     select_ptr = False
-    predict_counter = 0
-    display_speed = 15
-    center_list = []
-    ball_image_list = []
+    last_img = None
+    cue_ball_pos = None
+    display_score = 10e10
+    display_threshold = 1
+    ball_list = []
 
     model = Model()
     model.load("models/ball.ckpt")
@@ -72,7 +74,6 @@ def main():
         # transform image
         height, width = img.shape[:2]
         img = img[130:height-40, 60:width-230]
-        # image_filter(img)
 
         # wrap to table
         if wrap:
@@ -82,66 +83,77 @@ def main():
             pt2 = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
             matrix = cv2.getPerspectiveTransform(pt1, pt2) # use circle in 1st arg
             img = cv2.warpPerspective(img, matrix, (width, height))
-            
-            '''
-            for i in range(4):
-                cv2.circle(img, (int(circle[i][0]), int(circle[i][1])), 5, (0, 255, 0), cv2.FILLED)
-            '''
+
+        image_filter(img)
         
+        gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (35, 35), 0)
+        if last_img is not None:
+            display_score = cv2.absdiff(gray, last_img).sum() / 210000
+        last_img = gray
+
         # update ball labels
-        if predict_counter % display_speed == 0:
+        if display_score > display_threshold:
             ball_mask = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), BALL_MASK[0], BALL_MASK[1])
-            ball_mask = crop_rails(ball_mask)
+            ball_mask_2 = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2HSV), BALL_MASK_2[0], BALL_MASK_2[1])
+            ball_mask_3 = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2HSV), BALL_MASK_3[0], BALL_MASK_3[1])
+            ball_mask = crop_rails(ball_mask - ball_mask_2 - (255 - ball_mask_3))
 
             ball_canny = cv2.GaussianBlur(cv2.Canny(ball_mask, 60, 60), (5, 5), cv2.BORDER_DEFAULT)
-            circles = cv2.HoughCircles(ball_canny, cv2.HOUGH_GRADIENT, 1.15, 8, param1=15, param2=15, minRadius=6, maxRadius=10)
+            circles = cv2.HoughCircles(ball_canny, cv2.HOUGH_GRADIENT, 1.1, 12, param1=15, param2=15, minRadius=7, maxRadius=10)
 
             cropped_canny = ball_canny[45:-45, 50:-85]
-            lines = cv2.HoughLinesP(cropped_canny, 1, np.pi/180, threshold=220, minLineLength=40, maxLineGap=20)
+            lines = cv2.HoughLinesP(cropped_canny, 1, np.pi/180, threshold=60, minLineLength=5, maxLineGap=5)
             
-
             if circles is not None:
-                center_list = []
-                ball_image_list = []
+                ball_list = []
                 circles = np.uint16(np.around(circles))
-                for i in circles[0, :]:
-                    circle = (i[0], i[1])
-                    center_list.append(circle)
-                    ball_image_list.append(get_ball_img(img, circle))
-                
-                image_batch = tf.stack(ball_image_list)
+
+                image_batch = tf.stack([get_ball_img(img, c[:2]) for c in circles[0, :]])
                 labels = model.predict(image_batch, expand_img=False)
+
+                for c, ball_label, ball_image in zip(circles[0, :], labels, image_batch):
+                    center = c[:2]
+                    ball_label = DECODER_DICT[np.argmax(ball_label)]
+                    ball_list.append(Ball(center, ball_label, ball_image))
+
+            print("Updated")
+                
+        # draw labels
+        if len(ball_list) > 0:
+            for i in range(len(ball_list)):
+                ball = ball_list[i]
+
+                if ball.label == "Cue-Ball":
+                    cue_ball_pos = ball.center
+
+                cv2.putText(img, ball.label, (ball.center[0] + 5, ball.center[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
+                cv2.circle(img, ball.center, 9, GREEN, 2)
         
         max_length = 0
         start = None
         end = None
         if lines is not None:
+            display_threshold = 0.9
             for line in lines:
                 x1, y1, x2, y2 = line[0]
                 length = np.sqrt(abs(x1 - x2) ** 2 + abs(y1 - y2) ** 2)
                 if length > max_length:
                     max_length = length
                     start, end = (x1 + 50, y1 + 45), (x2 + 50, y2 + 45)
-            print(max_length)
-            cv2.line(img, start, end, (255, 0, 255), 5)
+            cv2.line(img, start, end, MAGENTA, 5)
 
-            # cue_mask = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2HSV), CUE_MASK[0], CUE_MASK[1])
-            # cue_mask = crop_rails(cue_mask)
-            # cue_canny = cv2.GaussianBlur(cv2.Canny(cue_mask, 80, 80), (3, 3), cv2.BORDER_DEFAULT)
+            # find tip
+            if cue_ball_pos is not None:
+                find_distance_to_cue_ball = lambda pt: np.linalg.norm(np.array(pt) - np.array(cue_ball_pos))
+                tip = min([start, end], key=find_distance_to_cue_ball)
+                cv2.circle(img, tip, 5, CYAN, 2)
 
-        # draw labels
-        if len(center_list) > 0:
-            for i in range(len(center_list)):
-                center = center_list[i]
-                if labels is not None:
-                    prediction = DECODER_DICT[np.argmax(labels[i])]
-                    cv2.putText(img, prediction, (center[0] + 5, center[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
-                    cv2.circle(img, center, 9, (0, 255, 0), 2)
-    
-        predict_counter += 1
+                cv2.line(img, tip, cue_ball_pos, MAGENTA, 2)
+        else:
+            display_threshold = 0.9
 
         cv2.imshow("img", img)
-        cv2.imshow("canny", cv2.resize(ball_canny, (0, 0), fx=0.5, fy=0.5))
+        cv2.imshow("canny", cv2.resize(cropped_canny, (0, 0), fx=0.5, fy=0.5))
         if select_ptr:
             cv2.setMouseCallback("img", mousePoints)
         if cv2.waitKey(1) == ord('q'):

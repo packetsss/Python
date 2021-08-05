@@ -5,7 +5,7 @@ def callback(x):
     pass
 
 def image_filter(frame):
-    cv2.namedWindow('sliders')
+    cv2.namedWindow('sliders', cv2.WINDOW_NORMAL)
 
     lowH = 0
     highH = 255
