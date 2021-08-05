@@ -84,7 +84,7 @@ def main():
             matrix = cv2.getPerspectiveTransform(pt1, pt2) # use circle in 1st arg
             img = cv2.warpPerspective(img, matrix, (width, height))
 
-        image_filter(img)
+        # image_filter(img)
         
         gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (35, 35), 0)
         if last_img is not None:
@@ -96,13 +96,15 @@ def main():
             ball_mask = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), BALL_MASK[0], BALL_MASK[1])
             ball_mask_2 = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2HSV), BALL_MASK_2[0], BALL_MASK_2[1])
             ball_mask_3 = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2HSV), BALL_MASK_3[0], BALL_MASK_3[1])
+            
             ball_mask = crop_rails(ball_mask - ball_mask_2 - (255 - ball_mask_3))
 
             ball_canny = cv2.GaussianBlur(cv2.Canny(ball_mask, 60, 60), (5, 5), cv2.BORDER_DEFAULT)
             circles = cv2.HoughCircles(ball_canny, cv2.HOUGH_GRADIENT, 1.1, 12, param1=15, param2=15, minRadius=7, maxRadius=10)
 
-            cropped_canny = ball_canny[45:-45, 50:-85]
-            lines = cv2.HoughLinesP(cropped_canny, 1, np.pi/180, threshold=60, minLineLength=5, maxLineGap=5)
+            cue_mask = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2HSV), CUE_MASK[0], CUE_MASK[1])[:, :-23]
+            cue_canny = cv2.GaussianBlur(cv2.Canny(cue_mask, 60, 60), (3, 3), cv2.BORDER_DEFAULT)
+            lines = cv2.HoughLinesP(cue_canny, 1, np.pi/180, threshold=60, minLineLength=25, maxLineGap=5)
             
             if circles is not None:
                 ball_list = []
@@ -139,7 +141,8 @@ def main():
                 length = np.sqrt(abs(x1 - x2) ** 2 + abs(y1 - y2) ** 2)
                 if length > max_length:
                     max_length = length
-                    start, end = (x1 + 50, y1 + 45), (x2 + 50, y2 + 45)
+                    # start, end = (x1 + 50, y1 + 45), (x2 + 50, y2 + 45)
+                    start, end = (x1, y1), (x2, y2)
             cv2.line(img, start, end, MAGENTA, 5)
 
             # find tip
@@ -153,7 +156,7 @@ def main():
             display_threshold = 0.9
 
         cv2.imshow("img", img)
-        cv2.imshow("canny", cv2.resize(cropped_canny, (0, 0), fx=0.5, fy=0.5))
+        cv2.imshow("canny", cv2.resize(cue_canny, (0, 0), fx=0.5, fy=0.5))
         if select_ptr:
             cv2.setMouseCallback("img", mousePoints)
         if cv2.waitKey(1) == ord('q'):
