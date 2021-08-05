@@ -32,7 +32,7 @@ def image_filter(frame):
         lowV = cv2.getTrackbarPos('lowV', 'sliders')
         highV = cv2.getTrackbarPos('highV', 'sliders')
 
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         lower = np.array([lowH, lowS, lowV])
         higher = np.array([highH, highS, highV])
         mask = cv2.inRange(hsv, lower, higher)
