@@ -118,7 +118,7 @@ def main():
                     ball_label = DECODER_DICT[np.argmax(ball_label)]
                     ball_list.append(Ball(center, ball_label, ball_image))
 
-            print("Updated")
+            # print("Updated")
                 
         # draw labels
         if len(ball_list) > 0:
@@ -149,9 +149,30 @@ def main():
             if cue_ball_pos is not None:
                 find_distance_to_cue_ball = lambda pt: np.linalg.norm(np.array(pt) - np.array(cue_ball_pos))
                 tip = min([start, end], key=find_distance_to_cue_ball)
-                cv2.circle(img, tip, 5, CYAN, 2)
 
-                cv2.line(img, tip, cue_ball_pos, MAGENTA, 2)
+                # calculate aiming line: y = mx + b
+                x1, y1 = tip
+                x2, y2 = cue_ball_pos
+                if x1 - x2 != 0:
+                    m = (y1 - y2) / (x1 - x2)
+                else:
+                    m = (y1 - y2) / 1e-10
+
+                m = min(max(m, 1e-8), 1e8) if m > 0 else max(min(m, -1e-8), -1e8)
+                b = y1 - m * x1
+                if  cue_ball_pos[1] > tip[1]:
+                    pt = (int((450 - b) / m), 450)
+                    # print(111)   
+                else:
+                    pt = (int((0 - b) / m), 0)
+                    # print(11)
+                                
+                try:
+                    cv2.circle(img, tip, 5, CYAN, 2)
+                    cv2.line(img, cue_ball_pos, pt, WHITE, 4)
+                    # cv2.line(img, tip, cue_ball_pos, MAGENTA, 2)
+                except Exception as e:
+                    print(e, "\n", pt)
         else:
             display_threshold = 0.9
 

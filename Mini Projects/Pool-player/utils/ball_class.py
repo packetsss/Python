@@ -7,3 +7,10 @@ class Ball:
         self.label = label
         self.image = image
         self.radius = radius
+    
+    def get_bounding_box(self):
+        x, y = self.center
+        left, top = x - 2 * self.radius, y - 2 * self.radius
+        right, bottom = x + 2 * self.radius, y + 2 * self.radius
+        return top, bottom, left, right
+
