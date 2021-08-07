@@ -1,13 +1,16 @@
-from utils import *
+from util import *
 
 import os
 import cv2
 import time
+import torch
 import logging
 import warnings
 import numpy as np
 import tensorflow as tf
+from yolov5.load_model import YoloModel
 import matplotlib.pyplot as plt
+from os.path import dirname, abspath
 
 ct = 0
 circle = np.zeros((4, 2), np.float32)
@@ -32,13 +35,11 @@ def center_crop(img, dim):
 	crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]
 	return crop_img
 
-def get_ball_img(img, center):
-    radius = 25
+def get_ball_img(img, center, radius=25):
     while 1:
         try:
             j, i = center
             rst = img[i - radius:i + radius, j - radius:j + radius]
-
             rst = cv2.resize(rst, (75, 75))
             break
         except:
@@ -63,12 +64,21 @@ def main():
     display_threshold = 1
     ball_list = []
 
-    model = Model()
-    model.load("models/ball.ckpt")
+    prev_frame_time = 0
+    new_frame_time = 0
+
+    # model = Model()
+    # model.load("models/ball.ckpt")
+
+    yolo_model = YoloModel().model
+    yolo_model.iou = 0.7
+    yolo_model.conf = 0.35
+    yolo_model.max_det = 16
     
     capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     while 1:
+        '''
         _, img = capture.read()
 
         # transform image
@@ -85,12 +95,20 @@ def main():
             img = cv2.warpPerspective(img, matrix, (width, height))
 
         # image_filter(img)
+        '''
+
         
         gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (35, 35), 0)
         if last_img is not None:
             display_score = cv2.absdiff(gray, last_img).sum() / 210000
         last_img = gray
 
+
+        # if display_score > display_threshold:
+        results = yolo_model(img, size=12000)
+        img = results.render()[0]
+
+        '''
         # update ball labels
         if display_score > display_threshold:
             ball_mask = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), BALL_MASK[0], BALL_MASK[1])
@@ -116,9 +134,11 @@ def main():
                 for c, ball_label, ball_image in zip(circles[0, :], labels, image_batch):
                     center = c[:2]
                     ball_label = DECODER_DICT[np.argmax(ball_label)]
+                    ball_image = cv2.cvtColor(ball_image.numpy().astype('uint8'), cv2.COLOR_BGR2RGB)
                     ball_list.append(Ball(center, ball_label, ball_image))
 
-            # print("Updated")
+                    cv2.imwrite(f"data/label/{time.time()}.jpg", ball_image)
+
                 
         # draw labels
         if len(ball_list) > 0:
@@ -130,6 +150,7 @@ def main():
 
                 cv2.putText(img, ball.label, (ball.center[0] + 5, ball.center[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
                 cv2.circle(img, ball.center, 9, GREEN, 2)
+                
         
         max_length = 0
         start = None
@@ -174,10 +195,18 @@ def main():
                 except Exception as e:
                     print(e, "\n", pt)
         else:
-            display_threshold = 0.9
+            display_threshold = 1
+
+        '''
+        
+        # FPS
+        new_frame_time = time.time()
+        fps = 1 / (new_frame_time - prev_frame_time)
+        prev_frame_time = new_frame_time
+        cv2.putText(img, str(round(fps, 2)), (5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
 
         cv2.imshow("img", img)
-        cv2.imshow("canny", cv2.resize(cue_canny, (0, 0), fx=0.5, fy=0.5))
+        # cv2.imshow("canny", cv2.resize(cv2.cvtColor(ball.image, cv2.COLOR_BGR2RGB), (0, 0), fx=3, fy=3))
         if select_ptr:
             cv2.setMouseCallback("img", mousePoints)
         if cv2.waitKey(1) == ord('q'):
