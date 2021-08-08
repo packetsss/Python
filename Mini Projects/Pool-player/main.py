@@ -4,13 +4,10 @@ import os
 import cv2
 import time
 import torch
-import logging
-import warnings
 import numpy as np
 import tensorflow as tf
 from yolov5.load_model import YoloModel
-import matplotlib.pyplot as plt
-from os.path import dirname, abspath
+
 
 ct = 0
 circle = np.zeros((4, 2), np.float32)
@@ -23,6 +20,8 @@ def mousePoints(event, x, y, flags, params):
         circle[ct] = [x, y]
         ct += 1
         print(x, y)
+
+
 
 def center_crop(img, dim):
 	width, height = img.shape[1], img.shape[0]
@@ -47,6 +46,8 @@ def get_ball_img(img, center, radius=25):
         
     return cv2.cvtColor(rst, cv2.COLOR_BGR2RGB)
 
+
+
 def crop_rails(ball_mask):
     ball_mask[0:43, :] = np.zeros((43, ball_mask.shape[1]))
     ball_mask[-35:, :] = np.zeros((35, ball_mask.shape[1]))
@@ -55,7 +56,6 @@ def crop_rails(ball_mask):
     return ball_mask
 
 def main():
-    wrap = True
     labels = None
     select_ptr = False
     last_img = None
@@ -72,13 +72,20 @@ def main():
 
     yolo_model = YoloModel().model
     yolo_model.iou = 0.7
-    yolo_model.conf = 0.35
-    yolo_model.max_det = 16
+    yolo_model.conf = 0.6
+    yolo_model.max_det = 18
+
+    ball_model = YoloModel().model
+    ball_model.classes = [3]
+    ball_model.iou = 0.1
+    ball_model.conf = 0.15
+    ball_model.max_det = 1
+
+    boundary_coord = (34, -37, 43, -39)
     
     capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     while 1:
-        '''
         _, img = capture.read()
 
         # transform image
@@ -86,17 +93,13 @@ def main():
         img = img[130:height-40, 60:width-230]
 
         # wrap to table
-        if wrap:
-            width, height = 900, 450
+        width, height = 900, 450
 
-            pt1 = np.float32([[32, 11], [1594, 32], [9, 897], [1607, 867]])
-            pt2 = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
-            matrix = cv2.getPerspectiveTransform(pt1, pt2) # use circle in 1st arg
-            img = cv2.warpPerspective(img, matrix, (width, height))
-
+        pt1 = np.float32([[32, 11], [1594, 32], [9, 897], [1607, 867]])
+        pt2 = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
+        matrix = cv2.getPerspectiveTransform(pt1, pt2) # use circle in 1st arg
+        img = cv2.warpPerspective(img, matrix, (width, height))
         # image_filter(img)
-        '''
-
         
         gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (35, 35), 0)
         if last_img is not None:
@@ -105,8 +108,48 @@ def main():
 
 
         # if display_score > display_threshold:
-        results = yolo_model(img, size=12000)
-        img = results.render()[0]
+        cropped_img = img[boundary_coord[0]:boundary_coord[1], 
+                            boundary_coord[2]:boundary_coord[3]]
+        results = yolo_model(np.copy(cropped_img), size=960)
+        rects = results.xyxy[0].cpu().numpy()
+
+
+        if cue_ball_pos is None:
+            results = ball_model(np.copy(cropped_img), size=1920)
+            ball_rects = results.xyxy[0].cpu().numpy()
+            if ball_rects.shape[0] > 0:
+                cue_ball_pos = get_center_from_pred(ball_rects[0])
+
+        # if ball_rects.shape[0] > 0:
+        #     cue_ball_pos = get_center_from_pred(ball_rects[0])
+        if cue_ball_pos is not None:
+            center_array = np.apply_along_axis(get_center_from_pred, 1, rects)
+            cue_ball_pos = closest_node(cue_ball_pos, center_array)
+            
+            # cue_ball_pos[0] += boundary_coord[2]
+            # cue_ball_pos[1] += boundary_coord[0]
+            cue_ball_pos_calibrated = np.array([cue_ball_pos[0] + boundary_coord[2], cue_ball_pos[1] + boundary_coord[0]])
+            print(cue_ball_pos)
+            # print(cue_ball_pos)
+            
+        
+        for x in rects:
+            x[0] += boundary_coord[2]
+            x[2] += boundary_coord[2]
+            x[1] += boundary_coord[0]
+            x[3] += boundary_coord[0]
+
+            center = get_center_from_pred(x)
+
+
+            if cue_ball_pos is not None and np.array_equal(center, cue_ball_pos_calibrated) and x[5] == 1:
+                cv2.circle(img, cue_ball_pos_calibrated, 11, WHITE, 10)
+                confidence, classes = x[4], 3
+            else:
+                confidence, classes = x[4], x[5]
+
+            cv2.circle(img, center, 9, RED, 2)
+            cv2.putText(img, f"{DECODER_DICT[classes]} {confidence:2f}", (center[0] + 5, center[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
 
         '''
         # update ball labels

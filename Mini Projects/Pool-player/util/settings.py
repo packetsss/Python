@@ -26,10 +26,10 @@ DECODER_DICT = {
 }
 
 DECODER_DICT = {
-    0: "Solid",
-    1: "Strips",
-    2: "8-Ball",
-    3: "Cue-Ball"
+    0: "solid",
+    1: "strips",
+    2: "8-ball",
+    3: "cue-ball"
 }
 
 BLACK = (0, 0, 0)

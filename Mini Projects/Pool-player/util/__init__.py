@@ -1,3 +1,4 @@
+from .physics import *
 from .settings import *
 from .ball_class import Ball
 from .load_model import Model
