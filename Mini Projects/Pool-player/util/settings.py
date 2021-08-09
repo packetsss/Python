@@ -26,7 +26,7 @@ DECODER_DICT = {
 }
 
 DECODER_DICT = {
-    0: "solid",
+    0: "solids",
     1: "strips",
     2: "8-ball",
     3: "cue-ball"
