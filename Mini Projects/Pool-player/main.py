@@ -1,4 +1,5 @@
 from util import *
+from yolov5.load_model import YoloModel
 
 import os
 import cv2
@@ -6,8 +7,6 @@ import time
 import torch
 import numpy as np
 import tensorflow as tf
-from yolov5.load_model import YoloModel
-
 
 ct = 0
 circle = np.zeros((4, 2), np.float32)

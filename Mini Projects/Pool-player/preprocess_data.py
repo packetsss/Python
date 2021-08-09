@@ -81,7 +81,7 @@ while 1:
     img_path = os.path.join(dst, f"{time.time()}.jpg")
     cv2.imwrite(img_path, img)
 
-    # if True:
+
     with open(img_path[:-4] + ".txt", "a") as f:
         for x in rects:
             h, w = img.shape[:2]
