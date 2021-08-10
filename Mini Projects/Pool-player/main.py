@@ -9,18 +9,16 @@ import numpy as np
 import tensorflow as tf
 
 ct = 0
-circle = np.zeros((4, 2), np.float32)
+ptr_circle = []
 
 def mousePoints(event, x, y, flags, params):
     global ct
     if event == cv2.EVENT_LBUTTONDOWN:
-        if ct == 4:
+        if ct == 20:
             return False
-        circle[ct] = [x, y]
+        ptr_circle.append((x, y))
         ct += 1
-        print(x, y)
-
-
+        print(ptr_circle)
 
 def center_crop(img, dim):
 	width, height = img.shape[1], img.shape[0]
@@ -46,7 +44,6 @@ def get_ball_img(img, center, radius=25):
     return cv2.cvtColor(rst, cv2.COLOR_BGR2RGB)
 
 
-
 def crop_rails(ball_mask):
     ball_mask[0:43, :] = np.zeros((43, ball_mask.shape[1]))
     ball_mask[-35:, :] = np.zeros((35, ball_mask.shape[1]))
@@ -55,191 +52,95 @@ def crop_rails(ball_mask):
     return ball_mask
 
 def main():
-    labels = None
     select_ptr = False
-    last_img = None
-    cue_ball_pos = None
-    display_score = 10e10
-    display_threshold = 1
-    ball_list = []
 
     prev_frame_time = 0
     new_frame_time = 0
 
-    # model = Model()
-    # model.load("models/ball.ckpt")
-
     yolo_model = YoloModel().model
-    yolo_model.iou = 0.7
-    yolo_model.conf = 0.6
-    yolo_model.max_det = 18
-
-    ball_model = YoloModel().model
-    ball_model.classes = [3]
-    ball_model.iou = 0.1
-    ball_model.conf = 0.15
-    ball_model.max_det = 1
-
-    boundary_coord = (34, -37, 43, -39)
+    yolo_model.iou = 0.8
+    yolo_model.conf = 0.15
+    yolo_model.max_det = 20
     
     capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-
     while 1:
         _, img = capture.read()
 
-        # transform image
-        height, width = img.shape[:2]
-        img = img[130:height-40, 60:width-230]
+        homo, _ = cv2.findHomography(np.array(REAL_DIAMONDS), np.array(DIAMONDS), cv2.RANSAC)
+        img = cv2.warpPerspective(img, homo, (WIDTH, HEIGHT))
+        results = yolo_model(img, size=1280)
+        # results_img = results.render()[0]
 
-        # wrap to table
-        width, height = 900, 450
-
-        pt1 = np.float32([[32, 11], [1594, 32], [9, 897], [1607, 867]])
-        pt2 = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
-        matrix = cv2.getPerspectiveTransform(pt1, pt2) # use circle in 1st arg
-        img = cv2.warpPerspective(img, matrix, (width, height))
-        # image_filter(img)
-        
-        gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (35, 35), 0)
-        if last_img is not None:
-            display_score = cv2.absdiff(gray, last_img).sum() / 210000
-        last_img = gray
-
-
-        # if display_score > display_threshold:
-        cropped_img = img[boundary_coord[0]:boundary_coord[1], 
-                            boundary_coord[2]:boundary_coord[3]]
-        results = yolo_model(np.copy(cropped_img), size=960)
         rects = results.xyxy[0].cpu().numpy()
 
-
-        if cue_ball_pos is None:
-            results = ball_model(np.copy(cropped_img), size=1920)
-            ball_rects = results.xyxy[0].cpu().numpy()
-            if ball_rects.shape[0] > 0:
-                cue_ball_pos = get_center_from_pred(ball_rects[0])
-
-        # if ball_rects.shape[0] > 0:
-        #     cue_ball_pos = get_center_from_pred(ball_rects[0])
-        if cue_ball_pos is not None:
-            center_array = np.apply_along_axis(get_center_from_pred, 1, rects)
-            cue_ball_pos = closest_node(cue_ball_pos, center_array)
-            
-            # cue_ball_pos[0] += boundary_coord[2]
-            # cue_ball_pos[1] += boundary_coord[0]
-            cue_ball_pos_calibrated = np.array([cue_ball_pos[0] + boundary_coord[2], cue_ball_pos[1] + boundary_coord[0]])
-            print(cue_ball_pos)
-            # print(cue_ball_pos)
-            
+        if rects.shape[0] != 0:
+            centers = remove_duplicate_points(np.apply_along_axis(get_center_from_pred, 1, rects))
         
-        for x in rects:
-            x[0] += boundary_coord[2]
-            x[2] += boundary_coord[2]
-            x[1] += boundary_coord[0]
-            x[3] += boundary_coord[0]
+        cue_ball_info = rects[rects[:, 5] == 3]
+        cue_ball_center = None if len(cue_ball_info) == 0 else get_center_from_pred(cue_ball_info[0])
 
-            center = get_center_from_pred(x)
+        cue_center = None
+        if cue_ball_center is not None:
+            cue_info = rects[rects[:, 5] == 4]
+            if len(cue_info) != 0:
+                cue_centers = np.apply_along_axis(lambda x: locate_cue_tip(cue_ball_center, x), 1, cue_info)
+                cue_center = find_center_point_in_points(cue_centers)
 
+        if cue_ball_center is not None and cue_center is not None:
+            # cue ball locator
+            cv2.circle(img, cue_ball_center, 20, YELLOW, 3)
 
-            if cue_ball_pos is not None and np.array_equal(center, cue_ball_pos_calibrated) and x[5] == 1:
-                cv2.circle(img, cue_ball_pos_calibrated, 11, WHITE, 10)
-                confidence, classes = x[4], 3
+            # calculate aiming line
+            end_pt = extend_line_to(cue_center, cue_ball_center)
+
+            intersection = None
+            intersections = []
+            ball_idx = []
+            for idx, ball in enumerate(centers):
+                if distance_between_two_points(ball, cue_ball_center) < 10:
+                    continue
+
+                i = circle_line_intersection(cue_ball_center, ball, end_pt, radius=20)
+                if i is not None:
+                    intersections.append(i)
+                    ball_idx.append(idx)
+
+            if len(intersections) != 0:
+                i = closest_node(cue_ball_center, intersections, return_index=True)
+                intersection = intersections[i]
+                ball = centers[ball_idx[i]]
+
+                end_pt = extend_line_to(intersection, ball)
+
+                a = bounce(intersection, end_pt, degrees=2)
+                if a is not None:
+                    pt1, pt2, pt3 = a
+                    cv2.line(img, intersection, pt1, BLACK, 2)
+                    cv2.line(img, pt2, pt1, BLACK, 2)
+                    cv2.line(img, pt2, pt3, BLACK, 2)
+                    
+                # aiming line
+                else:
+                    cv2.line(img, intersection, end_pt, BLACK, 2)
+
+                # imaginary hit point
+                cv2.circle(img, intersection, 2, YELLOW, -1)
+
+                # imaginary circle + line
+                cv2.circle(img, intersection, 10, BLUE, 1)
+                cv2.line(img, cue_ball_center, intersection, WHITE, 2)
+
+                
             else:
-                confidence, classes = x[4], x[5]
+                # aiming line
+                cv2.line(img, cue_ball_center, end_pt, WHITE, 2)
 
-            cv2.circle(img, center, 9, RED, 2)
-            cv2.putText(img, f"{DECODER_DICT[classes]} {confidence:2f}", (center[0] + 5, center[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
 
-        '''
-        # update ball labels
-        if display_score > display_threshold:
-            ball_mask = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), BALL_MASK[0], BALL_MASK[1])
-            ball_mask_2 = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2HSV), BALL_MASK_2[0], BALL_MASK_2[1])
-            ball_mask_3 = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2HSV), BALL_MASK_3[0], BALL_MASK_3[1])
-            
-            ball_mask = crop_rails(ball_mask - ball_mask_2 - (255 - ball_mask_3))
+            # cue tip
+            if point_in_rectangle(cue_center, RAIL_LOCATION):
+                cv2.circle(img, cue_center, 3, BLACK, 3)
 
-            ball_canny = cv2.GaussianBlur(cv2.Canny(ball_mask, 60, 60), (5, 5), cv2.BORDER_DEFAULT)
-            circles = cv2.HoughCircles(ball_canny, cv2.HOUGH_GRADIENT, 1.1, 12, param1=15, param2=15, minRadius=7, maxRadius=10)
-
-            cue_mask = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2HSV), CUE_MASK[0], CUE_MASK[1])[:, :-23]
-            cue_canny = cv2.GaussianBlur(cv2.Canny(cue_mask, 60, 60), (3, 3), cv2.BORDER_DEFAULT)
-            lines = cv2.HoughLinesP(cue_canny, 1, np.pi/180, threshold=60, minLineLength=25, maxLineGap=5)
-            
-            if circles is not None:
-                ball_list = []
-                circles = np.uint16(np.around(circles))
-
-                image_batch = tf.stack([get_ball_img(img, c[:2]) for c in circles[0, :]])
-                labels = model.predict(image_batch, expand_img=False)
-
-                for c, ball_label, ball_image in zip(circles[0, :], labels, image_batch):
-                    center = c[:2]
-                    ball_label = DECODER_DICT[np.argmax(ball_label)]
-                    ball_image = cv2.cvtColor(ball_image.numpy().astype('uint8'), cv2.COLOR_BGR2RGB)
-                    ball_list.append(Ball(center, ball_label, ball_image))
-
-                    cv2.imwrite(f"data/label/{time.time()}.jpg", ball_image)
-
-                
-        # draw labels
-        if len(ball_list) > 0:
-            for i in range(len(ball_list)):
-                ball = ball_list[i]
-
-                if ball.label == "Cue-Ball":
-                    cue_ball_pos = ball.center
-
-                cv2.putText(img, ball.label, (ball.center[0] + 5, ball.center[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
-                cv2.circle(img, ball.center, 9, GREEN, 2)
-                
-        
-        max_length = 0
-        start = None
-        end = None
-        if lines is not None:
-            display_threshold = 0.9
-            for line in lines:
-                x1, y1, x2, y2 = line[0]
-                length = np.sqrt(abs(x1 - x2) ** 2 + abs(y1 - y2) ** 2)
-                if length > max_length:
-                    max_length = length
-                    # start, end = (x1 + 50, y1 + 45), (x2 + 50, y2 + 45)
-                    start, end = (x1, y1), (x2, y2)
-            cv2.line(img, start, end, MAGENTA, 5)
-
-            # find tip
-            if cue_ball_pos is not None:
-                find_distance_to_cue_ball = lambda pt: np.linalg.norm(np.array(pt) - np.array(cue_ball_pos))
-                tip = min([start, end], key=find_distance_to_cue_ball)
-
-                # calculate aiming line: y = mx + b
-                x1, y1 = tip
-                x2, y2 = cue_ball_pos
-                if x1 - x2 != 0:
-                    m = (y1 - y2) / (x1 - x2)
-                else:
-                    m = (y1 - y2) / 1e-10
-
-                m = min(max(m, 1e-8), 1e8) if m > 0 else max(min(m, -1e-8), -1e8)
-                b = y1 - m * x1
-                if  cue_ball_pos[1] > tip[1]:
-                    pt = (int((450 - b) / m), 450)
-                    # print(111)   
-                else:
-                    pt = (int((0 - b) / m), 0)
-                    # print(11)
-                                
-                try:
-                    cv2.circle(img, tip, 5, CYAN, 2)
-                    cv2.line(img, cue_ball_pos, pt, WHITE, 4)
-                    # cv2.line(img, tip, cue_ball_pos, MAGENTA, 2)
-                except Exception as e:
-                    print(e, "\n", pt)
-        else:
-            display_threshold = 1
-
-        '''
+        cv2.rectangle(img, (RAIL_LOCATION[0], RAIL_LOCATION[2]), (RAIL_LOCATION[1], RAIL_LOCATION[3]), BLACK, 1)
         
         # FPS
         new_frame_time = time.time()
@@ -248,9 +149,11 @@ def main():
         cv2.putText(img, str(round(fps, 2)), (5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
 
         cv2.imshow("img", img)
-        # cv2.imshow("canny", cv2.resize(cv2.cvtColor(ball.image, cv2.COLOR_BGR2RGB), (0, 0), fx=3, fy=3))
         if select_ptr:
             cv2.setMouseCallback("img", mousePoints)
+            for x in ptr_circle:
+                # x = x.astype(int)
+                cv2.circle(img, x, 3, GREEN, 5)
         if cv2.waitKey(1) == ord('q'):
             break
 

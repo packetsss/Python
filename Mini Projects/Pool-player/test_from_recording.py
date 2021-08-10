@@ -98,11 +98,12 @@ def main():
 
                 end_pt = extend_line_to(intersection, ball)
 
-                a = bounce(intersection, end_pt)
+                a = bounce(intersection, end_pt, degrees=2)
                 if a is not None:
-                    pt1, pt2 = np.array(a).astype(int)
+                    pt1, pt2, pt3 = np.array(a).astype(int)
                     cv2.line(img, intersection, pt1, BLACK, 2)
                     cv2.line(img, pt2, pt1, BLACK, 2)
+                    cv2.line(img, pt2, pt3, BLACK, 2)
                     
                 # aiming line
                 else:

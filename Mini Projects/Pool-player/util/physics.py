@@ -18,6 +18,24 @@ def point_in_rectangle(point, rect):
             return True
     return False
 
+def locate_cue_tip(cue_ball, predictions):
+    # find closest point between a point and a rectangle
+    cx, cy = cue_ball
+    x1, y1, x2, y2 = predictions[:4]
+    x3, y3, x4, y4 = x2, y1, x1, y2
+    a1, b1, c1 = general_line_eqtn((x1, y1), (x2, y2))
+    a2, b2, c2 = general_line_eqtn((x2, y2), (x3, y3))
+    a3, b3, c3 = general_line_eqtn((x3, y3), (x4, y4))
+    a4, b4, c4 = general_line_eqtn((x1, y1), (x4, y4))
+    pt1 = (((b1 ** 2 * cx) - (a1 * (b1 * cy + c1))) / (a1 ** 2 + b1 ** 2), ((a1 ** 2 * cy) - (b1 * (b1 * cx + c1))) / (a1 ** 2 + b1 ** 2))
+    pt2 = (((b2 ** 2 * cx) - (a2 * (b2 * cy + c2))) / (a2 ** 2 + b2 ** 2), ((a2 ** 2 * cy) - (b2 * (b2 * cx + c2))) / (a2 ** 2 + b2 ** 2))
+    pt3 = (((b3 ** 2 * cx) - (a3 * (b3 * cy + c3))) / (a3 ** 2 + b3 ** 2), ((a3 ** 2 * cy) - (b3 * (b3 * cx + c3))) / (a3 ** 2 + b3 ** 2))
+    pt4 = (((b4 ** 2 * cx) - (a4 * (b4 * cy + c4))) / (a4 ** 2 + b4 ** 2), ((a4 ** 2 * cy) - (b4 * (b4 * cx + c4))) / (a4 ** 2 + b4 ** 2))
+    return closest_node(cue_ball, [pt1, pt2, pt3, pt4])
+
+def find_center_point_in_points(points):
+    return np.array([points[:, 0].sum() / points.shape[0], points[:, 1].sum() / points.shape[0]]).astype(int)
+
 def inverse_angle(angle, calibrator=0):
     return (180 - angle) + calibrator
 
@@ -56,7 +74,7 @@ def general_line_eqtn(pt1, pt2):
     (x1, y1), (x2, y2) = pt1, pt2
     a = y1 - y2
     b = x2 - x1
-    c = (x1 - x2) * y1 + (y2 - y1) * x1
+    c = x1 * y2 - x2 * y1
     return a, b, c
 
 def check_collision(a, b, c, x, y, radius):
@@ -79,10 +97,9 @@ def circle_line_intersection(cue_ball_center, ball, end_pt, radius=8):
             intersections = i.coords[0]
 
         return np.round(intersections).astype(int)
-
     return None
 
-def bounce(pt1, pt2, degrees=1, return_bounded=False):
+def bounce(pt1, pt2, degrees=1):
     inside_pt = None
     outside_pt = None
     reversed_pt = None
@@ -92,9 +109,8 @@ def bounce(pt1, pt2, degrees=1, return_bounded=False):
     elif not point_in_rectangle(pt2, RAIL_LOCATION):
         outside_pt = pt2
         inside_pt = pt1
-    
-    if outside_pt is None:
-        return None
+    else:
+        return
     
     m, b = point_line_eqtn(inside_pt, outside_pt)
     if outside_pt[0] < RAIL_LOCATION[0]:
@@ -113,9 +129,9 @@ def bounce(pt1, pt2, degrees=1, return_bounded=False):
         outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
         x = outside_pt[0] - inside_pt[0]
         reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
-    if return_bounded:
-        return outside_pt
+    if degrees == 0:
+        return ((outside_pt),)
     
-    return outside_pt, bounce(extend_line_to(outside_pt, reversed_pt), outside_pt, return_bounded=True)
+    return np.array([outside_pt, *bounce(extend_line_to(outside_pt, reversed_pt), outside_pt, degrees=degrees - 1)]).astype(int)
 
     
