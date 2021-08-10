@@ -14,8 +14,8 @@ def main():
     model.conf = 0.1
     model.max_det = 20
 
-    for kk, file in enumerate(files_list[::1]):
-        if kk < 4500:
+    for kk, file in enumerate(files_list[::5]):
+        if kk < 2380:
             continue
 
         img_path = os.path.join(src, file)
@@ -98,8 +98,15 @@ def main():
 
                 end_pt = extend_line_to(intersection, ball)
 
+                a = bounce(intersection, end_pt)
+                if a is not None:
+                    pt1, pt2 = np.array(a).astype(int)
+                    cv2.line(img, intersection, pt1, BLACK, 2)
+                    cv2.line(img, pt2, pt1, BLACK, 2)
+                    
                 # aiming line
-                cv2.line(img, intersection, end_pt, BLACK, 2)
+                else:
+                    cv2.line(img, intersection, end_pt, BLACK, 2)
 
                 # imaginary hit point
                 cv2.circle(img, intersection, 2, YELLOW, -1)
@@ -108,7 +115,7 @@ def main():
                 cv2.circle(img, intersection, 10, BLUE, 1)
                 cv2.line(img, cue_ball_center, intersection, WHITE, 2)
 
-                bounce(intersection, end_pt)
+                
             else:
                 # aiming line
                 cv2.line(img, cue_ball_center, end_pt, WHITE, 2)
@@ -130,9 +137,9 @@ def main():
                 # cv2.circle(img, center, 8, (255, 255, 255), 1)
                 cv2.putText(img, f"{DECODER_DICT[classes]} {confidence:.2f}", (center[0] + 5, center[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
         '''
-
+        cv2.rectangle(img, (RAIL_LOCATION[0], RAIL_LOCATION[2]), (RAIL_LOCATION[1], RAIL_LOCATION[3]), BLACK, 1)
         cv2.imshow("i", img)
-        if cv2.waitKey(1) == ord('q'):
+        if cv2.waitKey() == ord('q'):
             break
 
     cv2.destroyAllWindows()

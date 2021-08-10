@@ -33,8 +33,8 @@ def get_center_from_pred(prediction):
 
 def remove_duplicate_points(points_array):
     sorted_idx = np.lexsort(points_array.T)
-    sorted_data = points_array[sorted_idx,:]
-    row_mask = np.append([True],np.any(np.diff(sorted_data,axis=0),1))
+    sorted_data = points_array[sorted_idx, :]
+    row_mask = np.append([True], np.any(np.diff(sorted_data, axis=0), 1))
 
     return sorted_data[row_mask]
 
@@ -44,8 +44,15 @@ def closest_node(node, nodes, return_index=False):
         return dist.argmin()
     return nodes[dist.argmin()]
 
+def point_line_eqtn(pt1, pt2):
+    # y = mx + b
+    x_coords, y_coords = zip(*[pt1, pt2])
+    a = np.vstack([x_coords, np.ones(len(x_coords))]).T
+    m, b = np.linalg.lstsq(a, y_coords)[0]
+    return m, b
+
 def general_line_eqtn(pt1, pt2):
-    # Ax + By = C ::from:: y = mx + b
+    # Ax + By = C
     (x1, y1), (x2, y2) = pt1, pt2
     a = y1 - y2
     b = x2 - x1
@@ -75,23 +82,40 @@ def circle_line_intersection(cue_ball_center, ball, end_pt, radius=8):
 
     return None
 
-def bounce(pt1, pt2, degrees=1):
+def bounce(pt1, pt2, degrees=1, return_bounded=False):
+    inside_pt = None
     outside_pt = None
+    reversed_pt = None
     if not point_in_rectangle(pt1, RAIL_LOCATION):
         outside_pt = pt1
-    elif not point_in_rectangle(pt1, RAIL_LOCATION):
+        inside_pt = pt2
+    elif not point_in_rectangle(pt2, RAIL_LOCATION):
         outside_pt = pt2
+        inside_pt = pt1
     
     if outside_pt is None:
         return None
     
+    m, b = point_line_eqtn(inside_pt, outside_pt)
     if outside_pt[0] < RAIL_LOCATION[0]:
-        print("l")
+        outside_pt = (RAIL_LOCATION[0], m * RAIL_LOCATION[0] + b)
+        y = outside_pt[1] - inside_pt[1]
+        reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
     elif outside_pt[0] > RAIL_LOCATION[1]:
-        print("r")
+        outside_pt = (RAIL_LOCATION[1], m * RAIL_LOCATION[1] + b)
+        y = outside_pt[1] - inside_pt[1]
+        reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
     elif outside_pt[1] < RAIL_LOCATION[3]:
-        print("u")
+        outside_pt = ((RAIL_LOCATION[2] - b) / m, RAIL_LOCATION[2])
+        x = outside_pt[0] - inside_pt[0]
+        reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
     else:
-        print("d")
+        outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
+        x = outside_pt[0] - inside_pt[0]
+        reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
+    if return_bounded:
+        return outside_pt
+    
+    return outside_pt, bounce(extend_line_to(outside_pt, reversed_pt), outside_pt, return_bounded=True)
 
     
