@@ -83,7 +83,7 @@ def main():
         if cue_ball_center is not None:
             cue_info = rects[rects[:, 5] == 4]
             if len(cue_info) != 0:
-                cue_centers = np.apply_along_axis(lambda x: locate_cue_tip(cue_ball_center, x), 1, cue_info)
+                cue_centers = np.apply_along_axis(get_center_from_pred, 1, cue_info)
                 cue_center = find_center_point_in_points(cue_centers)
 
         if cue_ball_center is not None and cue_center is not None:
