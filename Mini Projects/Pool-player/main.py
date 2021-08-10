@@ -52,6 +52,8 @@ def crop_rails(ball_mask):
     return ball_mask
 
 def main():
+    read_from_recording = True
+    save_img = False
     select_ptr = False
 
     prev_frame_time = 0
@@ -62,9 +64,26 @@ def main():
     yolo_model.conf = 0.15
     yolo_model.max_det = 20
     
-    capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    if read_from_recording:
+        img_ct = 0
+        src = "data\\game_play"
+        files_list = os.listdir(src)
+    else:
+        capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
     while 1:
-        _, img = capture.read()
+        if read_from_recording:
+            img_path = os.path.join(src, files_list[img_ct])
+            if img_path[-3:] != "jpg":
+                continue
+            img = cv2.imread(img_path)
+            img_ct += 2
+        else:
+            _, img = capture.read()
+
+        if save_img:
+            src = "data\\game_play"
+            cv2.imwrite(src + f"\\{time.time()}.jpg", img)
 
         homo, _ = cv2.findHomography(np.array(REAL_DIAMONDS), np.array(DIAMONDS), cv2.RANSAC)
         img = cv2.warpPerspective(img, homo, (WIDTH, HEIGHT))
@@ -109,15 +128,15 @@ def main():
                 i = closest_node(cue_ball_center, intersections, return_index=True)
                 intersection = intersections[i]
                 ball = centers[ball_idx[i]]
-
                 end_pt = extend_line_to(intersection, ball)
 
                 a = bounce(intersection, end_pt, degrees=2)
                 if a is not None:
-                    pt1, pt2, pt3 = a
-                    cv2.line(img, intersection, pt1, BLACK, 2)
-                    cv2.line(img, pt2, pt1, BLACK, 2)
-                    cv2.line(img, pt2, pt3, BLACK, 2)
+                    # print(a)
+                    cv2.line(img, intersection, a[0, :], BLACK, 2)
+                    for i in range(a.shape[0] - 1):
+                        pt1, pt2 = a[i, :], a[i + 1, :]
+                        cv2.line(img, pt2, pt1, BLACK, 2)
                     
                 # aiming line
                 else:
@@ -156,8 +175,10 @@ def main():
                 cv2.circle(img, x, 3, GREEN, 5)
         if cv2.waitKey(1) == ord('q'):
             break
+    
+    if not read_from_recording:
+        capture.release()
 
-    capture.release()
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":

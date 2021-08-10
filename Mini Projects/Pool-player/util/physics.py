@@ -13,8 +13,8 @@ def distance_between_two_points(p1, p2):
 def point_in_rectangle(point, rect):
     x1, x2, y1, y2 = rect
     x, y = point
-    if (x1 < x and x < x2):
-        if (y1 < y and y < y2):
+    if (x1 <= x and x <= x2):
+        if (y1 <= y and y <= y2):
             return True
     return False
 
@@ -64,6 +64,7 @@ def closest_node(node, nodes, return_index=False):
 
 def point_line_eqtn(pt1, pt2):
     # y = mx + b
+    pt1 = (pt1[0] + 1e-6, pt1[1])
     x_coords, y_coords = zip(*[pt1, pt2])
     a = np.vstack([x_coords, np.ones(len(x_coords))]).T
     m, b = np.linalg.lstsq(a, y_coords)[0]
@@ -110,28 +111,71 @@ def bounce(pt1, pt2, degrees=1):
         outside_pt = pt2
         inside_pt = pt1
     else:
+        print("returning None")
         return
     
-    m, b = point_line_eqtn(inside_pt, outside_pt)
-    if outside_pt[0] < RAIL_LOCATION[0]:
-        outside_pt = (RAIL_LOCATION[0], m * RAIL_LOCATION[0] + b)
-        y = outside_pt[1] - inside_pt[1]
-        reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
-    elif outside_pt[0] > RAIL_LOCATION[1]:
-        outside_pt = (RAIL_LOCATION[1], m * RAIL_LOCATION[1] + b)
-        y = outside_pt[1] - inside_pt[1]
-        reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
-    elif outside_pt[1] < RAIL_LOCATION[3]:
-        outside_pt = ((RAIL_LOCATION[2] - b) / m, RAIL_LOCATION[2])
-        x = outside_pt[0] - inside_pt[0]
-        reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
+    
+    try:
+        m, b = point_line_eqtn(inside_pt, outside_pt)
+    except Exception as e:
+        print(e, inside_pt, outside_pt)
+
+    if outside_pt[0] <= RAIL_LOCATION[0]:
+        y_test = m * RAIL_LOCATION[2] + b
+        if y_test > RAIL_LOCATION[3]:
+            # condition 4
+            outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
+            x = outside_pt[0] - inside_pt[0]
+            reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
+        else:
+            # condition 1
+            outside_pt = (RAIL_LOCATION[0], m * RAIL_LOCATION[0] + b)
+            y = outside_pt[1] - inside_pt[1]
+            reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
+            # print(outside_pt, reversed_pt)
+    elif outside_pt[0] >= RAIL_LOCATION[1]:
+        
+        y_test = m * RAIL_LOCATION[1] + b
+        if y_test > RAIL_LOCATION[3]:
+            # condition 4
+            outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
+            x = outside_pt[0] - inside_pt[0]
+            reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
+        else:
+            # condition 2
+            outside_pt = (RAIL_LOCATION[1], m * RAIL_LOCATION[1] + b)
+            y = outside_pt[1] - inside_pt[1]
+            reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
+            # print(inside_pt, outside_pt, reversed_pt)
+    elif outside_pt[1] <= RAIL_LOCATION[2]:
+        x_test = (RAIL_LOCATION[3] - b) / m
+        if x_test < RAIL_LOCATION[0]:
+            # condition 1
+            outside_pt = (RAIL_LOCATION[0], m * RAIL_LOCATION[0] + b)
+            y = outside_pt[1] - inside_pt[1]
+            reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
+        else:
+            # condition 3
+            outside_pt = ((RAIL_LOCATION[2] - b) / m, RAIL_LOCATION[2])
+            x = outside_pt[0] - inside_pt[0]
+            reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
     else:
-        outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
-        x = outside_pt[0] - inside_pt[0]
-        reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
+        x_test = (RAIL_LOCATION[3] - b) / m
+        if x_test < RAIL_LOCATION[0]:
+            # condition 1
+            outside_pt = (RAIL_LOCATION[0], m * RAIL_LOCATION[0] + b)
+            y = outside_pt[1] - inside_pt[1]
+            reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
+        else:
+            # condition 4
+            outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
+            x = outside_pt[0] - inside_pt[0]
+            reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
+
     if degrees == 0:
+        # pack last value to tuple
         return ((outside_pt),)
     
-    return np.array([outside_pt, *bounce(extend_line_to(outside_pt, reversed_pt), outside_pt, degrees=degrees - 1)]).astype(int)
+    return np.array([outside_pt, *bounce(extend_line_to(outside_pt, reversed_pt, length=2000), outside_pt, degrees=degrees - 1)]).astype(int)
 
     
