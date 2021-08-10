@@ -52,7 +52,7 @@ def crop_rails(ball_mask):
     return ball_mask
 
 def main():
-    read_from_recording = True
+    read_from_recording = False
     save_img = False
     select_ptr = False
 
@@ -85,13 +85,16 @@ def main():
             src = "data\\game_play"
             cv2.imwrite(src + f"\\{time.time()}.jpg", img)
 
+        # find diamonds and warp image
         homo, _ = cv2.findHomography(np.array(REAL_DIAMONDS), np.array(DIAMONDS), cv2.RANSAC)
         img = cv2.warpPerspective(img, homo, (WIDTH, HEIGHT))
+  
+        for x in np.array(POCKET_LOCATION).astype(int):
+            cv2.circle(img, x, POCKET_RADIUS, BLUE, 5)
+
+        # apply yolo to locate balls and cue
         results = yolo_model(img, size=1280)
-        # results_img = results.render()[0]
-
         rects = results.xyxy[0].cpu().numpy()
-
         if rects.shape[0] != 0:
             centers = remove_duplicate_points(np.apply_along_axis(get_center_from_pred, 1, rects))
         

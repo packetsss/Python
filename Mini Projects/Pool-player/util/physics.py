@@ -165,10 +165,14 @@ def bounce(pt1, pt2, degrees=1):
         outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
         x = outside_pt[0] - inside_pt[0]
         reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
-
-    if degrees == 0:
+    
+    # extended_pt = extend_line_to(outside_pt, reversed_pt)
+    a, b, c = general_line_eqtn(inside_pt, outside_pt)
+    collided = any([check_collision(a, b, c, *x, POCKET_RADIUS) for x in POCKET_LOCATION])
+    # print(collided)
+    if degrees == 0 or collided:
         # pack last value to tuple
-        return ((outside_pt),)
+        return np.array(((outside_pt),)).astype(int)
     
     return np.array([outside_pt, *bounce(extend_line_to(outside_pt, reversed_pt), outside_pt, degrees=degrees - 1)]).astype(int)
 
