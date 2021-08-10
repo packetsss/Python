@@ -65,7 +65,7 @@ def main():
     yolo_model.max_det = 20
     
     if read_from_recording:
-        img_ct = 0
+        img_ct = 210
         src = "data\\game_play"
         files_list = os.listdir(src)
     else:
@@ -77,7 +77,7 @@ def main():
             if img_path[-3:] != "jpg":
                 continue
             img = cv2.imread(img_path)
-            img_ct += 2
+            img_ct += 1
         else:
             _, img = capture.read()
 
@@ -130,16 +130,15 @@ def main():
                 ball = centers[ball_idx[i]]
                 end_pt = extend_line_to(intersection, ball)
 
-                a = bounce(intersection, end_pt, degrees=2)
-                if a is not None:
-                    # print(a)
-                    cv2.line(img, intersection, a[0, :], BLACK, 2)
-                    for i in range(a.shape[0] - 1):
-                        pt1, pt2 = a[i, :], a[i + 1, :]
-                        cv2.line(img, pt2, pt1, BLACK, 2)
-                    
                 # aiming line
+                aiming_lines = bounce(intersection, end_pt, degrees=2)
+                if aiming_lines is not None:
+                    cv2.line(img, intersection, aiming_lines[0, :], BLACK, 2)
+                    for i in range(aiming_lines.shape[0] - 1):
+                        pt1, pt2 = aiming_lines[i, :], aiming_lines[i + 1, :]
+                        cv2.line(img, pt2, pt1, BLACK, 2)
                 else:
+                    print("not a")
                     cv2.line(img, intersection, end_pt, BLACK, 2)
 
                 # imaginary hit point
@@ -149,15 +148,17 @@ def main():
                 cv2.circle(img, intersection, 10, BLUE, 1)
                 cv2.line(img, cue_ball_center, intersection, WHITE, 2)
 
-                
             else:
                 # aiming line
-                cv2.line(img, cue_ball_center, end_pt, WHITE, 2)
-
+                end_pts = bounce(cue_ball_center, end_pt, degrees=1)
+                if end_pts is not None:
+                    cv2.line(img, cue_ball_center, end_pts[0, :], WHITE, 2)
+                    for i in range(end_pts.shape[0] - 1):
+                        pt1, pt2 = end_pts[i, :], end_pts[i + 1, :]
+                        cv2.line(img, pt2, pt1, WHITE, 2)
 
             # cue tip
-            if point_in_rectangle(cue_center, RAIL_LOCATION):
-                cv2.circle(img, cue_center, 3, BLACK, 3)
+            cv2.circle(img, cue_center, 3, BLACK, 3)
 
         cv2.rectangle(img, (RAIL_LOCATION[0], RAIL_LOCATION[2]), (RAIL_LOCATION[1], RAIL_LOCATION[3]), BLACK, 1)
         
@@ -173,6 +174,7 @@ def main():
             for x in ptr_circle:
                 # x = x.astype(int)
                 cv2.circle(img, x, 3, GREEN, 5)
+
         if cv2.waitKey(1) == ord('q'):
             break
     

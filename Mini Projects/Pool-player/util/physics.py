@@ -39,7 +39,7 @@ def find_center_point_in_points(points):
 def inverse_angle(angle, calibrator=0):
     return (180 - angle) + calibrator
 
-def extend_line_to(start_point, mid_point, length=900):
+def extend_line_to(start_point, mid_point, length=2000):
     theta = np.arctan2(start_point[1] - mid_point[1], start_point[0] - mid_point[0])
     if length < 0:
         return (int(mid_point[0] - length * np.cos(theta)), int(mid_point[1] - length * np.sin(theta)))
@@ -101,9 +101,10 @@ def circle_line_intersection(cue_ball_center, ball, end_pt, radius=8):
     return None
 
 def bounce(pt1, pt2, degrees=1):
-    inside_pt = None
-    outside_pt = None
-    reversed_pt = None
+    if pt1 is None or pt2 is None:
+        print("returning None", pt1, pt2, degrees)
+        return
+
     if not point_in_rectangle(pt1, RAIL_LOCATION):
         outside_pt = pt1
         inside_pt = pt2
@@ -111,14 +112,14 @@ def bounce(pt1, pt2, degrees=1):
         outside_pt = pt2
         inside_pt = pt1
     else:
-        print("returning None")
+        print("returning None", pt1, pt2, degrees)
         return
-    
-    
+
     try:
         m, b = point_line_eqtn(inside_pt, outside_pt)
     except Exception as e:
         print(e, inside_pt, outside_pt)
+        return
 
     if outside_pt[0] <= RAIL_LOCATION[0]:
         y_test = m * RAIL_LOCATION[2] + b
@@ -127,18 +128,26 @@ def bounce(pt1, pt2, degrees=1):
             outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
             x = outside_pt[0] - inside_pt[0]
             reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
+        elif y_test < RAIL_LOCATION[2]:
+            # condition 3
+            outside_pt = ((RAIL_LOCATION[2] - b) / m, RAIL_LOCATION[2])
+            x = outside_pt[0] - inside_pt[0]
+            reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
         else:
             # condition 1
             outside_pt = (RAIL_LOCATION[0], m * RAIL_LOCATION[0] + b)
             y = outside_pt[1] - inside_pt[1]
             reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
-            # print(outside_pt, reversed_pt)
     elif outside_pt[0] >= RAIL_LOCATION[1]:
-        
         y_test = m * RAIL_LOCATION[1] + b
         if y_test > RAIL_LOCATION[3]:
             # condition 4
             outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
+            x = outside_pt[0] - inside_pt[0]
+            reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
+        elif y_test < RAIL_LOCATION[2]:
+            # condition 3
+            outside_pt = ((RAIL_LOCATION[2] - b) / m, RAIL_LOCATION[2])
             x = outside_pt[0] - inside_pt[0]
             reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
         else:
@@ -146,36 +155,21 @@ def bounce(pt1, pt2, degrees=1):
             outside_pt = (RAIL_LOCATION[1], m * RAIL_LOCATION[1] + b)
             y = outside_pt[1] - inside_pt[1]
             reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
-            # print(inside_pt, outside_pt, reversed_pt)
     elif outside_pt[1] <= RAIL_LOCATION[2]:
-        x_test = (RAIL_LOCATION[3] - b) / m
-        if x_test < RAIL_LOCATION[0]:
-            # condition 1
-            outside_pt = (RAIL_LOCATION[0], m * RAIL_LOCATION[0] + b)
-            y = outside_pt[1] - inside_pt[1]
-            reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
-        else:
-            # condition 3
-            outside_pt = ((RAIL_LOCATION[2] - b) / m, RAIL_LOCATION[2])
-            x = outside_pt[0] - inside_pt[0]
-            reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
+        # condition 3
+        outside_pt = ((RAIL_LOCATION[2] - b) / m, RAIL_LOCATION[2])
+        x = outside_pt[0] - inside_pt[0]
+        reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
     else:
-        x_test = (RAIL_LOCATION[3] - b) / m
-        if x_test < RAIL_LOCATION[0]:
-            # condition 1
-            outside_pt = (RAIL_LOCATION[0], m * RAIL_LOCATION[0] + b)
-            y = outside_pt[1] - inside_pt[1]
-            reversed_pt = (inside_pt[0], inside_pt[1] + 2 * y)
-        else:
-            # condition 4
-            outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
-            x = outside_pt[0] - inside_pt[0]
-            reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
+        # condition 4
+        outside_pt = ((RAIL_LOCATION[3] - b) / m, RAIL_LOCATION[3])
+        x = outside_pt[0] - inside_pt[0]
+        reversed_pt = (inside_pt[0] + 2 * x, inside_pt[1])
 
     if degrees == 0:
         # pack last value to tuple
         return ((outside_pt),)
     
-    return np.array([outside_pt, *bounce(extend_line_to(outside_pt, reversed_pt, length=2000), outside_pt, degrees=degrees - 1)]).astype(int)
+    return np.array([outside_pt, *bounce(extend_line_to(outside_pt, reversed_pt), outside_pt, degrees=degrees - 1)]).astype(int)
 
     
