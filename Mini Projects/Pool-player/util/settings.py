@@ -5,7 +5,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 logging.getLogger('tensorflow').setLevel(logging.FATAL)
 warnings.filterwarnings("ignore")
 
-DECODER_DICT = {
+DECODER_DICT_OLD = {
     2: 11,
     7: 16,
     11: 5,
@@ -46,6 +46,8 @@ CYAN = (255, 0, 255)
 BALL_MASK = ((0, 0, 68), (92, 255, 255))
 BALL_MASK_2 = ((102, 28, 56), (144, 255, 255))
 BALL_MASK_3 = ((78, 78, 0), (108, 255, 255))
-
 CUE_MASK = ((15, 0, 159), (74, 111, 255))
+
+RAIL_BOUNDARIES = (34, -37, 43, -39)
+RAIL_LOCATION = (RAIL_BOUNDARIES[0], 900 + RAIL_BOUNDARIES[1], RAIL_BOUNDARIES[2], 450 + RAIL_BOUNDARIES[3])
 
