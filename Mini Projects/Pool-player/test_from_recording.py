@@ -12,8 +12,8 @@ files_list = os.listdir(src)
 
 model = YoloModel().model
 
-model.iou = 0.5
-model.conf = 0.3
+model.iou = 0.2
+model.conf = 0.1
 model.max_det = 20
 
 
@@ -22,8 +22,6 @@ table_sides = (boundary_coord[0], 900 + boundary_coord[1], boundary_coord[2], 45
 
 
 for file in files_list[::5]:
-    center_list = []
-
     img_path = os.path.join(src, file)
     if img_path[-3:] != "jpg":
         continue
@@ -33,12 +31,16 @@ for file in files_list[::5]:
     cropped_img = img[boundary_coord[0]:boundary_coord[1], boundary_coord[2]:boundary_coord[3]]
 
     
-    result = model(cropped_img, size=1000)
+    result = model(np.copy(img), size=700)
     rects = result.xyxy[0].cpu().numpy()
+    centers = np.apply_along_axis(get_center_from_pred, 1, rects)
     
     cue_ball_info = rects[rects[:, 5] == 3]
     cue_ball_center = None if len(cue_ball_info) == 0 else get_center_from_pred(cue_ball_info[0])
 
+    cue_info = rects[rects[:, 5] == 4]
+    cue_center = None if len(cue_info) == 0 else get_center_from_pred(cue_info[0])
+    '''
     cue_mask = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2HSV), CUE_MASK[0], CUE_MASK[1])[:, :-23]
     cue_canny = cv2.GaussianBlur(cv2.Canny(cue_mask, 60, 60), (5, 5), cv2.BORDER_DEFAULT)
     lines = cv2.HoughLinesP(cue_canny, 1, np.pi/180, threshold=90, minLineLength=25, maxLineGap=5)
@@ -73,41 +75,37 @@ for file in files_list[::5]:
             pt1, pt2 = np.reshape(pt1, (-1, 2)), np.reshape(pt2, (-1, 2))
             start, end = np.rint(pt1.mean(axis=0)), np.rint(pt2.mean(axis=0))
             cv2.line(img, start.astype(int), end.astype(int), MAGENTA, 5)
+        '''
 
-        if cue_ball_center is not None and start is not None and end is not None:
-            cue_ball_center[0] += boundary_coord[2]
-            cue_ball_center[1] += boundary_coord[0]
+    if cue_ball_center is not None and cue_center is not None:# start is not None and end is not None:
+        # cue_ball_center[0] += boundary_coord[2]
+        # cue_ball_center[1] += boundary_coord[0]
 
-            find_distance_to_cue_ball = lambda pt: np.linalg.norm(pt - cue_ball_center)
-            tip = min([start, end], key=find_distance_to_cue_ball).astype(int)
+        # find_distance_to_cue_ball = lambda pt: np.linalg.norm(pt - cue_ball_center)
+        # tip = min([start, end], key=find_distance_to_cue_ball).astype(int)
+        tip = cue_center
 
-            # calculate aiming line
-            theta = np.arctan2(tip[1] - cue_ball_center[1], tip[0] - cue_ball_center[0])
-            endpt_x = int(tip[0] - 900 * np.cos(theta))
-            endpt_y = int(tip[1] - 900 * np.sin(theta))
-            pt = (endpt_x, endpt_y)
+        # calculate aiming line
+        theta = np.arctan2(tip[1] - cue_ball_center[1], tip[0] - cue_ball_center[0])
+        end_pt = (int(tip[0] - 900 * np.cos(theta)), int(tip[1] - 900 * np.sin(theta)))
 
-            
-            if point_in_rectangle(tip, table_sides):        
-                try:
-                    cv2.circle(img, tip, 5, CYAN, 2)
-                    cv2.line(img, cue_ball_center, pt, WHITE, 4)
-                    # cv2.line(img, tip, cue_ball_pos, MAGENTA, 2)
-                except Exception as e:
-                    print(e, "\n", pt, tip)
-    
+        if point_in_rectangle(tip, table_sides):
+            cv2.circle(img, tip, 7, CYAN, 5)
+            cv2.line(img, cue_ball_center, end_pt, WHITE, 4)
+
     
     for x in rects:
         h, w = img.shape[:2]
-        center = (int((x[0] + x[2]) / 2 + boundary_coord[2]), int((x[1] + x[3]) / 2 + boundary_coord[0]))
+        center = (int((x[0] + x[2]) / 2), int((x[1] + x[3]) / 2))
         confidence, classes = x[4], x[5]
 
-        cv2.circle(img, center, 10, (255, 255, 255), 5)
-        cv2.putText(img, f"{DECODER_DICT[classes]} {confidence:.2f}", (center[0] + 5, center[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
+        if classes != 4:
+            cv2.circle(img, center, 10, (255, 255, 255), 5)
+            cv2.putText(img, f"{DECODER_DICT[classes]} {confidence:.2f}", (center[0] + 5, center[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
     
 
     cv2.imshow("i", img)
-    if cv2.waitKey() == ord('q'):
+    if cv2.waitKey(1) == ord('q'):
         break
 
 
