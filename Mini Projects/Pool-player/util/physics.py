@@ -215,9 +215,11 @@ def angle_between_two_lines(lineA, lineB):
         return ang_deg
 
 def find_best_shot(pocket, ball, cue_ball_center, centers):
-    imaginary_aiming_loc = extend_line_to(ball, pocket, BALL_RADIUS + 5, is_reversed=True)
-    ball_loc = extend_line_to(pocket, ball, -BALL_RADIUS - 5)
-    cue_ball_loc = extend_line_to(imaginary_aiming_loc, cue_ball_center, -BALL_RADIUS - 5)
+    ball_radius_multiplier = 2
+    imaginary_aiming_loc = extend_line_to(ball, pocket, int(BALL_RADIUS * ball_radius_multiplier + 3), is_reversed=True)
+    ball_loc = extend_line_to(pocket, ball, -int(BALL_RADIUS * ball_radius_multiplier + 3))
+    cue_ball_loc = extend_line_to(imaginary_aiming_loc, cue_ball_center, -int(BALL_RADIUS * ball_radius_multiplier + 3))
+
     ball_to_pocket = np.array([ball_loc, pocket])
     cue_ball_to_ball = np.array([cue_ball_loc, imaginary_aiming_loc])
     angle = angle_between_two_lines(cue_ball_to_ball, ball_to_pocket)
@@ -227,7 +229,10 @@ def find_best_shot(pocket, ball, cue_ball_center, centers):
         return (10e6, ball_to_pocket, cue_ball_to_ball)
 
     # check if this ball is reachable
-    block_detect = list(map(lambda x: circle_line_intersection(x, *ball_to_pocket, return_bool=True) or circle_line_intersection(x, *cue_ball_to_ball, return_bool=True), centers))
+    block_detect = list(map(lambda x: 
+    circle_line_intersection(x, *ball_to_pocket, return_bool=True, radius=int(BALL_RADIUS * ball_radius_multiplier)) 
+    or 
+    circle_line_intersection(x, *cue_ball_to_ball, return_bool=True, radius=int(BALL_RADIUS * ball_radius_multiplier)), centers))
 
     if sum(block_detect) > 0:
         return (10e6, ball_to_pocket, cue_ball_to_ball)

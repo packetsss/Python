@@ -4,7 +4,9 @@ from yolov5.load_model import YoloModel
 import os
 import cv2
 import time
+import pstats
 import numpy as np
+from cProfile import Profile
 from collections import deque
 
 ct = 0
@@ -52,20 +54,22 @@ def crop_rails(ball_mask):
 
 def main():
     # initialize stuff...
-    read_from_recording = True
     save_img = False
     select_ptr = False
-
-    curr_player = "strips"
+    read_from_recording = True
+    draw_realtime_aiming_line = True
 
     prev_frame_time = 0
     new_frame_time = 0
 
-    cue_ball_count_queue = deque(maxlen=15)
+    moved = False
     prev_cue_ball = None
     curr_cue_ball = None
     cue_ball_changed = False
-    best_shot = [10e10]
+    cue_ball_count_queue = deque(maxlen=30)
+
+    solids_best_shot = [10e10]
+    strips_best_shot = [10e10]
 
     yolo_model = YoloModel().model
     yolo_model.iou = 0.3
@@ -75,10 +79,11 @@ def main():
     if read_from_recording:
         img_ct = 0
         src = "data\\game_play"
-        files_list = os.listdir(src)
+        files_list = os.listdir(src)[14000:]
     else:
         capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
+    print("Starting Mainloop...")
     #============== MAIN LOOP ==============#
     while 1:
         if read_from_recording:
@@ -86,7 +91,7 @@ def main():
             if img_path[-3:] != "jpg":
                 continue
             img = cv2.imread(img_path)
-            img_ct += 1
+            img_ct += 2
         else:
             _, img = capture.read()
 
@@ -96,7 +101,7 @@ def main():
 
         # find diamonds and warp image
         homo, _ = cv2.findHomography(np.array(REAL_DIAMONDS), np.array(DIAMONDS), cv2.RANSAC)
-        img = cv2.warpPerspective(img, homo, np.array([WIDTH * ZOOM_MULTIPLIER, HEIGHT * ZOOM_MULTIPLIER]).astype(int))
+        img = cv2.warpPerspective(img, homo, np.array([WIDTH * ZOOM_MULTIPLIER, HEIGHT * ZOOM_MULTIPLIER]).astype(int), flags=cv2.INTER_NEAREST)
 
         # apply yolo to locate balls and cue
         results = yolo_model(img, size=img.shape[1])
@@ -110,15 +115,18 @@ def main():
         cue_ball_center = None if len(cue_ball_info) == 0 else get_center_from_pred(cue_ball_info[0])
         
         cue_center = None
+        cue_ball_changed = False
         if cue_ball_center is not None:
             cue_ball_count_queue.append(cue_ball_center)
             curr_cue_ball = find_center_point_in_points(np.array(cue_ball_count_queue))
-            if prev_cue_ball is not None and (changed := np.array_equal(prev_cue_ball, curr_cue_ball)) and not cue_ball_changed:
-                best_shot = [10e10]
+            if prev_cue_ball is not None and (changed := np.array_equal(prev_cue_ball, curr_cue_ball)) and not moved:
+                solids_best_shot = [10e10]
+                strips_best_shot = [10e10]
                 cue_ball_changed = True
+                moved = True
 
             elif prev_cue_ball is not None and not changed:
-                cue_ball_changed = False
+                moved = False
     
             cue_info = rects[rects[:, 5] == 4]
             if len(cue_info) != 0:
@@ -134,32 +142,46 @@ def main():
         # loop through every ball
         intersections = []
         ball_idx = []
-        
-        for i, ball in enumerate(centers):
-            if cue_ball_center is not None and cue_center is not None:
-                if distance_between_two_points(ball, cue_ball_center) < BALL_RADIUS:
+        if cue_ball_center is not None:
+            for i, ball in enumerate(centers):
+                if distance_between_two_points(ball, cue_ball_center) < BALL_RADIUS * 2:
                     continue
 
-                intsec = circle_line_intersection(cue_ball_center, ball, end_pt, radius=BALL_RADIUS * 2)
-                if intsec is not None:
-                    intersections.append(intsec)
-                    ball_idx.append(i)
-            
-            if cue_ball_changed and cue_ball_center is not None and curr_player == "strips" and rects[i, 5] == 1:
-                difficulties = list(map(lambda x: find_best_shot(x, ball, cue_ball_center, centers), POCKET_LOCATION))
+                if cue_center is not None:
+                    intsec = circle_line_intersection(ball, cue_ball_center, end_pt, radius=BALL_RADIUS * 2)
+                    if intsec is not None:
+                        intersections.append(intsec)
+                        ball_idx.append(i)
+                
+                if cue_ball_changed:
+                    # solids
+                    if rects[i, 5] == 0:
+                        difficulties = list(map(lambda x: find_best_shot(x, ball, cue_ball_center, centers), POCKET_LOCATION))
 
-                if len(difficulties) > 0:
-                    curr_shot = min(difficulties, key=lambda x: x[0])
-                    if curr_shot[0] < best_shot[0]:
-                        best_shot = curr_shot
+                        if len(difficulties) > 0:
+                            solids_curr_shot = min(difficulties, key=lambda x: x[0])
+                            if solids_curr_shot[0] < solids_best_shot[0]:
+                                solids_best_shot = solids_curr_shot
+                    elif rects[i, 5] == 1:
+                        difficulties = list(map(lambda x: find_best_shot(x, ball, cue_ball_center, centers), POCKET_LOCATION))
+
+                        if len(difficulties) > 0:
+                            strips_curr_shot = min(difficulties, key=lambda x: x[0])
+                            if strips_curr_shot[0] < strips_best_shot[0]:
+                                strips_best_shot = strips_curr_shot
 
         # plot best straight shot
-        if best_shot[0] < 1000:
-            cv2.line(img, *best_shot[1], GREEN, 2)
-            cv2.line(img, *best_shot[2], GREEN, 2)
-            cv2.putText(img, f"Difficulty: {best_shot[0]:.2f}", (best_shot[1][0][0] + 10, best_shot[1][0][1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, GREEN, 2, cv2.LINE_AA)
+        if solids_best_shot[0] < 1000:
+            cv2.line(img, *solids_best_shot[1], GREEN, 2)
+            cv2.line(img, *solids_best_shot[2], GREEN, 2)
+            cv2.putText(img, f"DIFF: {solids_best_shot[0]:.0f}", (solids_best_shot[1][0][0] - 25, solids_best_shot[1][0][1] - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, GREEN, 2, cv2.LINE_AA)
+        if strips_best_shot[0] < 1000:
+            cv2.line(img, *strips_best_shot[1], MAGENTA, 2)
+            cv2.line(img, *strips_best_shot[2], MAGENTA, 2)
+            cv2.putText(img, f"DIFF: {strips_best_shot[0]:.0f}", (strips_best_shot[1][0][0] - 25, strips_best_shot[1][0][1] - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, MAGENTA, 2, cv2.LINE_AA)
 
-        if cue_ball_center is not None and cue_center is not None:
+        # draw realtime aiming system
+        if draw_realtime_aiming_line and cue_ball_center is not None and cue_center is not None:
             if len(intersections) != 0:
                 i = closest_node(cue_ball_center, intersections, return_index=True)
                 intersection = intersections[i]
@@ -195,17 +217,14 @@ def main():
             # cue tip
             cv2.circle(img, cue_center, 4, BLACK, 4)
 
-        # display current player
-        cv2.putText(img, f"Current player is: {curr_player}", (300, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, BLUE, 2, cv2.LINE_AA)
-
         # draw rails and pockets
         cv2.rectangle(img, (RAIL_LOCATION[0], RAIL_LOCATION[2]), (RAIL_LOCATION[1], RAIL_LOCATION[3]), BLACK, 1)
         for x in np.array(POCKET_LOCATION).astype(int):
             cv2.circle(img, x, POCKET_RADIUS, BLUE, 3)
         
         # draw side pocket
-        for x in SIDE_POCKET_BOUNDARY:
-            cv2.circle(img, x, 5, BLUE, 3)
+        # for x in SIDE_POCKET_BOUNDARY:
+        #     cv2.circle(img, x, 5, MAGENTA, 3)
 
         # update constants
         prev_cue_ball = curr_cue_ball
@@ -223,7 +242,7 @@ def main():
                 # x = x.astype(int)
                 cv2.circle(img, x, 3, GREEN, 5)
 
-        if cv2.waitKey(2) == ord('q'):
+        if cv2.waitKey(1) == ord('q'):
             break
     
     if not read_from_recording:
@@ -232,4 +251,9 @@ def main():
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
+    # with Profile() as pr:
     main()
+    # stats = pstats.Stats(pr)
+    # stats.sort_stats(pstats.SortKey.TIME)
+    # stats.print_stats()
+    # stats.dump_stats(filename="./profiling.prof")
