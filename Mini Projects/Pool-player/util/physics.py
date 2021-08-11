@@ -56,9 +56,11 @@ def remove_duplicate_points(points_array):
 
     return sorted_data[row_mask]
 
-def closest_node(node, nodes, return_index=False):
+def closest_node(node, nodes, return_index=False, return_distance=False):
     dist = cdist([node], nodes)
-    if return_index:
+    if return_distance:
+        return dist
+    elif return_index:
         return dist.argmin()
     return nodes[dist.argmin()]
 

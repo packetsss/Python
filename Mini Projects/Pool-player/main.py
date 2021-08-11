@@ -7,6 +7,7 @@ import time
 import torch
 import numpy as np
 import tensorflow as tf
+from collections import deque
 
 ct = 0
 ptr_circle = []
@@ -52,16 +53,27 @@ def crop_rails(ball_mask):
     return ball_mask
 
 def main():
-    read_from_recording = False
+    read_from_recording = True
     save_img = False
     select_ptr = False
+
+    solids_count_queue = deque(maxlen=10)
+    strips_count_queue = deque(maxlen=10)
+    cue_ball_count_queue = deque(maxlen=5)
+    prev_solids_count = None
+    prev_strips_count = None
+
+    prev_cue_ball = None
+    curr_cue_ball = None
+    cue_ball_changed = False
+    curr_player = None
 
     prev_frame_time = 0
     new_frame_time = 0
 
     yolo_model = YoloModel().model
-    yolo_model.iou = 0.8
-    yolo_model.conf = 0.15
+    yolo_model.iou = 0.3
+    yolo_model.conf = 0.2
     yolo_model.max_det = 20
     
     if read_from_recording:
@@ -87,13 +99,11 @@ def main():
 
         # find diamonds and warp image
         homo, _ = cv2.findHomography(np.array(REAL_DIAMONDS), np.array(DIAMONDS), cv2.RANSAC)
-        img = cv2.warpPerspective(img, homo, (WIDTH, HEIGHT))
-  
-        for x in np.array(POCKET_LOCATION).astype(int):
-            cv2.circle(img, x, POCKET_RADIUS, BLUE, 5)
+        img = cv2.warpPerspective(img, homo, np.array([WIDTH * ZOOM_MULTIPLIER, HEIGHT * ZOOM_MULTIPLIER]).astype(int))
 
         # apply yolo to locate balls and cue
-        results = yolo_model(img, size=1280)
+        results = yolo_model(img, size=img.shape[1])
+        results.render()
         rects = results.xyxy[0].cpu().numpy()
         if rects.shape[0] != 0:
             centers = remove_duplicate_points(np.apply_along_axis(get_center_from_pred, 1, rects))
@@ -101,8 +111,30 @@ def main():
         cue_ball_info = rects[rects[:, 5] == 3]
         cue_ball_center = None if len(cue_ball_info) == 0 else get_center_from_pred(cue_ball_info[0])
 
+        solids_count_queue.append(rects[rects[:, 5] == 0].shape[0])
+        strips_count_queue.append(rects[rects[:, 5] == 1].shape[0])
+        solids_count = np.mean(solids_count_queue).astype(int)
+        strips_count = np.mean(strips_count_queue).astype(int)
+        
         cue_center = None
         if cue_ball_center is not None:
+            # detect cue ball movements
+            cue_ball_count_queue.append(cue_ball_center)
+            curr_cue_ball = find_center_point_in_points(np.array(cue_ball_count_queue))
+            if prev_cue_ball is not None and (changed := np.array_equal(prev_cue_ball, curr_cue_ball)) and not cue_ball_changed:
+                cue_ball_changed = True
+                if solids_count != prev_solids_count:
+                    curr_player = "solids"
+                elif strips_count != prev_strips_count:
+                    curr_player = "strips"
+                else:
+                    curr_player = "solids" if curr_player == "strips" else "strips"
+
+            elif prev_cue_ball is not None and not changed:
+                cue_ball_changed = False
+            prev_cue_ball = curr_cue_ball
+
+            rects = rects[np.any((rects[:, :4] != cue_ball_info[0, :4]), axis=1)]
             cue_info = rects[rects[:, 5] == 4]
             if len(cue_info) != 0:
                 cue_centers = np.apply_along_axis(get_center_from_pred, 1, cue_info)
@@ -126,6 +158,10 @@ def main():
                 if i is not None:
                     intersections.append(i)
                     ball_idx.append(idx)
+                
+                if curr_player == "solids" and rects[idx, 5] == 0:
+                    closest_pocket = closest_node(ball, POCKET_LOCATION)
+                    print(ball, closest_pocket)
 
             if len(intersections) != 0:
                 i = closest_node(cue_ball_center, intersections, return_index=True)
@@ -163,13 +199,24 @@ def main():
             # cue tip
             cv2.circle(img, cue_center, 3, BLACK, 3)
 
+        # display current player
+        cv2.putText(img, f"Current player is: {curr_player}", (300, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, BLUE, 2, cv2.LINE_AA)
+
+        # draw rails and pockets
         cv2.rectangle(img, (RAIL_LOCATION[0], RAIL_LOCATION[2]), (RAIL_LOCATION[1], RAIL_LOCATION[3]), BLACK, 1)
+        for x in np.array(POCKET_LOCATION).astype(int):
+            cv2.circle(img, x, POCKET_RADIUS, BLUE, 5)
+        
+        # update previous value
+        prev_cue_ball = curr_cue_ball
+        prev_solids_count = solids_count
+        prev_strips_count = strips_count
         
         # FPS
         new_frame_time = time.time()
         fps = 1 / (new_frame_time - prev_frame_time)
         prev_frame_time = new_frame_time
-        cv2.putText(img, str(round(fps, 2)), (5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 2, cv2.LINE_AA)
+        cv2.putText(img, str(round(fps, 2)), (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, WHITE, 3, cv2.LINE_AA)
 
         cv2.imshow("img", img)
         if select_ptr:
