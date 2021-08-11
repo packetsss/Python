@@ -5,6 +5,7 @@ import numpy as np
 from shapely.geometry import Point
 from shapely.geometry import LineString
 from scipy.spatial.distance import cdist
+from shapely.geometry.polygon import Polygon
 
 def distance_between_two_points(p1, p2):
     dist_diff = p1 - p2
@@ -17,6 +18,11 @@ def point_in_rectangle(point, rect):
         if (y1 <= y and y <= y2):
             return True
     return False
+
+def point_in_poly(point, poly):
+    pt = Point(point[0], point[1])
+    polygon = Polygon(poly)
+    return polygon.contains(pt)
 
 def locate_cue_tip(cue_ball, predictions):
     # find closest point between a point and a rectangle
@@ -87,15 +93,17 @@ def check_collision(a, b, c, x, y, radius):
     
     return radius >= dist
 
-def circle_line_intersection(cue_ball_center, ball, end_pt, radius=8):
-    p = Point(ball[0], ball[1])
+def circle_line_intersection(circle, pt1, pt2, radius=BALL_RADIUS, return_bool=False):
+    p = Point(circle[0], circle[1])
     c = p.buffer(radius).boundary
-    l = LineString([cue_ball_center, end_pt])
+    l = LineString([pt1, pt2])
     i = c.intersection(l)
+    if return_bool:
+        return bool(i)
     if i:
         try:
             i1, i2 = i.geoms[0].coords[0], i.geoms[1].coords[0]
-            intersections = closest_node(cue_ball_center, [i1, i2])
+            intersections = closest_node(pt1, [i1, i2])
         except AttributeError:
             intersections = i.coords[0]
 
@@ -179,3 +187,62 @@ def bounce(pt1, pt2, degrees=1):
     return np.array([outside_pt, *bounce(extend_line_to(outside_pt, reversed_pt), outside_pt, degrees=degrees - 1)]).astype(int)
 
     
+def dot_product(vA, vB):
+    return vA[0] * vB[0] + vA[1] * vB[1]
+
+def angle_between_two_lines(lineA, lineB):
+    # Get nicer vector form
+    vA = [(lineA[0][0] - lineA[1][0]), (lineA[0][1] - lineA[1][1])]
+    vB = [(lineB[0][0] - lineB[1][0]), (lineB[0][1] - lineB[1][1])]
+    # Get dot prod
+    dot_prod = dot_product(vA, vB)
+    # Get magnitudes
+    magA = dot_product(vA, vA) ** 0.5
+    magB = dot_product(vB, vB) ** 0.5
+    # Get angle in radians and then convert to degrees
+    angle = math.acos(np.clip(dot_prod / magB / magA, -1, 1))
+    # Basically doing angle <- angle mod 360
+    ang_deg = math.degrees(angle) % 360
+
+    if ang_deg - 180 >= 0:
+        # As in if statement
+        return 360 - ang_deg
+    else: 
+        return ang_deg
+
+def find_best_shot(pocket, ball, cue_ball_center, centers):
+    imaginary_aiming_loc = extend_line_to(pocket, ball, BALL_RADIUS + 5)
+    ball_loc = extend_line_to(pocket, ball, -BALL_RADIUS - 5)
+    cue_ball_loc = extend_line_to(imaginary_aiming_loc, cue_ball_center, -BALL_RADIUS - 5)
+    ball_to_pocket = np.array([ball_loc, pocket])
+    cue_ball_to_ball = np.array([cue_ball_loc, imaginary_aiming_loc])
+    angle = angle_between_two_lines(cue_ball_to_ball, ball_to_pocket)
+
+    # check if this ball is inside the middle pocket range and the angle range
+    if (pocket in SIDE_POCKET_LOCATION and not point_in_poly(ball, SIDE_POCKET_BOUNDARY)) or angle > 75:
+        return (10e6, ball_to_pocket, cue_ball_to_ball)
+
+    # check if this ball is reachable
+    block_detect = list(map(lambda x: circle_line_intersection(x, *ball_to_pocket, return_bool=True) or circle_line_intersection(x, *cue_ball_to_ball, return_bool=True), centers))
+    # l1, l2 = general_line_eqtn(ball, pocket), general_line_eqtn(cue_ball_center, ball)
+
+    # block_detect = list(map(lambda x: check_collision(*l1, *x, BALL_RADIUS * 2 + 5) or check_collision(*l2, *x, BALL_RADIUS * 2 + 5), centers))
+    # print(block_detect)
+    if sum(block_detect) > 0:
+        return (10e6, ball_to_pocket, cue_ball_to_ball)
+
+    # calculate difficulty based on angle and distance
+    diff = 0
+    dist = distance_between_two_points(*ball_to_pocket)
+    cue_dist = distance_between_two_points(*cue_ball_to_ball)
+
+    # debug
+    # print(np.round([dist, cue_dist, angle]))
+    # print(np.round([-10000 / (dist ** 1.3), cue_dist / 5 if cue_dist > 30 else 1000 / cue_dist, angle ** 2 / 20 + 15]), "\n\n")
+
+    # some multipliers
+    diff -= 10000 / (dist ** 1.3)
+    diff += cue_dist / 10 if cue_dist > 30 else 1000 / cue_dist
+    diff += angle ** 1.8 / 20 + 15
+
+    return (diff, ball_to_pocket, cue_ball_to_ball)

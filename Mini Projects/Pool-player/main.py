@@ -4,9 +4,7 @@ from yolov5.load_model import YoloModel
 import os
 import cv2
 import time
-import torch
 import numpy as np
-import tensorflow as tf
 from collections import deque
 
 ct = 0
@@ -53,23 +51,21 @@ def crop_rails(ball_mask):
     return ball_mask
 
 def main():
+    # initialize stuff...
     read_from_recording = True
     save_img = False
     select_ptr = False
 
-    solids_count_queue = deque(maxlen=10)
-    strips_count_queue = deque(maxlen=10)
-    cue_ball_count_queue = deque(maxlen=5)
-    prev_solids_count = None
-    prev_strips_count = None
-
-    prev_cue_ball = None
-    curr_cue_ball = None
-    cue_ball_changed = False
-    curr_player = None
+    curr_player = "strips"
 
     prev_frame_time = 0
     new_frame_time = 0
+
+    cue_ball_count_queue = deque(maxlen=15)
+    prev_cue_ball = None
+    curr_cue_ball = None
+    cue_ball_changed = False
+    best_shot = [10e10]
 
     yolo_model = YoloModel().model
     yolo_model.iou = 0.3
@@ -77,12 +73,13 @@ def main():
     yolo_model.max_det = 20
     
     if read_from_recording:
-        img_ct = 210
+        img_ct = 0
         src = "data\\game_play"
         files_list = os.listdir(src)
     else:
         capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
+    #============== MAIN LOOP ==============#
     while 1:
         if read_from_recording:
             img_path = os.path.join(src, files_list[img_ct])
@@ -106,63 +103,63 @@ def main():
         results.render()
         rects = results.xyxy[0].cpu().numpy()
         if rects.shape[0] != 0:
-            centers = remove_duplicate_points(np.apply_along_axis(get_center_from_pred, 1, rects))
+            rects = remove_duplicate_points(rects)
+            centers = np.apply_along_axis(get_center_from_pred, 1, rects)
         
         cue_ball_info = rects[rects[:, 5] == 3]
         cue_ball_center = None if len(cue_ball_info) == 0 else get_center_from_pred(cue_ball_info[0])
-
-        solids_count_queue.append(rects[rects[:, 5] == 0].shape[0])
-        strips_count_queue.append(rects[rects[:, 5] == 1].shape[0])
-        solids_count = np.mean(solids_count_queue).astype(int)
-        strips_count = np.mean(strips_count_queue).astype(int)
         
         cue_center = None
         if cue_ball_center is not None:
-            # detect cue ball movements
             cue_ball_count_queue.append(cue_ball_center)
             curr_cue_ball = find_center_point_in_points(np.array(cue_ball_count_queue))
             if prev_cue_ball is not None and (changed := np.array_equal(prev_cue_ball, curr_cue_ball)) and not cue_ball_changed:
+                best_shot = [10e10]
                 cue_ball_changed = True
-                if solids_count != prev_solids_count:
-                    curr_player = "solids"
-                elif strips_count != prev_strips_count:
-                    curr_player = "strips"
-                else:
-                    curr_player = "solids" if curr_player == "strips" else "strips"
 
             elif prev_cue_ball is not None and not changed:
                 cue_ball_changed = False
-            prev_cue_ball = curr_cue_ball
-
-            rects = rects[np.any((rects[:, :4] != cue_ball_info[0, :4]), axis=1)]
+    
             cue_info = rects[rects[:, 5] == 4]
             if len(cue_info) != 0:
                 cue_centers = np.apply_along_axis(get_center_from_pred, 1, cue_info)
                 cue_center = find_center_point_in_points(cue_centers)
-
-        if cue_ball_center is not None and cue_center is not None:
             # cue ball locator
-            cv2.circle(img, cue_ball_center, 20, YELLOW, 3)
+            cv2.circle(img, cue_ball_center, BALL_RADIUS * 2, YELLOW, 3)
 
-            # calculate aiming line
-            end_pt = extend_line_to(cue_center, cue_ball_center)
+            if cue_center is not None:
+                # calculate aiming line
+                end_pt = extend_line_to(cue_center, cue_ball_center)
 
-            intersection = None
-            intersections = []
-            ball_idx = []
-            for idx, ball in enumerate(centers):
-                if distance_between_two_points(ball, cue_ball_center) < 10:
+        # loop through every ball
+        intersections = []
+        ball_idx = []
+        
+        for i, ball in enumerate(centers):
+            if cue_ball_center is not None and cue_center is not None:
+                if distance_between_two_points(ball, cue_ball_center) < BALL_RADIUS:
                     continue
 
-                i = circle_line_intersection(cue_ball_center, ball, end_pt, radius=20)
-                if i is not None:
-                    intersections.append(i)
-                    ball_idx.append(idx)
-                
-                if curr_player == "solids" and rects[idx, 5] == 0:
-                    closest_pocket = closest_node(ball, POCKET_LOCATION)
-                    print(ball, closest_pocket)
+                intsec = circle_line_intersection(cue_ball_center, ball, end_pt, radius=BALL_RADIUS * 2)
+                if intsec is not None:
+                    intersections.append(intsec)
+                    ball_idx.append(i)
+            
+            if cue_ball_changed and cue_ball_center is not None and curr_player == "strips" and rects[i, 5] == 1:
+                difficulties = list(map(lambda x: find_best_shot(x, ball, cue_ball_center, centers), POCKET_LOCATION))
 
+                if len(difficulties) > 0:
+                    curr_shot = min(difficulties, key=lambda x: x[0])
+                    if curr_shot[0] < best_shot[0]:
+                        best_shot = curr_shot
+
+        # plot best straight shot
+        if best_shot[0] < 1000:
+            cv2.line(img, *best_shot[1], GREEN, 2)
+            cv2.line(img, *best_shot[2], GREEN, 2)
+            cv2.putText(img, f"Difficulty: {best_shot[0]:.2f}", (best_shot[1][0][0] + 10, best_shot[1][0][1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, GREEN, 2, cv2.LINE_AA)
+
+        if cue_ball_center is not None and cue_center is not None:
             if len(intersections) != 0:
                 i = closest_node(cue_ball_center, intersections, return_index=True)
                 intersection = intersections[i]
@@ -177,14 +174,13 @@ def main():
                         pt1, pt2 = aiming_lines[i, :], aiming_lines[i + 1, :]
                         cv2.line(img, pt2, pt1, BLACK, 2)
                 else:
-                    print("not a")
                     cv2.line(img, intersection, end_pt, BLACK, 2)
 
                 # imaginary hit point
                 cv2.circle(img, intersection, 2, YELLOW, -1)
 
                 # imaginary circle + line
-                cv2.circle(img, intersection, 10, BLUE, 1)
+                cv2.circle(img, intersection, BALL_RADIUS, BLUE, 1)
                 cv2.line(img, cue_ball_center, intersection, WHITE, 2)
 
             else:
@@ -197,7 +193,7 @@ def main():
                         cv2.line(img, pt2, pt1, WHITE, 2)
 
             # cue tip
-            cv2.circle(img, cue_center, 3, BLACK, 3)
+            cv2.circle(img, cue_center, 4, BLACK, 4)
 
         # display current player
         cv2.putText(img, f"Current player is: {curr_player}", (300, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, BLUE, 2, cv2.LINE_AA)
@@ -205,12 +201,14 @@ def main():
         # draw rails and pockets
         cv2.rectangle(img, (RAIL_LOCATION[0], RAIL_LOCATION[2]), (RAIL_LOCATION[1], RAIL_LOCATION[3]), BLACK, 1)
         for x in np.array(POCKET_LOCATION).astype(int):
-            cv2.circle(img, x, POCKET_RADIUS, BLUE, 5)
+            cv2.circle(img, x, POCKET_RADIUS, BLUE, 3)
         
-        # update previous value
+        # draw side pocket
+        for x in SIDE_POCKET_BOUNDARY:
+            cv2.circle(img, x, 5, BLUE, 3)
+
+        # update constants
         prev_cue_ball = curr_cue_ball
-        prev_solids_count = solids_count
-        prev_strips_count = strips_count
         
         # FPS
         new_frame_time = time.time()
@@ -225,7 +223,7 @@ def main():
                 # x = x.astype(int)
                 cv2.circle(img, x, 3, GREEN, 5)
 
-        if cv2.waitKey(1) == ord('q'):
+        if cv2.waitKey(2) == ord('q'):
             break
     
     if not read_from_recording:
