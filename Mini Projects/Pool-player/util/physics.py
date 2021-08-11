@@ -45,10 +45,14 @@ def find_center_point_in_points(points):
 def inverse_angle(angle, calibrator=0):
     return (180 - angle) + calibrator
 
-def extend_line_to(start_point, mid_point, length=2000):
+def extend_line_to(start_point, mid_point, length=2000, is_reversed=False):
     theta = np.arctan2(start_point[1] - mid_point[1], start_point[0] - mid_point[0])
     if length < 0:
+        if is_reversed:
+            return(int(mid_point[0] + length * np.cos(theta)), int(mid_point[1] + length * np.sin(theta)))
         return (int(mid_point[0] - length * np.cos(theta)), int(mid_point[1] - length * np.sin(theta)))
+    if is_reversed:
+        return (int(start_point[0] + length * np.cos(theta)), int(start_point[1] + length * np.sin(theta)))
     return (int(start_point[0] - length * np.cos(theta)), int(start_point[1] - length * np.sin(theta)))
 
 def get_center_from_pred(prediction):
@@ -211,7 +215,7 @@ def angle_between_two_lines(lineA, lineB):
         return ang_deg
 
 def find_best_shot(pocket, ball, cue_ball_center, centers):
-    imaginary_aiming_loc = extend_line_to(pocket, ball, BALL_RADIUS + 5)
+    imaginary_aiming_loc = extend_line_to(ball, pocket, BALL_RADIUS + 5, is_reversed=True)
     ball_loc = extend_line_to(pocket, ball, -BALL_RADIUS - 5)
     cue_ball_loc = extend_line_to(imaginary_aiming_loc, cue_ball_center, -BALL_RADIUS - 5)
     ball_to_pocket = np.array([ball_loc, pocket])
@@ -224,10 +228,7 @@ def find_best_shot(pocket, ball, cue_ball_center, centers):
 
     # check if this ball is reachable
     block_detect = list(map(lambda x: circle_line_intersection(x, *ball_to_pocket, return_bool=True) or circle_line_intersection(x, *cue_ball_to_ball, return_bool=True), centers))
-    # l1, l2 = general_line_eqtn(ball, pocket), general_line_eqtn(cue_ball_center, ball)
 
-    # block_detect = list(map(lambda x: check_collision(*l1, *x, BALL_RADIUS * 2 + 5) or check_collision(*l2, *x, BALL_RADIUS * 2 + 5), centers))
-    # print(block_detect)
     if sum(block_detect) > 0:
         return (10e6, ball_to_pocket, cue_ball_to_ball)
 
