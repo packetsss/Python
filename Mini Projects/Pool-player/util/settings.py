@@ -38,9 +38,9 @@ CUE_MASK = ((15, 0, 159), (74, 111, 255))
 
 
 #======== TABLE LOCATION ========#
-ZOOM_MULTIPLIER = 1.1
+ZOOM_MULTIPLIER = 1.2
 
-BALL_RADIUS = int(10 * ZOOM_MULTIPLIER)
+BALL_RADIUS = int(12 * ZOOM_MULTIPLIER)
 WIDTH, HEIGHT = 1120, 620
 
 # diamonds: top-left -> top-right -> bottom-right -> bottom-left -> top-left

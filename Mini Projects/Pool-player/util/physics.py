@@ -19,6 +19,13 @@ def point_in_rectangle(point, rect):
             return True
     return False
 
+def unique_rects_by_possibilities(rects, ball_type):
+    # return cue-ball / 8-ball with highest possibilities
+    bool_index = rects[:, 5] == ball_type
+    if bool_index.sum() > 1:
+        return np.delete(rects, np.argwhere(bool_index)[np.argmin(rects[bool_index][:, 4])][0], axis=0)
+    return rects
+
 def point_in_poly(point, poly):
     pt = Point(point[0], point[1])
     polygon = Polygon(poly)
@@ -226,7 +233,7 @@ def find_best_shot(pocket, ball, cue_ball_center, centers):
 
     # check if this ball is inside the middle pocket range and the angle range
     if (pocket in SIDE_POCKET_LOCATION and not point_in_poly(ball, SIDE_POCKET_BOUNDARY)) or angle > 75:
-        return (10e6, ball_to_pocket, cue_ball_to_ball)
+        return (10e6, ball_to_pocket, cue_ball_to_ball, angle)
 
     # check if this ball is reachable
     block_detect = list(map(lambda x: 
@@ -235,7 +242,7 @@ def find_best_shot(pocket, ball, cue_ball_center, centers):
     circle_line_intersection(x, *cue_ball_to_ball, return_bool=True, radius=int(BALL_RADIUS * ball_radius_multiplier)), centers))
 
     if sum(block_detect) > 0:
-        return (10e6, ball_to_pocket, cue_ball_to_ball)
+        return (10e6, ball_to_pocket, cue_ball_to_ball, angle)
 
     # calculate difficulty based on angle and distance
     diff = 0
@@ -248,7 +255,8 @@ def find_best_shot(pocket, ball, cue_ball_center, centers):
 
     # some multipliers
     diff -= 10000 / (dist ** 1.3)
-    diff += cue_dist / 10 if cue_dist > 30 else 1000 / cue_dist
+    diff += cue_dist / 10 if cue_dist > 60 else 1000 / cue_dist
     diff += angle ** 1.8 / 20 + 15
+    diff -= 25 if 12 < angle < 23 and 100 < cue_dist < 400 and dist < 400 else 0  # good angle for positioning
 
-    return (diff, ball_to_pocket, cue_ball_to_ball)
+    return (diff, ball_to_pocket, cue_ball_to_ball, angle)
