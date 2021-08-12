@@ -56,7 +56,7 @@ def main():
     # initialize stuff...
     save_img = False
     select_ptr = False
-    read_from_recording = False
+    read_from_recording = True
     draw_realtime_aiming_line = True
 
     prev_frame_time = 0
@@ -79,7 +79,7 @@ def main():
     if read_from_recording:
         img_ct = 0
         src = "data\\game_play"
-        files_list = os.listdir(src)[20100:]
+        files_list = os.listdir(src)[18000:]
     else:
         capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 

@@ -258,5 +258,6 @@ def find_best_shot(pocket, ball, cue_ball_center, centers):
     diff += cue_dist / 10 if cue_dist > 60 else 1000 / cue_dist
     diff += angle ** 1.8 / 20 + 15
     diff -= 25 if 12 < angle < 23 and 100 < cue_dist < 400 and dist < 400 else 0  # good angle for positioning
+    diff += 10 if angle < 4 else 0
 
     return (diff, ball_to_pocket, cue_ball_to_ball, angle)
