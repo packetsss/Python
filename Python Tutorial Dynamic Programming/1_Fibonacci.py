@@ -44,8 +44,7 @@ from timeit import default_timer as timer
 def Fibonacci(n):
     if n < 2:
         return n
-    else:
-        return Fibonacci(n - 2) + Fibonacci(n - 1)
+    return Fibonacci(n - 2) + Fibonacci(n - 1)
 
 
 start = timer()
@@ -53,7 +52,6 @@ Fibonacci(30)
 end = timer()
 print(f"Naive time: {end - start}")
 # Slow O(2^n) complexity since there are 2 recursive calls, O(n) space complexity
-
 
 hash_table = {}
 def Fibonacci_topdown(n):
@@ -114,3 +112,19 @@ start = timer()
 print(Fibonacci_bottomup_1(100))
 end = timer()
 print(f"Bottom up time: {end - start}")
+
+
+#============== CACHE DECORATORS ACHIEVE THE SAME THING ==============#
+from functools import cache, lru_cache
+
+@cache
+def Fibonacci(n):
+    if n < 2:
+        return n
+    return Fibonacci(n - 2) + Fibonacci(n - 1)
+
+@lru_cache(max_size=5)
+def Fibonacci(n):
+    if n < 2:
+        return n
+    return Fibonacci(n - 2) + Fibonacci(n - 1)
