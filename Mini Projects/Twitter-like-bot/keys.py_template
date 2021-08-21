@@ -1,0 +1,21 @@
+# return your keys and ids here
+
+def get_consumer_key():
+    return 
+
+def get_consumer_secret():
+    return 
+
+def get_access_key():
+    return 
+
+def get_access_secret():
+    return 
+
+def get_my_id():
+    # make sure to return your twitter user ID (you can look it up on google)
+    return 
+
+def get_target_id():
+    # make sure to return your target twitter user ID (you can look it up on google)
+    return 
