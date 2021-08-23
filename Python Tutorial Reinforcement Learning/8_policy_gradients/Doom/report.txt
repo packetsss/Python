@@ -1,0 +1,92 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 1 files
+Detected 1 issues that require attention
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+File: Doom REINFORCE Monte Carlo Policy gradients.ipynb
+--------------------------------------------------------------------------------
+Doom REINFORCE Monte Carlo Policy gradients.ipynb:411:12: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+================================================================================
+Detailed log follows:
+
+================================================================================
+--------------------------------------------------------------------------------
+Processing file 'Doom REINFORCE Monte Carlo Policy gradients.ipynb'
+ outputting to 'main.ipynb'
+--------------------------------------------------------------------------------
+
+132:13: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+133:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+133:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+137:30: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+138:31: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+139:51: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+143:36: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+145:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+145:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+153:29: INFO: Renamed 'tf.layers.conv2d' to 'tf.compat.v1.layers.conv2d'
+158:65: INFO: Changing tf.contrib.layers xavier initializer to a tf.compat.v1.keras.initializers.VarianceScaling and converting arguments.
+
+161:39: INFO: Renamed 'tf.layers.batch_normalization' to 'tf.compat.v1.layers.batch_normalization'
+169:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+169:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+176:29: INFO: Renamed 'tf.layers.conv2d' to 'tf.compat.v1.layers.conv2d'
+181:55: INFO: Changing tf.contrib.layers xavier initializer to a tf.compat.v1.keras.initializers.VarianceScaling and converting arguments.
+
+184:39: INFO: Renamed 'tf.layers.batch_normalization' to 'tf.compat.v1.layers.batch_normalization'
+192:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+192:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+199:29: INFO: Renamed 'tf.layers.conv2d' to 'tf.compat.v1.layers.conv2d'
+204:55: INFO: Changing tf.contrib.layers xavier initializer to a tf.compat.v1.keras.initializers.VarianceScaling and converting arguments.
+
+207:39: INFO: Renamed 'tf.layers.batch_normalization' to 'tf.compat.v1.layers.batch_normalization'
+215:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+215:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+216:31: INFO: Renamed 'tf.layers.flatten' to 'tf.compat.v1.layers.flatten'
+219:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+219:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+220:26: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+223:62: INFO: Changing tf.contrib.layers xavier initializer to a tf.compat.v1.keras.initializers.VarianceScaling and converting arguments.
+
+226:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+226:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+227:30: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+228:66: INFO: Changing tf.contrib.layers xavier initializer to a tf.compat.v1.keras.initializers.VarianceScaling and converting arguments.
+
+232:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+232:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+236:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+236:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+240:36: INFO: Renamed 'tf.nn.softmax_cross_entropy_with_logits_v2' to 'tf.nn.softmax_cross_entropy_with_logits'
+241:28: INFO: Added keywords to args of function 'tf.reduce_mean'
+244:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+244:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+245:33: INFO: Renamed 'tf.train.RMSPropOptimizer' to 'tf.compat.v1.train.RMSPropOptimizer'
+247:0: INFO: Renamed 'tf.reset_default_graph' to 'tf.compat.v1.reset_default_graph'
+253:7: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+254:7: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+257:9: INFO: tf.summary.FileWriter requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+257:9: INFO: Renamed 'tf.summary.FileWriter' to 'tf.compat.v1.summary.FileWriter'
+260:0: INFO: tf.summary.scalar requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+260:0: INFO: Renamed 'tf.summary.scalar' to 'tf.compat.v1.summary.scalar'
+263:0: INFO: tf.summary.scalar requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+263:0: INFO: Renamed 'tf.summary.scalar' to 'tf.compat.v1.summary.scalar'
+265:11: INFO: tf.summary.merge_all requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+265:11: INFO: Renamed 'tf.summary.merge_all' to 'tf.compat.v1.summary.merge_all'
+354:8: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+411:12: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+415:8: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+417:5: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+--------------------------------------------------------------------------------
+

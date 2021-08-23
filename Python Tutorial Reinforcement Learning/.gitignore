@@ -1,0 +1,13 @@
+trained_models/
+.git/
+docs/
+tensorboard/
+models/
+assets/
+results/
+*.png
+*.jpg
+
+
+
+

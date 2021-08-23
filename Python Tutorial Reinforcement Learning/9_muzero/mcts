@@ -1,0 +1,310 @@
+// MCTS
+digraph {
+	graph [overlap=false rankdir=LR splines=true]
+	0 [label="Action: None
+Value: -36.65
+Visit count: 50
+Prior: 0.00
+Reward: -0.00" color=orange]
+	1 [label="Action: 0
+Value: -38.44
+Visit count: 5
+Prior: 0.19
+Reward: -0.13" color=black]
+	0 -> 1 [constraint=false]
+	2 [label="Action: 0
+Value: -36.87
+Visit count: 2
+Prior: 0.33
+Reward: -0.15" color=orange]
+	1 -> 2 [constraint=false]
+	3 [label="Action: 0
+Value: -35.89
+Visit count: 1
+Prior: 0.34
+Reward: -0.20" color=orange]
+	2 -> 3 [constraint=false]
+	4 [label="Action: 2
+Value: -38.66
+Visit count: 1
+Prior: 0.29
+Reward: -0.74" color=black]
+	1 -> 4 [constraint=false]
+	5 [label="Action: 3
+Value: -39.95
+Visit count: 1
+Prior: 0.24
+Reward: -0.04" color=black]
+	1 -> 5 [constraint=false]
+	6 [label="Action: 1
+Value: -34.57
+Visit count: 28
+Prior: 0.16
+Reward: -0.43" color=orange]
+	0 -> 6 [constraint=false]
+	7 [label="Action: 0
+Value: -33.49
+Visit count: 12
+Prior: 0.31
+Reward: -0.18" color=orange]
+	6 -> 7 [constraint=false]
+	8 [label="Action: 0
+Value: -31.82
+Visit count: 8
+Prior: 0.34
+Reward: -0.20" color=orange]
+	7 -> 8 [constraint=false]
+	9 [label="Action: 0
+Value: -30.44
+Visit count: 6
+Prior: 0.34
+Reward: -0.22" color=orange]
+	8 -> 9 [constraint=false]
+	10 [label="Action: 0
+Value: -29.70
+Visit count: 5
+Prior: 0.35
+Reward: -0.23" color=orange]
+	9 -> 10 [constraint=false]
+	11 [label="Action: 0
+Value: -29.03
+Visit count: 4
+Prior: 0.35
+Reward: -0.23" color=orange]
+	10 -> 11 [constraint=false]
+	12 [label="Action: 0
+Value: -28.42
+Visit count: 3
+Prior: 0.35
+Reward: -0.24" color=orange]
+	11 -> 12 [constraint=false]
+	13 [label="Action: 0
+Value: -27.86
+Visit count: 2
+Prior: 0.35
+Reward: -0.25" color=orange]
+	12 -> 13 [constraint=false]
+	14 [label="Action: 0
+Value: -27.33
+Visit count: 1
+Prior: 0.35
+Reward: -0.25" color=orange]
+	13 -> 14 [constraint=false]
+	15 [label="Action: 3
+Value: -35.93
+Visit count: 1
+Prior: 0.28
+Reward: -0.08" color=black]
+	8 -> 15 [constraint=false]
+	16 [label="Action: 2
+Value: -35.25
+Visit count: 2
+Prior: 0.24
+Reward: -0.91" color=black]
+	7 -> 16 [constraint=false]
+	17 [label="Action: 2
+Value: -34.59
+Visit count: 1
+Prior: 0.34
+Reward: -0.91" color=orange]
+	16 -> 17 [constraint=false]
+	18 [label="Action: 3
+Value: -37.26
+Visit count: 1
+Prior: 0.27
+Reward: -0.08" color=black]
+	7 -> 18 [constraint=false]
+	19 [label="Action: 1
+Value: -32.87
+Visit count: 5
+Prior: 0.15
+Reward: -0.54" color=black]
+	6 -> 19 [constraint=false]
+	20 [label="Action: 0
+Value: -32.01
+Visit count: 4
+Prior: 0.33
+Reward: -0.24" color=orange]
+	19 -> 20 [constraint=false]
+	21 [label="Action: 0
+Value: -31.24
+Visit count: 3
+Prior: 0.34
+Reward: -0.21" color=orange]
+	20 -> 21 [constraint=false]
+	22 [label="Action: 0
+Value: -30.52
+Visit count: 2
+Prior: 0.35
+Reward: -0.22" color=orange]
+	21 -> 22 [constraint=false]
+	23 [label="Action: 0
+Value: -29.85
+Visit count: 1
+Prior: 0.35
+Reward: -0.22" color=orange]
+	22 -> 23 [constraint=false]
+	24 [label="Action: 2
+Value: -36.74
+Visit count: 4
+Prior: 0.31
+Reward: -0.89" color=black]
+	6 -> 24 [constraint=false]
+	25 [label="Action: 0
+Value: -36.06
+Visit count: 1
+Prior: 0.29
+Reward: -0.20" color=black]
+	24 -> 25 [constraint=false]
+	26 [label="Action: 2
+Value: -36.20
+Visit count: 2
+Prior: 0.37
+Reward: -0.89" color=orange]
+	24 -> 26 [constraint=false]
+	27 [label="Action: 2
+Value: -35.63
+Visit count: 1
+Prior: 0.40
+Reward: -0.92" color=orange]
+	26 -> 27 [constraint=false]
+	28 [label="Action: 3
+Value: -34.80
+Visit count: 6
+Prior: 0.23
+Reward: -0.09" color=black]
+	6 -> 28 [constraint=false]
+	29 [label="Action: 0
+Value: -33.37
+Visit count: 4
+Prior: 0.32
+Reward: -0.23" color=orange]
+	28 -> 29 [constraint=false]
+	30 [label="Action: 0
+Value: -32.43
+Visit count: 3
+Prior: 0.34
+Reward: -0.23" color=orange]
+	29 -> 30 [constraint=false]
+	31 [label="Action: 0
+Value: -31.52
+Visit count: 2
+Prior: 0.34
+Reward: -0.25" color=orange]
+	30 -> 31 [constraint=false]
+	32 [label="Action: 0
+Value: -30.65
+Visit count: 1
+Prior: 0.34
+Reward: -0.26" color=orange]
+	31 -> 32 [constraint=false]
+	33 [label="Action: 2
+Value: -35.48
+Visit count: 1
+Prior: 0.27
+Reward: -0.82" color=black]
+	28 -> 33 [constraint=false]
+	34 [label="Action: 2
+Value: -38.50
+Visit count: 9
+Prior: 0.37
+Reward: -0.58" color=black]
+	0 -> 34 [constraint=false]
+	35 [label="Action: 0
+Value: -37.07
+Visit count: 3
+Prior: 0.25
+Reward: -0.16" color=black]
+	34 -> 35 [constraint=false]
+	36 [label="Action: 0
+Value: -36.29
+Visit count: 2
+Prior: 0.32
+Reward: -0.21" color=orange]
+	35 -> 36 [constraint=false]
+	37 [label="Action: 0
+Value: -35.23
+Visit count: 1
+Prior: 0.33
+Reward: -0.27" color=orange]
+	36 -> 37 [constraint=false]
+	38 [label="Action: 2
+Value: -38.90
+Visit count: 4
+Prior: 0.47
+Reward: -0.71" color=orange]
+	34 -> 38 [constraint=false]
+	39 [label="Action: 0
+Value: -38.33
+Visit count: 1
+Prior: 0.26
+Reward: -0.20" color=black]
+	38 -> 39 [constraint=false]
+	40 [label="Action: 2
+Value: -38.89
+Visit count: 2
+Prior: 0.44
+Reward: -0.81" color=orange]
+	38 -> 40 [constraint=false]
+	41 [label="Action: 2
+Value: -38.61
+Visit count: 1
+Prior: 0.43
+Reward: -0.86" color=orange]
+	40 -> 41 [constraint=false]
+	42 [label="Action: 3
+Value: -39.42
+Visit count: 1
+Prior: 0.17
+Reward: -0.06" color=black]
+	34 -> 42 [constraint=false]
+	43 [label="Action: 3
+Value: -38.70
+Visit count: 8
+Prior: 0.28
+Reward: -0.03" color=black]
+	0 -> 43 [constraint=false]
+	44 [label="Action: 0
+Value: -36.24
+Visit count: 4
+Prior: 0.31
+Reward: -0.17" color=orange]
+	43 -> 44 [constraint=false]
+	45 [label="Action: 0
+Value: -35.23
+Visit count: 3
+Prior: 0.33
+Reward: -0.22" color=orange]
+	44 -> 45 [constraint=false]
+	46 [label="Action: 0
+Value: -34.18
+Visit count: 2
+Prior: 0.34
+Reward: -0.25" color=orange]
+	45 -> 46 [constraint=false]
+	47 [label="Action: 0
+Value: -33.13
+Visit count: 1
+Prior: 0.34
+Reward: -0.27" color=orange]
+	46 -> 47 [constraint=false]
+	48 [label="Action: 2
+Value: -40.62
+Visit count: 2
+Prior: 0.33
+Reward: -0.66" color=black]
+	43 -> 48 [constraint=false]
+	49 [label="Action: 2
+Value: -40.41
+Visit count: 1
+Prior: 0.38
+Reward: -0.66" color=orange]
+	48 -> 49 [constraint=false]
+	50 [label="Action: 3
+Value: -40.92
+Visit count: 1
+Prior: 0.22
+Reward: -0.05" color=black]
+	43 -> 50 [constraint=false]
+	0 [color=red]
+}

@@ -1,6 +1,8 @@
 import os
+import pathlib
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
+import torch
 import random, datetime
 from pathlib import Path
 
@@ -13,75 +15,79 @@ from metrics import MetricLogger
 from agent import Mario
 from wrappers import ResizeObservation, SkipFrame
 
-# Initialize Super Mario environment
-env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
+def main():
+    # Initialize Super Mario environment
+    env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
 
-# Limit the action-space to
-#   0. walk right
-#   1. jump right
-env = JoypadSpace(
-    env,
-    [['right'],
-    ['right', 'A']]
-)
+    # Limit the action-space to
+    #   0. walk right
+    #   1. jump right
+    env = JoypadSpace(
+        env,
+        [['right'],
+        ['right', 'A']]
+    )
 
-# Apply Wrappers to environment
-env = SkipFrame(env, skip=4)
-env = GrayScaleObservation(env, keep_dim=False)
-env = ResizeObservation(env, shape=84)
-env = TransformObservation(env, f=lambda x: x / 255.)
-env = FrameStack(env, num_stack=4)
+    # Apply Wrappers to environment
+    env = SkipFrame(env, skip=4)
+    env = GrayScaleObservation(env, keep_dim=False)
+    env = ResizeObservation(env, shape=84)
+    env = TransformObservation(env, f=lambda x: x / 255.)
+    env = FrameStack(env, num_stack=4)
 
-env.reset()
+    env.reset()
 
-save_dir = Path('checkpoints') / datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
-save_dir.mkdir(parents=True)
+    save_dir = Path('checkpoints') / datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
+    save_dir.mkdir(parents=True)
 
-checkpoint = Path('trained_mario.chkpt')
-mario = Mario(state_dim=(4, 84, 84), action_dim=env.action_space.n, save_dir=save_dir, checkpoint=checkpoint)
+    checkpoint = Path(f"{pathlib.Path(__file__).parent.absolute()}/trained_mario.chkpt")
+    mario = Mario(state_dim=(4, 84, 84), action_dim=env.action_space.n, save_dir=save_dir, checkpoint=checkpoint)
 
-logger = MetricLogger(save_dir)
+    logger = MetricLogger(save_dir)
 
-episodes = 40000
+    episodes = 40000
 
-### for Loop that train the model num_episodes times by playing the game
-for e in range(episodes):
+    ### for Loop that train the model num_episodes times by playing the game
+    for e in range(episodes):
+        state = env.reset()
+        print(env.action_space.sample())
 
-    state = env.reset()
+        # Play the game!
+        while True:
+            # 3. Show environment (the visual) [WIP]
+            env.render()
 
-    # Play the game!
-    while True:
+            # 4. Run agent on the state
+            action = mario.act(state)
 
-        # 3. Show environment (the visual) [WIP]
-        env.render()
+            # 5. Agent performs action
+            next_state, reward, done, info = env.step(action)
+            print(f"{next_state.shape = }, {action = }, {reward = }")
 
-        # 4. Run agent on the state
-        action = mario.act(state)
+            # 6. Remember
+            mario.cache(state, next_state, action, reward, done)
 
-        # 5. Agent performs action
-        next_state, reward, done, info = env.step(action)
+            # 7. Learn
+            q, loss = mario.learn()
 
-        # 6. Remember
-        mario.cache(state, next_state, action, reward, done)
+            # 8. Logging
+            logger.log_step(reward, loss, q)
 
-        # 7. Learn
-        q, loss = mario.learn()
+            # 9. Update state
+            state = next_state
 
-        # 8. Logging
-        logger.log_step(reward, loss, q)
+            # 10. Check if end of game
+            if done or info['flag_get']:
+                break
 
-        # 9. Update state
-        state = next_state
+        logger.log_episode()
 
-        # 10. Check if end of game
-        if done or info['flag_get']:
-            break
+        if e % 20 == 0:
+            logger.record(
+                episode=e,
+                epsilon=mario.exploration_rate,
+                step=mario.curr_step
+            )
 
-    logger.log_episode()
-
-    if e % 20 == 0:
-        logger.record(
-            episode=e,
-            epsilon=mario.exploration_rate,
-            step=mario.curr_step
-        )
+if __name__ == '__main__':
+    main()
