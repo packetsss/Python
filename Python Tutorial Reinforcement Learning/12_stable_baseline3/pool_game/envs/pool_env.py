@@ -83,10 +83,10 @@ class PoolEnv(gym.Env):
         self.game.check_pool_rules()
 
         # check cue ball outside the table
-        if resolution[0] < self.game.white_ball.rect.center[0] or self.game.white_ball.rect.center[0] < 0\
-            or resolution[1] < self.game.white_ball.rect.center[1] or self.game.white_ball.rect.center[1] < 0:
-                print("cue ball is outside")
-                self.game.check_potted(ball_outside_table=True)
+        # if resolution[0] < self.game.white_ball.rect.center[0] or self.game.white_ball.rect.center[0] < 0\
+        #     or resolution[1] < self.game.white_ball.rect.center[1] or self.game.white_ball.rect.center[1] < 0:
+        #         print("cue ball is outside")
+        #         self.game.check_potted(ball_outside_table=True)
 
         # pot a ball
         if not self.game.turned_over:
@@ -121,11 +121,12 @@ class PoolEnv(gym.Env):
                 reward -= 300
 
         observation = self.pre_process_observation()
+
+        # a ball is outside the env
         if observation.shape[0] > 16:
             print(observation)
             observation = observation[:16, :]
-        # if self.steps % 5 == 0:
-        #     print(f"{reward = }, {done = }, {self.steps = }")
+
         
         self.steps += 1
         self.game.steps = self.steps

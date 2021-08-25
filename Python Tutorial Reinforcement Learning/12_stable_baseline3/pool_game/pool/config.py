@@ -23,7 +23,7 @@ fullscreen = False
 # fullscreen resolution can only be known after initializing the screen
 if not fullscreen:
     resolution = np.array([1120, 620])
-window_caption = "Pool"
+window_caption = "The pool game of loaf?!!"
 fps_limit = 1000
 
 # table settings
@@ -32,15 +32,15 @@ table_side_color = (200, 200, 0)
 table_color = (0, 100, 0)
 separation_line_color = (200, 200, 200)
 hole_radius = 22
-middle_hole_offset = np.array([[-hole_radius * 2, hole_radius], [-hole_radius, 0],
-                               [hole_radius, 0], [hole_radius * 2, hole_radius]])
+middle_hole_offset = np.array([[-hole_radius * 1.35, hole_radius], [-hole_radius, 0],
+                               [hole_radius, 0], [hole_radius * 1.35, hole_radius]])
 side_hole_offset = np.array([
-    [- 2 * math.cos(math.radians(45)) * hole_radius - hole_radius, hole_radius],
+    [- 2 * math.cos(math.radians(45)) * hole_radius - hole_radius, hole_radius * 0.5],
     [- math.cos(math.radians(45)) * hole_radius, -
     math.cos(math.radians(45)) * hole_radius],
     [math.cos(math.radians(45)) * hole_radius,
      math.cos(math.radians(45)) * hole_radius],
-    [- hole_radius, 2 * math.cos(math.radians(45)) * hole_radius + hole_radius]
+    [- hole_radius * 0.7, 2 * math.cos(math.radians(45)) * hole_radius * 0.9 + hole_radius]
 ])
 
 # convert each ball to solid, strips, 8-ball, and cue-ball

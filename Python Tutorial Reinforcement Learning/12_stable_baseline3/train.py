@@ -18,10 +18,12 @@ model = SAC("MlpPolicy", env, verbose=1)
 # checkpoint_callback = CheckpointCallback(save_freq=2000, save_path='models/', name_prefix='rl_model')
 #%%
 model = SAC.load("models/pool_model", env=env)
+model.learning_starts = 10
+model.device = "cuda"
 # env.reset()
 #%%
 for x in range(100):
-    model.learn(total_timesteps=500)
+    model.learn(total_timesteps=1000, log_interval=8)
     model.save("models/pool_model")
 
 #%%

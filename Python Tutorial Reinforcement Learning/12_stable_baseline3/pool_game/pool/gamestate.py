@@ -44,12 +44,16 @@ class GameState:
 
     def create_white_ball(self):
         self.white_ball = ball.BallSprite(0)
-        ball_pos = config.white_ball_initial_pos
+        # ball_pos = config.white_ball_initial_pos
+        ball_pos = [random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
+                                       int(config.resolution[0] - (config.ball_radius + config.hole_radius) * 3)),
+                        random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
+                                       int(config.resolution[1] - (config.ball_radius + config.hole_radius) * 3))]
         while check_if_ball_touches_balls(ball_pos, 0, self.balls):
             ball_pos = [random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
-                                       int(config.white_ball_initial_pos[0])),
+                                       int(config.resolution[0] - (config.ball_radius + config.hole_radius) * 3)),
                         random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
-                                       int(config.resolution[1] - config.ball_radius - config.hole_radius))]
+                                       int(config.resolution[1] - (config.ball_radius + config.hole_radius) * 3))]
         self.white_ball.move_to(ball_pos)
         self.balls.add(self.white_ball)
         self.all_sprites.add(self.white_ball)
@@ -160,8 +164,13 @@ class GameState:
             list(itertools.product(holes_y, holes_x)))
         all_hole_positions = np.fliplr(all_hole_positions)
         all_hole_positions = np.vstack(
-            (all_hole_positions[:3], np.flipud(all_hole_positions[3:])))
+            (all_hole_positions[:3], np.flipud(all_hole_positions[3:]))).astype(int)
         for hole_pos in all_hole_positions:
+            if hole_pos[0, 1] != 2:
+                hole_pos[0, 0] = hole_pos[0, 0] + config.table_margin * 0.2 if hole_pos[0, 0] < 565 else hole_pos[0, 0] - config.table_margin * 0.2 # x
+                hole_pos[1, 0] = hole_pos[1, 0] + config.table_margin * 0.2 if hole_pos[1, 0] < 565 else hole_pos[1, 0] - config.table_margin * 0.2 # y
+
+            print(hole_pos)
             self.holes.add(table_sprites.Hole(hole_pos[0][0], hole_pos[1][0]))
             # this will generate the diagonal, vertical and horizontal table
             # pieces which will reflect the ball when it hits the table sides
@@ -180,6 +189,7 @@ class GameState:
                 offset = config.middle_hole_offset
             else:
                 offset = config.side_hole_offset
+
             if hole_pos[1][1] == 2:
                 offset = np.flipud(offset) * [1, -1]
             if hole_pos[0][1] == 1:
@@ -272,14 +282,15 @@ class GameState:
             self.white_ball_1st_hit_type = ball_combination[0].ball_type
 
     def check_pool_rules(self):
-        self.continue_hit = False
         if self.ball_assignment is not None:
             self.check_remaining()
         self.check_potted()
         self.first_hit_rule()
         self.potted_ball_rules()
 
-        self.continue_hit = True
+        ball_x = random.choice([random.uniform(0.13, 0.25), random.uniform(0.75, 0.87)])
+        config.white_ball_initial_pos = (config.resolution + [config.table_margin + config.hole_radius, 0]) * [0.25, ball_x]
+
         self.on_next_hit()
 
 

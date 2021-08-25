@@ -32,7 +32,19 @@ class Ball():
 
         if np.hypot(*self.velocity) < config.friction_threshold:
             self.velocity = np.zeros(2)
-
+        
+        # make sure ball is inside the table
+        if self.pos[0] > config.resolution[0]:
+            self.pos[0] = config.resolution[0] - (config.ball_radius + config.hole_radius) * 2
+        elif self.pos[0] < 0:
+            self.pos[0] = config.table_margin + config.ball_radius + config.hole_radius
+        if self.pos[1] > config.resolution[1]:
+            self.pos[1] = config.resolution[1] - (config.ball_radius + config.hole_radius) * 2
+        elif self.pos[1] < 0:
+            self.pos[1] = config.table_margin + config.ball_radius + config.hole_radius
+        # self.pos[0] = max(min(self.pos[0], config.resolution[0] - (config.ball_radius + config.hole_radius) * 1.5), config.table_margin + config.ball_radius + config.hole_radius)
+        # self.pos[1] = max(min(self.pos[1], config.resolution[1] - (config.ball_radius + config.hole_radius) * 1.5), config.table_margin + config.ball_radius + config.hole_radius)
+        
 
 class BallType(Enum):
     Striped = "striped"

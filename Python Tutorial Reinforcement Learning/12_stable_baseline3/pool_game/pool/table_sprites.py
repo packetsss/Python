@@ -1,5 +1,6 @@
-import numpy as np
+import random
 import pygame
+import numpy as np
 
 import config
 import gamestate
@@ -64,6 +65,7 @@ class TableColoring(pygame.sprite.Sprite):
         self.redraw()
         self.generate_top_left_label(game_state)
         self.generate_target_balls(game_state)
+    
 
     def generate_target_balls(self, game_state):
         # draws the target balls for each players
