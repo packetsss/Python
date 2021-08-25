@@ -1,5 +1,5 @@
 import math
-
+import random
 import numpy as np
 import pygame
 
@@ -15,7 +15,8 @@ def set_max_resolution():
     global resolution
     global white_ball_initial_pos
     resolution = np.array([infoObject.current_w, infoObject.current_h])
-    white_ball_initial_pos = (resolution + [table_margin + hole_radius, 0]) * [0.25, 0.5]
+    ball_x = random.choice([random.uniform(0.13, 0.25), random.uniform(0.75, 0.87)])
+    white_ball_initial_pos = (resolution + [table_margin + hole_radius, 0]) * [0.25, ball_x]
 
 # window settings
 fullscreen = False
@@ -144,7 +145,8 @@ ball_starting_place_ratio = [0.75, 0.5]
 # in fullscreen mode the resolution is only available after initialising the screen
 # and if the screen wasn't initialised the resolution variable won't exist
 if 'resolution' in locals():
-    white_ball_initial_pos = (resolution + [table_margin + hole_radius, 0]) * [0.25, 0.5]
+    ball_x = random.choice([random.uniform(0.13, 0.25), random.uniform(0.75, 0.87)])
+    white_ball_initial_pos = (resolution + [table_margin + hole_radius, 0]) * [0.25, ball_x]
 ball_label_text_size = 10
 
 # physics
@@ -175,5 +177,5 @@ player2_target_text = 'P2 balls - '
 target_ball_spacing = 3
 player1_turn_label = "Player 1 turn"
 player2_turn_label = "Player 2 turn"
-penalty_indication_text = " (click on the ball to move it)"
+penalty_indication_text = " on foul"
 game_over_label_font_size = 40

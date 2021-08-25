@@ -43,7 +43,6 @@ while not was_closed:
             if config.resolution[0] < game.white_ball.rect.center[0] or game.white_ball.rect.center[0] < 0\
                 or config.resolution[1] < game.white_ball.rect.center[1] or game.white_ball.rect.center[1] < 0:
                 game.check_potted(ball_outside_table=True)
-            print(game.is_game_over)
 
         was_closed = events["closed"]
 

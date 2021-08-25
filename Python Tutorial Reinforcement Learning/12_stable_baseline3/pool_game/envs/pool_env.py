@@ -26,12 +26,17 @@ class PoolEnv(gym.Env):
         self.game.start_pool()
         super(PoolEnv, self).__init__()
 
+        self.game.steps = 0
+        self.game.reward = 0
+
+        self.not_touching_countdown = []
         self.steps = 0
+        self.max_episode_steps = 60
         self.w, self.h = resolution
         self.number_of_balls = 16
 
         # velocity_x, velocity_y
-        self.action_space = spaces.Box(low=np.array([0, 0]), high=np.array([550, 550]))
+        self.action_space = spaces.Box(low=np.array([0, 0]), high=np.array([650, 650]))
 
         # ball_x, ball_y, ball_type(solid, strips, 8-ball, cue-ball) x 16 balls
         self.observation_space = spaces.Box(
@@ -46,12 +51,7 @@ class PoolEnv(gym.Env):
         else:
             ball_dict = ball_strips_dict
         observation = np.array([np.array([*x.rect.center, ball_dict[x.number]]) for x in self.game.balls.sprites()])
-        # for x in observation:
-        #     if x[2] == 0:
-        #         pg.draw.circle(self.game.canvas.surface, (255, 255, 255), x[:-1], 15)
-        #         pygame.display.flip()
         balls_to_fill = self.number_of_balls - observation.shape[0]
-        # print(f"{balls_to_fill = }")
         if balls_to_fill > 0:
             # 1 is opposite color
             return np.vstack((observation, np.repeat(np.array([0, 0, 1]), balls_to_fill, axis=0).reshape(balls_to_fill, 3)))
@@ -88,33 +88,48 @@ class PoolEnv(gym.Env):
                 print("cue ball is outside")
                 self.game.check_potted(ball_outside_table=True)
 
-        # potted_ball
+        # pot a ball
         if not self.game.turned_over:
-            reward += 20
-        # didn't foul
+            reward += 40
+        # contact with correct ball type
         elif not self.game.can_move_white_ball:
             reward += 5
         # foul penalize
         else:
             reward -= 10
         
-        # reward by hitting a ball
-        if self.game.hit_a_ball:
-            reward += 1
+        # reward by hitting a ball (avoid horizontal/vertical hit by multiplying times)
+        if not self.game.hit_a_ball:
+            self.not_touching_countdown.append(0)
+            reward -= 5 * len(self.not_touching_countdown)
+        else:
+            self.not_touching_countdown = []
+        
+        # if not touching any balls multiple times, reset env
+        if len(self.not_touching_countdown) > 4:
+            self.not_touching_countdown = []
+            self.game.is_game_over = True
+            self.game.winner = None
 
         # when game is over
         if self.game.is_game_over:
             done = True
             # check who wins
             if self.game.current_player == self.game.winner and self.game.potting_8ball[self.game.current_player]:
-                reward += 200
+                reward += 500
             else:
-                reward = -200
+                reward -= 300
 
         observation = self.pre_process_observation()
-        # print(f"{reward = }, {done = }, {self.steps = }")
+        if observation.shape[0] > 16:
+            print(observation)
+            observation = observation[:16, :]
+        # if self.steps % 5 == 0:
+        #     print(f"{reward = }, {done = }, {self.steps = }")
         
         self.steps += 1
+        self.game.steps = self.steps
+        self.game.reward = reward
         return observation, reward, done, info
                 
     def reset(self):

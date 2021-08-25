@@ -33,6 +33,9 @@ class GameState:
         self.canvas = graphics.Canvas()
         self.fps_clock = pygame.time.Clock()
 
+        self.steps = 0
+        self.reward = 0
+
     def fps(self):
         return self.fps_clock.get_fps()
 
