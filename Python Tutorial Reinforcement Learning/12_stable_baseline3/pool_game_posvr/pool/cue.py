@@ -29,7 +29,7 @@ class Cue(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.target_ball.ball.pos.tolist()
 
-    def update(self, *args, **kwargs):
+    def update(self, *args):
         if self.visible:
             self.image = pygame.Surface(2 * self.sprite_size)
             # color which will be ignored

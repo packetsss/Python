@@ -61,11 +61,12 @@ class TableColoring(pygame.sprite.Sprite):
         self.image.set_colorkey(color_key)
         pygame.draw.polygon(self.image, color_key, self.points)
 
-    def update(self, game_state, **kwargs):
+    def update(self, game_state):
         self.redraw()
-        self.generate_target_balls(game_state)
         self.generate_top_left_label(game_state)
+        self.generate_target_balls(game_state)
     
+
     def generate_target_balls(self, game_state):
         # draws the target balls for each players
         if game_state.ball_assignment is not None:
@@ -73,8 +74,8 @@ class TableColoring(pygame.sprite.Sprite):
                                 config.resolution[0] / 2 + config.hole_radius * 3])
             start_y = config.resolution[1] - config.table_margin - self.font.size(config.player1_target_text)[1] / 2
             # the text needs to be moved a bit lower to keep it aligned
-            # self.image.blit(self.target_ball_text[0], [start_x[0], start_y + config.ball_radius / 2])
-            # self.image.blit(self.target_ball_text[1], [start_x[1], start_y + config.ball_radius / 2])
+            self.image.blit(self.target_ball_text[0], [start_x[0], start_y + config.ball_radius / 2])
+            self.image.blit(self.target_ball_text[1], [start_x[1], start_y + config.ball_radius / 2])
             start_x += self.font.size(config.player2_target_text)[0]
             for ball in game_state.balls:
                 do_draw = ball.number != 0 and ball.number != 8
@@ -103,7 +104,6 @@ class TableColoring(pygame.sprite.Sprite):
 
     def generate_top_left_label(self, game_state):
         # generates the top left label (which players turn is it and if he can move the ball)
-        return
         top_left_text = ""
         steps =  f" - Steps: {game_state.steps}"
         rewards = f" Reward: {game_state.reward}"

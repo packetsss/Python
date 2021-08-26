@@ -119,21 +119,28 @@ class GameState:
         # 1st break should be made from behind the separation line on the table
         return self.turn_number == 0
 
-    def redraw_all(self, update=True, update_type=False):
+    def redraw_all(self, update=True):
         self.all_sprites.clear(self.canvas.surface, self.canvas.background)
+
+        text = f"step {self.steps}   reward {self.reward}"
+        font = config.get_default_font(config.ball_label_text_size * 5)
+        rendered_text = font.render(text, False, (0, 189, 0))
+        self.canvas.surface.blit(rendered_text, (config.resolution - font.size(text)) / 2)
+
         self.all_sprites.draw(self.canvas.surface)
+        self.all_sprites.update(self)
 
-        # transform pg window to img
-        self.temp_image = pygame.surfarray.pixels3d(self.canvas.surface)
-        self.image = np.copy(self.temp_image)
-        del self.temp_image
-        
-        # text = f"step {self.steps}   reward {self.reward}"
-        # font = config.get_default_font(config.ball_label_text_size * 5)
-        # rendered_text = font.render(text, False, (0, 189, 0))
-        # self.canvas.surface.blit(rendered_text, (config.resolution - font.size(text)) / 2)
-
-        self.all_sprites.update(self, update_type=update_type)
+        # if self.ball_assignment is None:
+        #     ball_dict = config.ball_unassigned_dict
+        # elif self.ball_assignment[self.current_player] == BallType.Solid:
+        #     ball_dict = config.ball_solids_dict
+        # else:
+        #     ball_dict = config.ball_strips_dict
+        # observation = np.array([np.array([*x.rect.center, ball_dict[x.number]]) for x in self.balls.sprites()])
+        # for x in observation:
+        #     if x[2] == 0:
+        #         pygame.draw.circle(self.canvas.surface, (255, 255, 255), x[:-1], 15)
+        #         pygame.display.flip()
 
         if update:
             pygame.display.flip()
@@ -206,7 +213,7 @@ class GameState:
             config.resolution, config.table_side_color, table_side_points)
         self.all_sprites.add(self.table_coloring)
         self.all_sprites.add(self.holes)
-        # graphics.add_separation_line(self.canvas)
+        graphics.add_separation_line(self.canvas)
 
     def game_over(self, p1_won, paused=False):
         self.is_game_over = True
@@ -229,7 +236,6 @@ class GameState:
         
     def turn_over(self, penalize):
         self.turned_over = True
-
         if not self.turn_ended:
             self.turn_ended = True
             self.turn_number += 1

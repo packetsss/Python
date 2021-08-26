@@ -1,7 +1,6 @@
 import itertools
 import math
 from enum import Enum
-from re import U
 
 import numpy as np
 import pygame
@@ -64,18 +63,15 @@ class StripedBall():
                                                                    np.zeros(point_num)))
 
     def update_stripe(self, transformation_matrix):
-        return
         for i, stripe in enumerate(self.stripe_circle):
             self.stripe_circle[i] = np.matmul(
                 stripe, transformation_matrix)
 
     def draw_stripe(self, sprite):
-        return
         for num, point in enumerate(self.stripe_circle[:-1]):
             if point[2] >= -1:
                 pygame.draw.line(sprite, (255, 255, 255), config.ball_radius + point[:2],
                                  config.ball_radius + self.stripe_circle[num + 1][:2], config.ball_stripe_thickness)
-                    
 
 
 class SolidBall():
@@ -89,10 +85,10 @@ class BallSprite(pygame.sprite.Sprite):
         self.color = config.ball_colors[ball_number]
         if ball_number <= 8:
             self.ball_type = BallType.Solid
-            # self.ball_stripe = SolidBall()
+            self.ball_stripe = SolidBall()
         else:
             self.ball_type = BallType.Striped
-            # self.ball_stripe = StripedBall()
+            self.ball_stripe = StripedBall()
         self.ball = Ball()
         pygame.sprite.Sprite.__init__(self)
         # initial location of the white circle and number on the ball, a.k.a
@@ -106,18 +102,8 @@ class BallSprite(pygame.sprite.Sprite):
         self.update()
         self.top_left = self.ball.pos - config.ball_radius
         self.rect.center = self.ball.pos.tolist()
-    
 
-    def update(self, *args, update_type=False):
-        if update_type and self.number != 0 and self.number != 8:
-            if self.ball_type == BallType.Solid:
-                self.ball_type = BallType.Striped
-                self.color = config.player2_cue_color
-            elif self.ball_type == BallType.Striped: 
-                self.ball_type = BallType.Solid
-                self.color = config.player1_cue_color
-            self.update_sprite()
-
+    def update(self, *args):
         if np.hypot(*self.ball.velocity) != 0:
             # updates label circle and number offset
             perpendicular_velocity = -np.cross(self.ball.velocity, [0, 0, 1])
@@ -128,8 +114,8 @@ class BallSprite(pygame.sprite.Sprite):
                 perpendicular_velocity, rotation_angle)
             self.label_offset = np.matmul(
                 self.label_offset, transformation_matrix)
-            # if self.ball_type == BallType.Striped:
-            #     self.ball_stripe.update_stripe(transformation_matrix)
+            if self.ball_type == BallType.Striped:
+                self.ball_stripe.update_stripe(transformation_matrix)
             self.update_sprite()
             self.ball.update()
 
@@ -144,28 +130,28 @@ class BallSprite(pygame.sprite.Sprite):
         label = pygame.Surface(label_dimension)
         label.fill(self.color)
         # 1.1 instead of 1 is a hack to avoid 0 width sprite when scaling
-        # dist_from_centre = 1.1 - (self.label_offset[0] ** 2 +
-                                #   self.label_offset[1] ** 2) / (config.ball_radius ** 2)
+        dist_from_centre = 1.1 - (self.label_offset[0] ** 2 +
+                                  self.label_offset[1] ** 2) / (config.ball_radius ** 2)
 
-        # if self.label_offset[2] > 0:
-        #     pygame.draw.circle(label, (255, 255, 255),
-        #                        label_dimension // 2, self.label_size)
+        if self.label_offset[2] > 0:
+            pygame.draw.circle(label, (255, 255, 255),
+                               label_dimension // 2, self.label_size)
 
-        #     if self.number != 0:
-        #         label.blit(self.text, (config.ball_radius - self.text_length) / 2)
+            if self.number != 0:
+                label.blit(self.text, (config.ball_radius - self.text_length) / 2)
 
-        #     # hack to avoid div by zero
-        #     if self.label_offset[0] != 0:
-        #         angle = -math.degrees(
-        #             math.atan(self.label_offset[1] / self.label_offset[0]))
-        #         label = pygame.transform.scale(
-        #             label, (int(config.ball_radius * dist_from_centre), config.ball_radius))
-        #         label = pygame.transform.rotate(label, angle)
+            # hack to avoid div by zero
+            if self.label_offset[0] != 0:
+                angle = -math.degrees(
+                    math.atan(self.label_offset[1] / self.label_offset[0]))
+                label = pygame.transform.scale(
+                    label, (int(config.ball_radius * dist_from_centre), config.ball_radius))
+                label = pygame.transform.rotate(label, angle)
 
-        # new_sprite.blit(
-            # label, self.label_offset[:2] + (sprite_dimension - label.get_size()) / 2)
-        # if self.ball_type == BallType.Striped:
-        #     self.ball_stripe.draw_stripe(new_sprite)
+        new_sprite.blit(
+            label, self.label_offset[:2] + (sprite_dimension - label.get_size()) / 2)
+        if self.ball_type == BallType.Striped:
+            self.ball_stripe.draw_stripe(new_sprite)
 
         # applies a circular mask on the sprite using colorkey
         grid_2d = np.mgrid[-config.ball_radius:config.ball_radius +
@@ -182,7 +168,6 @@ class BallSprite(pygame.sprite.Sprite):
         self.rect.center = self.ball.pos.tolist()
 
     def create_image(self, surface, coords):
-        return
         surface.blit(self.image, coords)
 
     def is_clicked(self, events):

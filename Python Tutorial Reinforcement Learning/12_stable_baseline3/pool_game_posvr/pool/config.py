@@ -102,11 +102,11 @@ ball_strips_dict = {
 }
 
 # cue settings
-player1_cue_color = (250, 130, 0)
-player2_cue_color = (0, 110, 220)
-cue_hit_power = 8
+player1_cue_color = (200, 100, 0)
+player2_cue_color = (0, 100, 200)
+cue_hit_power = 10
 cue_length = 250
-cue_thickness = 12
+cue_thickness = 8
 cue_max_displacement = 130
 # safe displacement is the length the cue stick can be pulled before
 # causing the ball to move
@@ -121,21 +121,21 @@ speed_angle_threshold = 0.09
 visible_angle_threshold = 0.05
 ball_colors = [
     (255, 255, 255),
-    player1_cue_color,
-    player1_cue_color,
-    player1_cue_color,
-    player1_cue_color,
-    player1_cue_color,
-    player1_cue_color,
-    player1_cue_color,
+    (0, 200, 200),
+    (0, 0, 200),
+    (150, 0, 0),
+    (200, 0, 200),
+    (200, 0, 0),
+    (50, 0, 0),
+    (100, 0, 0),
     (0, 0, 0),
-    player2_cue_color,
-    player2_cue_color,
-    player2_cue_color,
-    player2_cue_color,
-    player2_cue_color,
-    player2_cue_color,
-    player2_cue_color,
+    (0, 200, 200),
+    (0, 0, 200),
+    (150, 0, 0),
+    (200, 0, 200),
+    (200, 0, 0),
+    (50, 0, 0),
+    (100, 0, 0)
 ]
 ball_stripe_thickness = 5
 ball_stripe_point_num = 25
