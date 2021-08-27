@@ -108,7 +108,15 @@ class BallSprite(pygame.sprite.Sprite):
         self.rect.center = self.ball.pos.tolist()
     
 
-    def update(self, *args, update_type=False):
+    def update(self, *args, update_type=False, update_ball=False, update_sprite=False):
+        if update_ball:
+            self.ball.update()
+            return
+            
+        if update_sprite:
+            self.update_sprite()
+            return
+
         if update_type and self.number != 0 and self.number != 8:
             if self.ball_type == BallType.Solids:
                 self.ball_type = BallType.Strips

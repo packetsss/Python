@@ -27,12 +27,14 @@ class PoolEnv(gym.Env):
         self.game.start_pool()
         self.game.redraw_all()
         super(PoolEnv, self).__init__()
-
+        
+        self.reward = 0
         self.game.steps = 0
         self.game.reward = 0
 
         self.foul_countdown = []
         self.score_countdown = []
+        self.balls_potted = []
         self.steps = 0
         self.max_episode_steps = 60
         self.w, self.h = resolution
@@ -56,26 +58,28 @@ class PoolEnv(gym.Env):
         return im
         
     def step(self, action):
-        self.game.cue.ball_hit(new_velocity=action)
+        # print(action)
+        self.game.cue.ball_hit(new_velocity=action*250)
 
         # render
         _ = pg.event.get() # must get the env?
         resolve_all_collisions(self.game.balls, self.game.holes, self.game.table_sides)
         self.game.redraw_all()
 
-        reward = 0
         done = False
         info = {}
 
-        # initialize some consitions for reward evaluation
+        # initialize some consitions for self.reward evaluation
         self.game.hit_a_ball = False
         self.game.turned_over = False
 
         # wait for ball to stop
         while not self.game.all_not_moving():
             resolve_all_collisions(self.game.balls, self.game.holes, self.game.table_sides)
-            self.game.redraw_all()
+            self.game.balls.update(update_ball=True)
 
+        self.game.balls.update(update_sprite=True)
+        self.game.redraw_all()
         # check game rules
         self.game.check_pool_rules()
 
@@ -90,22 +94,27 @@ class PoolEnv(gym.Env):
         # pot a ball
         if not self.game.turned_over:
             self.score_countdown.append(0)
+            self.balls_potted.append(0)
             self.foul_countdown = []
-            reward += int(30 * (len(self.score_countdown) ** 1.6))
+            
         # contact with correct ball type
         elif not self.game.can_move_white_ball:
             self.score_countdown.append(0)
+            self.balls_potted = []
             self.foul_countdown = []
-            reward += int(1 * (len(self.score_countdown) ** 1.6))
+            # self.reward += 5 * (len(self.score_countdown))
         # foul penalize
         else:
             self.foul_countdown.append(0)
+            self.balls_potted = []
             self.score_countdown = []
-            reward -= int(5 * (len(self.foul_countdown) ** 1.6))
+            # self.reward -= int(5 * (len(self.foul_countdown) ** 1.6))
+
+        self.reward += int(50 * len(self.balls_potted) + 3 * (len(self.score_countdown) ** 1.2) - 3 * (len(self.foul_countdown) ** 1.3))
             
         
         # if not touching any balls multiple times, reset env
-        if len(self.foul_countdown) > 5:
+        if self.reward < -50:
             self.foul_countdown = []
             self.game.is_game_over = True
             self.game.winner = None
@@ -115,24 +124,26 @@ class PoolEnv(gym.Env):
             done = True
             # check who wins
             if self.game.current_player == self.game.winner and self.game.potting_8ball[self.game.current_player]:
-                reward += 500
+                self.reward += 1000
             else:
-                reward -= 300
+                self.reward -= 400
 
         observation = self.pre_process_observation()
         
         self.steps += 1
         self.game.steps = self.steps
-        self.game.reward = reward
-        pg.display.set_caption(f"step {self.steps} -- reward {reward}")
-        return observation, reward, done, info
+        self.game.reward = self.reward
+        pg.display.set_caption(f"step {self.steps} -- reward {self.reward}")
+        return observation, self.reward, done, info
                 
     def reset(self):
-        self.game.start_pool()
-        self.game.redraw_all()
+        self.reward = 0
         self.score_countdown = []
         self.foul_countdown = []
-        
+        self.balls_potted = []
+
+        self.game.start_pool()
+        self.game.redraw_all()
         return self.pre_process_observation()
 
     def render(self, mode='human'):

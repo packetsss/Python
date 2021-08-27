@@ -26,8 +26,6 @@ while not was_closed:
             collisions.resolve_all_collisions(game.balls, game.holes, game.table_sides)
             game.redraw_all()
 
-
-
             if game.all_not_moving():
                 game.turned_over = False
                 game.check_pool_rules()
