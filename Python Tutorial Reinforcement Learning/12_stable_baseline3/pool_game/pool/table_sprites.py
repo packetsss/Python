@@ -103,7 +103,7 @@ class TableColoring(pygame.sprite.Sprite):
 
     def generate_top_left_label(self, game_state):
         # generates the top left label (which players turn is it and if he can move the ball)
-        return
+
         top_left_text = ""
         steps =  f" - Steps: {game_state.steps}"
         rewards = f" Reward: {game_state.reward}"

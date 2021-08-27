@@ -31,7 +31,8 @@ class PoolEnv(gym.Env):
         self.game.steps = 0
         self.game.reward = 0
 
-        self.not_touching_countdown = []
+        self.foul_countdown = []
+        self.score_countdown = []
         self.steps = 0
         self.max_episode_steps = 60
         self.w, self.h = resolution
@@ -39,7 +40,7 @@ class PoolEnv(gym.Env):
         self.image_h = 100
 
         # velocity_x, velocity_y
-        v_limit = 550
+        v_limit = 500
         self.action_space = spaces.Box(low=np.array([-v_limit, -v_limit]), high=np.array([v_limit, v_limit]))
 
         # image
@@ -78,30 +79,34 @@ class PoolEnv(gym.Env):
         # check game rules
         self.game.check_pool_rules()
 
+        # make sure always player 1 play solids
+        if self.game.current_player != Player.Player1:
+            self.game.current_player = Player.Player1
+
         # flip ball colors/types
         if self.game.turn_over:
             self.game.redraw_all(update_type=True)
 
         # pot a ball
         if not self.game.turned_over:
-            reward += 40
+            self.score_countdown.append(0)
+            self.foul_countdown = []
+            reward += int(30 * (len(self.score_countdown) ** 1.6))
         # contact with correct ball type
         elif not self.game.can_move_white_ball:
-            reward += 5
+            self.score_countdown.append(0)
+            self.foul_countdown = []
+            reward += int(1 * (len(self.score_countdown) ** 1.6))
         # foul penalize
         else:
-            reward -= 10
-        
-        # reward by hitting a ball (avoid horizontal/vertical hit by multiplying times)
-        if not self.game.hit_a_ball:
-            self.not_touching_countdown.append(0)
-            reward -= 5 * len(self.not_touching_countdown)
-        else:
-            self.not_touching_countdown = []
+            self.foul_countdown.append(0)
+            self.score_countdown = []
+            reward -= int(5 * (len(self.foul_countdown) ** 1.6))
+            
         
         # if not touching any balls multiple times, reset env
-        if len(self.not_touching_countdown) > 4:
-            self.not_touching_countdown = []
+        if len(self.foul_countdown) > 5:
+            self.foul_countdown = []
             self.game.is_game_over = True
             self.game.winner = None
 
@@ -125,6 +130,9 @@ class PoolEnv(gym.Env):
     def reset(self):
         self.game.start_pool()
         self.game.redraw_all()
+        self.score_countdown = []
+        self.foul_countdown = []
+        
         return self.pre_process_observation()
 
     def render(self, mode='human'):

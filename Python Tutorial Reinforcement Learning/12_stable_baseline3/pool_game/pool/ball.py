@@ -48,8 +48,8 @@ class Ball():
         
 
 class BallType(Enum):
-    Striped = "striped"
-    Solid = "solid"
+    Strips = "striped"
+    Solids = "solid"
 
 
 class StripedBall():
@@ -88,10 +88,10 @@ class BallSprite(pygame.sprite.Sprite):
         self.number = ball_number
         self.color = config.ball_colors[ball_number]
         if ball_number <= 8:
-            self.ball_type = BallType.Solid
+            self.ball_type = BallType.Solids
             # self.ball_stripe = SolidBall()
         else:
-            self.ball_type = BallType.Striped
+            self.ball_type = BallType.Strips
             # self.ball_stripe = StripedBall()
         self.ball = Ball()
         pygame.sprite.Sprite.__init__(self)
@@ -110,11 +110,11 @@ class BallSprite(pygame.sprite.Sprite):
 
     def update(self, *args, update_type=False):
         if update_type and self.number != 0 and self.number != 8:
-            if self.ball_type == BallType.Solid:
-                self.ball_type = BallType.Striped
+            if self.ball_type == BallType.Solids:
+                self.ball_type = BallType.Strips
                 self.color = config.player2_cue_color
-            elif self.ball_type == BallType.Striped: 
-                self.ball_type = BallType.Solid
+            elif self.ball_type == BallType.Strips: 
+                self.ball_type = BallType.Solids
                 self.color = config.player1_cue_color
             self.update_sprite()
 

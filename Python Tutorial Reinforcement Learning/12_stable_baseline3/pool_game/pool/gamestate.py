@@ -42,18 +42,24 @@ class GameState:
     def mark_one_frame(self):
         self.fps_clock.tick(config.fps_limit)
 
-    def create_white_ball(self):
+    def create_white_ball(self, initialize=False):
         self.white_ball = ball.BallSprite(0)
         # ball_pos = config.white_ball_initial_pos
-        ball_pos = [random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
-                                       int(config.resolution[0] - (config.ball_radius + config.hole_radius) * 3)),
+        if initialize:
+            ball_pos = [random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
+                                       int(config.white_ball_initial_pos[0])),
                         random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
                                        int(config.resolution[1] - (config.ball_radius + config.hole_radius) * 3))]
-        while check_if_ball_touches_balls(ball_pos, 0, self.balls):
+        else:
             ball_pos = [random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
                                        int(config.resolution[0] - (config.ball_radius + config.hole_radius) * 3)),
                         random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
                                        int(config.resolution[1] - (config.ball_radius + config.hole_radius) * 3))]
+            while check_if_ball_touches_balls(ball_pos, 0, self.balls):
+                ball_pos = [random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
+                                        int(config.resolution[0] - (config.ball_radius + config.hole_radius) * 3)),
+                            random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
+                                        int(config.resolution[1] - (config.ball_radius + config.hole_radius) * 3))]
         self.white_ball.move_to(ball_pos)
         self.balls.add(self.white_ball)
         self.all_sprites.add(self.white_ball)
@@ -75,7 +81,7 @@ class GameState:
                                 2, -config.ball_radius])
         initial_place = config.ball_starting_place_ratio * config.resolution
 
-        self.create_white_ball()
+        self.create_white_ball(initialize=True)
         # randomizes the sequence of balls on the table
         ball_placement_sequence = list(range(1, config.total_ball_num))
         random.shuffle(ball_placement_sequence)
@@ -109,7 +115,7 @@ class GameState:
         self.holes = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.OrderedUpdates()
         self.turn_number = 0
-        self.ball_assignment = None
+        self.ball_assignment = {self.current_player: BallType.Solids, Player.Player2: BallType.Strips}#None
         self.can_move_white_ball = True
         self.is_game_over = False
         self.potting_8ball = {Player.Player1: False, Player.Player2: False}
@@ -133,7 +139,7 @@ class GameState:
         # rendered_text = font.render(text, False, (0, 189, 0))
         # self.canvas.surface.blit(rendered_text, (config.resolution - font.size(text)) / 2)
 
-        self.all_sprites.update(self, update_type=update_type)
+        self.all_sprites.update(self)#, update_type=update_type)
 
         if update:
             pygame.display.flip()
@@ -237,6 +243,7 @@ class GameState:
                 self.current_player = Player.Player2
             else:
                 self.current_player = Player.Player1
+        # self.current_player = Player.Player1
         if penalize:
             self.can_move_white_ball = True
 
@@ -263,9 +270,9 @@ class GameState:
         solids_remaining = False
         for remaining_ball in self.balls:
             if remaining_ball.number != 0 and remaining_ball.number != 8:
-                stripes_remaining = stripes_remaining or remaining_ball.ball_type == BallType.Striped
-                solids_remaining = solids_remaining or not remaining_ball.ball_type == BallType.Striped
-        ball_type_remaining = {BallType.Solid: solids_remaining, BallType.Striped: stripes_remaining}
+                stripes_remaining = stripes_remaining or remaining_ball.ball_type == BallType.Strips
+                solids_remaining = solids_remaining or not remaining_ball.ball_type == BallType.Strips
+        ball_type_remaining = {BallType.Solids: solids_remaining, BallType.Strips: stripes_remaining}
 
         # decides if on of the players (or both) should be potting 8ball
         self.potting_8ball = {Player.Player1: not ball_type_remaining[self.ball_assignment[Player.Player1]],
@@ -309,7 +316,7 @@ class GameState:
             only_solids_potted = potted_stripe_count == 0 and potted_solid_count > 0
 
             if only_solids_potted or only_stripes_potted:
-                selected_ball_type = BallType.Striped if only_stripes_potted else BallType.Solid
+                selected_ball_type = BallType.Strips if only_stripes_potted else BallType.Solids
                 if self.ball_assignment is None:
                     # unpacking a singular set - SO MACH HACKs
                     other_player, = set(Player) - {self.current_player}
