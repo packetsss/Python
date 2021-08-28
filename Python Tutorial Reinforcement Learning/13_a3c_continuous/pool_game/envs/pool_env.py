@@ -36,14 +36,15 @@ class PoolEnv(gym.Env):
         self.score_countdown = []
         self.balls_potted = []
         self.steps = 0
-        self.max_episode_steps = 100
+        
+        self.max_episode_steps = 120
         self.w, self.h = resolution
         self.number_of_balls = 16
-        self.image_h = 100
+        self.image_h = 80
 
         # velocity_x, velocity_y
-        v_limit = 500
-        self.action_space = spaces.Box(low=np.array([-v_limit, -v_limit]), high=np.array([v_limit, v_limit]))
+        self.v_limit = 500
+        self.action_space = spaces.Box(low=np.array([-self.v_limit, -self.v_limit]), high=np.array([self.v_limit, self.v_limit]))
 
         # image
         self.observation_space = spaces.Box(
@@ -54,12 +55,12 @@ class PoolEnv(gym.Env):
         im = cv2.rotate(self.game.image, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
         im = cv2.flip(im, 0)
         im = cv2.cvtColor(im, cv2.COLOR_RGB2GRAY)[35:-35, 35:-35]
-        im = cv2.resize(im, (int(self.image_h * (1120 / 620)), self.image_h)).reshape(self.image_h, -1, 1)
+        im = cv2.resize(im, (int(self.image_h * (1120 / 620)), self.image_h)).reshape(-1, self.image_h)
         return im
         
     def step(self, action):
         # print(action)
-        self.game.cue.ball_hit(new_velocity=action*250)
+        self.game.cue.ball_hit(new_velocity=action)
 
         # render
         _ = pg.event.get() # must get the env?
@@ -122,7 +123,7 @@ class PoolEnv(gym.Env):
             done = True
             # check who wins
             if self.game.current_player == self.game.winner and self.game.potting_8ball[self.game.current_player]:
-                self.reward += 400
+                self.reward = 400
             else:
                 self.reward = 80 * len(self.balls_potted) - 400
 
@@ -132,7 +133,7 @@ class PoolEnv(gym.Env):
         self.game.steps = self.steps
         self.game.reward = self.reward
         pg.display.set_caption(f"step {self.steps} -- reward {self.reward}")
-        return observation, self.reward, done, info
+        return observation, self.reward / 400, done, info
                 
     def reset(self):
         self.reward = 0

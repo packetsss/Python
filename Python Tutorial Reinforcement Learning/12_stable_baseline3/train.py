@@ -14,7 +14,7 @@ from stable_baselines3.common.callbacks import BaseCallback, CheckpointCallback
 env = PoolEnv()
 env = TimeLimit(env, env.max_episode_steps)
 #%%
-model = PPO("MlpPolicy", env, verbose=1, device="cuda")
+model = PPO("MlpPolicy", env, verbose=1, device="cuda", use_sde=True)
 # checkpoint_callback = CheckpointCallback(save_freq=2000, save_path='models/', name_prefix='rl_model')
 #%%
 # model = SAC.load("models/pool_model", env=env)
@@ -22,9 +22,8 @@ model = PPO("MlpPolicy", env, verbose=1, device="cuda")
 # model.device = "cuda"
 # env.reset()
 #%%
-for x in range(50):
-    model.learn(total_timesteps=2000, log_interval=8)
-    model.save(f"models/pool_model_{x}")
+model.learn(total_timesteps=50000, log_interval=1, eval_freq=500, eval_log_path="eval/")
+model.save(f"models/pool_model_ppo")
 
 #%%
 # obs = env.reset()
