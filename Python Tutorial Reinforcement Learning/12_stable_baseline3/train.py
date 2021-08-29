@@ -22,9 +22,11 @@ model = PPO("MlpPolicy", env, verbose=1, device="cuda", use_sde=True)
 # model.device = "cuda"
 # env.reset()
 #%%
-model.learn(total_timesteps=50000, log_interval=1, eval_freq=500, eval_log_path="eval/")
+model.learn(total_timesteps=250000, log_interval=1, eval_freq=500, eval_log_path="eval/")
 model.save(f"models/pool_model_ppo")
 
+#%%
+model.save(f"models/pool_model_ppo")
 #%%
 # obs = env.reset()
 # for i in range(1000):

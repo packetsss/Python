@@ -144,7 +144,7 @@ if __name__ == '__main__':
     if args.model == 'CONV':
         shared_model = A3C_CONV(args.stack_frames, env.action_space)
     if args.load:
-        saved_state = torch.load('{0}{1}.dat'.format(
+        saved_state = torch.load('{0}{1}_last.dat'.format(
             args.load_model_dir, args.env), map_location=lambda storage, loc: storage)
         shared_model.load_state_dict(saved_state)
     shared_model.share_memory()

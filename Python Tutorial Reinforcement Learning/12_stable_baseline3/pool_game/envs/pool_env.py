@@ -124,7 +124,7 @@ class PoolEnv(gym.Env):
             if self.game.current_player == self.game.winner and self.game.potting_8ball[self.game.current_player]:
                 self.reward += 400
             else:
-                self.reward = 80 * len(self.balls_potted) - 400
+                self.reward = min(80 * len(self.balls_potted) - 500, -50)
 
         observation = self.pre_process_observation()
         

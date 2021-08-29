@@ -81,6 +81,9 @@ def test(args, shared_model):
                     state_to_save = player.model.state_dict()
                     torch.save(state_to_save, '{0}{1}.dat'.format(args.save_model_dir, args.env))
 
+            state_to_save = player.model.state_dict()
+            torch.save(state_to_save, '{0}{1}_last.dat'.format(args.save_model_dir, args.env))
+
             reward_sum = 0
             player.eps_len = 0
             state = player.env.reset()
