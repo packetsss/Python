@@ -1,7 +1,7 @@
-Phrase = "Aj\"Academy\""
+Phrase = "Aj\"Aca\ndemy\""
 print("\n" + Phrase.upper() + " okay")
-print(Phrase.upper().isupper())
-print(len(Phrase))
-print(Phrase[8])
-print(Phrase.index("\""))
-print(Phrase.replace("Ac", "Elephant"))
+#print(Phrase.upper().isupper())
+#print(len(Phrase))
+#print(Phrase[8])
+#print(Phrase.index("\""))
+#print(Phrase.replace("Ac", "Elephant"))

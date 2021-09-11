@@ -1,5 +1,5 @@
 """ 
-python main.py --workers 7 --env BipedalWalker-v2 --save-max True --model CONV --stack-frames 1 --amsgrad True --gpu-ids 0 --load
+python main.py --workers 7 --env BipedalWalker-v2 --save-max True --model CONV --stack-frames 1 --amsgrad True --gpu-ids 0 --load True
 """
 
 from __future__ import print_function, division
