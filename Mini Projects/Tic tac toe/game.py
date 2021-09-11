@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """
 Tic Tac Toe class + game play implementation by Kylie Ying
 YouTube Kylie Ying: https://www.youtube.com/ycubed 

@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from itertools import product
 
 a = [1, 2]

@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from __future__ import division
 import os
 os.environ["OMP_NUM_THREADS"] = "1"

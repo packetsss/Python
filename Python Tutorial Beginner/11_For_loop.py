@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 
 friends = ["Jack", "Jim", "Frank", "Kirk"]
 len(friends)

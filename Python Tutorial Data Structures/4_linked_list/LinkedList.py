@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 class node:
     def __init__(self, data=None):
         self.data = data

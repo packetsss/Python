@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 environ['SDL_VIDEO_WINDOW_POS'] = "1500, 200"

@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """
 Given a set of boxes with dimension (l, w, h) and find the tallest stack possible, length and width of the top box must
 be smaller than the bottom box

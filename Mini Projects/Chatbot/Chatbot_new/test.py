@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from chatterbot import ChatBot
 from chatterbot.conversation import Statement
 

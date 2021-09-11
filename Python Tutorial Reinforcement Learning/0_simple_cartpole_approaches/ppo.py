@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """
 create a ppo algorithm using pytorch and comment on everything
 """

@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """
 Tic-Tac-Toe players using inheritance implementation by Kylie YIng
 YouTube Kylie Ying: https://www.youtube.com/ycubed 

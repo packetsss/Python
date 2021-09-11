@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 number_grid = [
     [2, 3, 5],
     [1, 7, 3],

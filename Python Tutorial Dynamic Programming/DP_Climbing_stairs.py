@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """
 Giving a stair with n stairs, find # of ways get to the top by taking either 1 or 2 steps
 

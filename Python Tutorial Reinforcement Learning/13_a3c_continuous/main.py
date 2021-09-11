@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """ 
 python main.py --workers 7 --env BipedalWalker-v2 --save-max True --model CONV --stack-frames 1 --amsgrad True --gpu-ids 0 --load True
 """

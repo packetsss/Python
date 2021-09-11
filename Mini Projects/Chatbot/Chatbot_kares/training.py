@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 import nltk
 nltk.download('punkt')
 nltk.download('wordnet')

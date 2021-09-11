@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 add_10 = lambda x: x + 10
 '''print(add_10(5))'''
 # define add_10 as certain execution and conduct x as 5

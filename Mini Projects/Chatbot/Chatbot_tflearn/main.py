@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 import nltk
 from nltk.stem.lancaster import LancasterStemmer
 stemmer = LancasterStemmer()

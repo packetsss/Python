@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from django import forms
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import  UserCreationForm

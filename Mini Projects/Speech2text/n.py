@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 import speech_recognition as sr
 from pydub import AudioSegment
 

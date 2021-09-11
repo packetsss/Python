@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 num = -9.9
 print(9.24 * (2 + 8))
 print(10 % 5)

@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtPrintSupport import *
 

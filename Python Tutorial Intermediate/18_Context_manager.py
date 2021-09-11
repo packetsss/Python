@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """with open('notes.txt', 'w') as f:
     f.write('some to do...')"""
 # good way to access a file( don't need to close

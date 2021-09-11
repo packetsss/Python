@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 import matplotlib.pyplot as plt
 import numpy
 import seaborn

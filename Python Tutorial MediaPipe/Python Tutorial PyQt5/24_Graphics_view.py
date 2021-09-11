@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *

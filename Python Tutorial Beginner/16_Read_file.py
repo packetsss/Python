@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 file = open("Ex.txt", "r")
 
 # print(file.readable())

@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """
 Given an array, find the longest subsequence oof the current array, it doesn't has to be adjacent to each other
 

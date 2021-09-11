@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from __future__ import division
 from setproctitle import setproctitle as ptitle
 import numpy as np

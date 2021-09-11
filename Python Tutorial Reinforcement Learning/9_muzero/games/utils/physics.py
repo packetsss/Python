@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 import numpy as np
 
 def distance_between_two_points(p1, p2):

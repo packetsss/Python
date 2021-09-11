@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from PIL.ImageOps import grayscale
 from pyautogui import *
 import time

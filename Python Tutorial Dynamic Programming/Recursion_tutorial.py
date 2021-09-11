@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 def grid_paths(n, m):
     if n == 1 or m == 1:
         return 1

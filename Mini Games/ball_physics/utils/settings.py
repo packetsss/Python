@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 FPS = 1000
 WIDTH = 1080
 HEIGHT = 720

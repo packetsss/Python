@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """
 @author: Viet Nguyen <nhviet1009@gmail.com>
 """

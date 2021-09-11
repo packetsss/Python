@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from ursina import mouse, camera
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController

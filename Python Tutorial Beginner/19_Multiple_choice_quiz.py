@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 class Question:
     def __init__(self, prompt, answer):
         self.prompt = prompt

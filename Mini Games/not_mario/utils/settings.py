@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 # colors
 BLACK = (0, 0, 0) 
 GRAY = (127, 127, 127) 

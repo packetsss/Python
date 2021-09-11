@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """
 This is a very simple form of twenty one. Ace only counts as value 1 not 1 or
 11 for simplicity. This means that there is no such thing as a natural or two

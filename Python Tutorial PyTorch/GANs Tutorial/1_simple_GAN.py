@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """
 LAUNCH THE TENSORBOARD TO SEE EACH IMAGE STEP
 """

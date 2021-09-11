@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 class Genotype:
     def __init__(self):
         self.shots = [Vec2(random(-1, 1), random(-1, 1))]

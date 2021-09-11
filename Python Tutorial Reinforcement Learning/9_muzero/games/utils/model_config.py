@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from sb3_contrib import QRDQN, TQC
 from stable_baselines3 import A2C, DDPG, DQN, PPO, SAC, TD3
 

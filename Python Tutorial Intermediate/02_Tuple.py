@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 a_tuple = (1, 12) # or with out the parathesis
 #print(a_tuple)
 

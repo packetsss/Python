@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 import sklearn
 from sklearn import linear_model, preprocessing
 from sklearn.utils import shuffle

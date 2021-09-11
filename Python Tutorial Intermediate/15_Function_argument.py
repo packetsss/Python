@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 def foo(a, b, c, d=4):
     print(a, b, c, d)
 

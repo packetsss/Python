@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 try:
     import tkinter as tk  # python 3
     from tkinter import font as tkfont

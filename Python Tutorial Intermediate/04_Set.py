@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 a_set = {2, 6, 7, 2}
 '''print(a_set)'''
 # set does not allow duplicate

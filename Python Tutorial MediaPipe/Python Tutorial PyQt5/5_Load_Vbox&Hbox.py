@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout
 from PyQt5 import uic
 import sys

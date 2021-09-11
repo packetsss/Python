@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 print("Comments")
 # I goof off lol
 # Too goof to celebrate

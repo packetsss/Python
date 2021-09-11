@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from django.shortcuts import render, redirect
 
 # Create your views here.

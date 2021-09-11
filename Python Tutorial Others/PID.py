@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from simple_pid import PID
 pid = PID(1, 0.1, 0.05, setpoint=1)
 # steering: (0.1, 0.0005, 0.35)

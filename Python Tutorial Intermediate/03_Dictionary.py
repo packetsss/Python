@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 a_dictionary = {
                 "name": "Mark", 
                 "age": 30, 

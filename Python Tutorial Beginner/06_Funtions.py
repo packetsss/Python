@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 def sayhi(name, age):
     print("Sup man " + name + ", you are " + age)
 

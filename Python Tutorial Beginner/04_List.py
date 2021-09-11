@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 friends = ["Jake", "Jack", "Jacky", 3, True]
 
 print(friends)

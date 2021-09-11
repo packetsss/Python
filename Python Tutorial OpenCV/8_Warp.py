@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """
 Get 4 corners of the img in Windows Paint
 [235, 147] t-l

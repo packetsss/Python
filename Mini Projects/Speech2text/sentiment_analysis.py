@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 from transformers import pipeline
 
 CLASSIFIER = pipeline('sentiment-analysis', device=0)

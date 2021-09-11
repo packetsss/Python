@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 Phrase = "Aj\"Aca\ndemy\""
 print("\n" + Phrase.upper() + " okay")
 #print(Phrase.upper().isupper())

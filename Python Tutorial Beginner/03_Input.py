@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 name = input("Enter your baphoon:")
 age = input("Enter your chikka:")
 print("WTF " + name + "! You are " + age + "??")

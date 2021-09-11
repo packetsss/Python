@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 """pac URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:

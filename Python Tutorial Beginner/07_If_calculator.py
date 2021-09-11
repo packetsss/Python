@@ -1,3 +1,7 @@
+# Create by Packetsss
+# Personal use is allowed
+# Commercial use is prohibited
+
 num1 = float(input("Number 1:"))
 num2 = float(input("Number 2:"))
 op = str(input("Operation:"))
