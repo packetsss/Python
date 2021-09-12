@@ -139,7 +139,7 @@ stack = np.vstack([a, stats, stats])
 # horizontal stack
 
 
-tx = np.genfromtxt("data_np.txt", delimiter=",")
+tx = np.genfromtxt("numpy_data.txt", delimiter=",")
 # get all data from txt separated by a comma
 
 tx1 = tx.astype("int32")
