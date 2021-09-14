@@ -10,11 +10,16 @@ from tkinter import filedialog
 
 
 def is_camel(word):
+    if "." in word:
+        return None
     bol = re.search('\w([a-z][A-Z])', word)
+    
     return bol
 
 
 def convert(word):
+    if re.search('\S=\S', word) is not None:
+        return word
     word = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', word)
     word = re.sub('([a-z0-9])([A-Z])', r'\1_\2', word).lower()
     return word
