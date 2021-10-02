@@ -1,5 +1,5 @@
 # start project
-django-admin startproject [proj name]
+django-admin startproject [name]
 
 # run server
 python manage.py runserver
@@ -8,7 +8,7 @@ python manage.py runserver
 python manage.py createsuperuser
 
 # create a new app
-python manage.py startapp [app name]
+python manage.py startapp [name]
 
 # apply changes to files (push)
 python manage.py migrate

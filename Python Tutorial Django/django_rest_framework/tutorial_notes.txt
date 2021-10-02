@@ -1,0 +1,17 @@
+Django:
+1. Create app, models, serializers, views, urls...
+2. Create tests using unittest
+3. Custom permission via Django REST Framework
+4. JSON web token (access token 10 / 20 min, refresh token 5 / 10 days), blacklisted when logout
+5. ViewSet and router over viewapi. Reduce repetition code in views, more abstract
+6. API documentations, schema, Swagger-ui(GUI for schema)
+7. Filter and search
+8. CRUD (create, read, update, delete)
+9. Image / file uploading (need to learn how to deploy)
+10. Third party login (Facebook, Github, Twitter, etc) using drf_social_oauth2 and removed simple_jwt
+
+- load certain posts until scrolled to bottom, then load more posts
+- login using email and username, pop up avatar if username is correct and then prompt for password in the same page
+
+React:
+1. Using axios over fetch
