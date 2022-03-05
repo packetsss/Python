@@ -1,0 +1,5 @@
+quality_logs/
+screenshots/
+config.py
+*.png
+*.csv

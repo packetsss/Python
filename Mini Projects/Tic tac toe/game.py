@@ -35,7 +35,7 @@ class TicTacToe():
     def print_board_nums():
         # 0 | 1 | 2
         number_board = [[str(i) for i in range(j*3, (j+1)*3)] for j in range(3)]
-        print(number_board, "aaa")
+        # print(number_board, "aaa")
         for row in number_board:
             print('| ' + ' | '.join(row) + ' |')
 
